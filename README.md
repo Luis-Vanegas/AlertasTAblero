@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚨 Dashboard de Alertas - Alcaldía
 
 Sistema de monitoreo en tiempo real para alertas de proyectos y obras de la alcaldía.
@@ -68,3 +69,6 @@ Coloca tu imagen de fondo en `public/image.png` para que aparezca como backgroun
 ## 🌐 Despliegue
 
 El proyecto está configurado para desplegarse automáticamente en Vercel cuando hagas push a la rama principal.
+=======
+# AlertasTAblero
+>>>>>>> 238da2a676e45c11307af57f79e66855bc3a4921
