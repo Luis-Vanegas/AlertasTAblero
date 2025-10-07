@@ -169,9 +169,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               multiple
               value={filters.dependencia}
               label="Dependencia"
-              onChange={(e) => setFilters({ dependencia: e.target.value as string[] })}
+              onChange={(e) => {
+                const value = e.target.value as string[]
+                if (value.includes('__ALL__')) {
+                  setFilters({ dependencia: [] })
+                } else {
+                  setFilters({ dependencia: value })
+                }
+              }}
             >
-              <MenuItem value="__ALL__" onClick={() => setFilters({ dependencia: [] })}>Todas</MenuItem>
+              <MenuItem value="__ALL__">Todas</MenuItem>
               {dependencias.map((dep) => (
                 <MenuItem key={dep} value={dep}>{dep}</MenuItem>
               ))}
