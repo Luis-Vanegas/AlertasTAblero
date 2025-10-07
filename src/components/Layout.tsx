@@ -16,6 +16,7 @@ import {
   Divider,
   Switch,
   FormControlLabel,
+  useMediaQuery,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
@@ -43,6 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   
   const { enableAnimations, showReducedMotion, toggleAnimations, filters, setFilters, clearFilters } = useSettingsStore()
   const { alertas } = useAlertas({ limit: 1000 })
+  const isPortrait = useMediaQuery('(orientation: portrait)')
 
   const dependencias = React.useMemo(() => {
     return Array.from(new Set(alertas.map(a => a.dependencia))).sort()
@@ -137,7 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
           <Typography variant="subtitle2" sx={{ color: theme.palette.text.secondary }}>
             Filtros
-          </Typography>
+        </Typography>
           <Button onClick={clearFilters} startIcon={<ClearIcon />} size="small" variant="outlined">
             Limpiar
           </Button>
@@ -305,8 +307,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - 280px)` },
-          ml: { sm: '280px' },
+          width: isPortrait ? '100%' : { md: `calc(100% - 280px)` },
+          ml: isPortrait ? 0 : { md: '280px' },
           backgroundColor: 'rgba(0, 201, 255, 0.95)',
           backdropFilter: 'blur(20px)',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -318,7 +320,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             aria-label="abrir menú"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { md: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -349,7 +351,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Drawer de navegación */}
       <Box
         component="nav"
-        sx={{ width: { sm: 280 }, flexShrink: { sm: 0 } }}
+        sx={{ width: { md: 280 }, flexShrink: { md: 0 } }}
       >
         <Drawer
           variant="temporary"
@@ -359,7 +361,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
+            display: isPortrait ? { xs: 'block' } : 'none',
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: 280,
@@ -373,7 +375,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
+            display: isPortrait ? 'none' : { md: 'block' },
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: 280,
@@ -393,8 +395,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - 280px)` },
+          p: { xs: 2, sm: 2.5, md: 3 },
+          px: { xs: 2.5, sm: 2.5, md: 3 },
+          width: isPortrait ? '100%' : { md: `calc(100% - 280px)` },
           mt: 8, // Altura del AppBar
         }}
       >

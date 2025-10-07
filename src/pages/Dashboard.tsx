@@ -304,7 +304,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh' }}>
+    <Box sx={{ minHeight: '100vh', px: { xs: 2.5, sm: 2, md: 0 } }}>
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -319,8 +319,9 @@ const Dashboard: React.FC = () => {
               mb: { xs: 2, md: 4 },
               backgroundColor: 'rgba(245, 247, 249, 0.95)',
               backdropFilter: 'blur(20px)',
-              borderRadius: 3,
+              borderRadius: { xs: 2, md: 3 },
               border: '1px solid rgba(0, 0, 0, 0.05)',
+              mx: { xs: 0, md: 'auto' }
             }}
           >
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -331,7 +332,8 @@ const Dashboard: React.FC = () => {
               >
                 <Typography variant="h3" fontWeight="bold" sx={{ 
                   color: theme.palette.text.primary,
-                  mb: 1
+                  mb: 1,
+                  fontSize: { xs: '1.6rem', md: '2rem' }
                 }}>
                   Dashboard de Alertas
                 </Typography>
@@ -358,7 +360,7 @@ const Dashboard: React.FC = () => {
                     <Card
                       onClick={stat.onClick}
                       sx={{
-                        p: { xs: 2, sm: 3 },
+                        p: { xs: 1.5, sm: 2 },
                         textAlign: 'center',
                         backgroundColor: 'rgba(255, 255, 255, 0.9)',
                         backdropFilter: 'blur(10px)',
@@ -367,8 +369,11 @@ const Dashboard: React.FC = () => {
                         transition: 'transform 0.15s ease, box-shadow 0.3s ease',
                         cursor: 'pointer',
                         outline: selectedGravedades.length === 1 && stat.key === selectedGravedades[0] ? `2px solid ${stat.color}` : 'none',
-                        transform: selectedGravedades.length === 1 && stat.key === selectedGravedades[0] ? 'scale(1.02)' : 'none',
-                        height: '100%',
+                        transform: {
+                          xs: 'none',
+                          md: selectedGravedades.length === 1 && stat.key === selectedGravedades[0] ? 'scale(1.02)' : 'none'
+                        },
+                        height: { xs: 120, sm: 140 },
                         display: 'flex',
                         flexDirection: 'column',
                         '&:hover': {
@@ -376,22 +381,25 @@ const Dashboard: React.FC = () => {
                         }
                       }}
                     >
-                      <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
-                        <Avatar sx={{ bgcolor: stat.color, mr: 2, width: 48, height: 48, boxShadow: '0 6px 14px rgba(0,0,0,0.25)', border: '2px solid rgba(255,255,255,0.8)' }}>
+                      <Box display="flex" alignItems="center" justifyContent="center" flex={1} sx={{ minHeight: 0, mb: 1 }}>
+                        <Avatar sx={{ bgcolor: stat.color, mr: 1.5, width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 }, boxShadow: '0 6px 14px rgba(0,0,0,0.25)', border: '2px solid rgba(255,255,255,0.8)' }}>
                           {stat.icon}
                         </Avatar>
                         <Box>
                           <Typography variant="h3" fontWeight="bold" sx={{ 
                             color: theme.palette.text.primary,
-                            lineHeight: 1
+                            lineHeight: 1,
+                            fontSize: { xs: '1.4rem', md: '1.8rem' }
                           }}>
                             {stat.value}
                           </Typography>
                           
                         </Box>
                       </Box>
-                      <Typography variant="body1" fontWeight="500" sx={{ 
-                        color: theme.palette.text.primary
+                      <Typography variant="body2" fontWeight="500" sx={{ 
+                        color: theme.palette.text.primary,
+                        textAlign: 'center',
+                        flexShrink: 0
                       }}>
                         {stat.label}
                       </Typography>
@@ -556,7 +564,7 @@ const Dashboard: React.FC = () => {
 
                         <Divider sx={{ my: { xs: 1.5, md: 2 } }} />
 
-                        <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="stretch">
+                        <Grid container spacing={{ xs: 3, sm: 2.5 }} alignItems="stretch">
                           {(expandedDependencies.has(grupo.dependencia) ? grupo.alertas : grupo.alertas.slice(0, 6)).map((alerta) => {
                             // const isFavorite = favorites.has(alerta.id)
                             const isPriority = PRIORITY_PROJECTS.includes(normalizeStr(alerta.proyecto_estrategico))
@@ -565,20 +573,20 @@ const Dashboard: React.FC = () => {
                              
                             return (
                               <Grid item xs={12} sm={6} md={6} lg={4} key={alerta.id} sx={{ display: 'flex' }}>
-                                <motion.div>
+                                <motion.div style={{ width: '100%', height: '100%' }}>
                                   <Card
                                     onClick={() => openDetail(alerta)}
                                     sx={{
-                                      p: 2,
+                                      p: { xs: 2, sm: 2 },
                                       borderLeft: priorityActive ? `6px solid ${sev === 'media' ? theme.palette.warning.main : theme.palette.error.main}` : `4px solid ${getGravedadColor(alerta.gravedad)}`,
                                       backgroundColor: 'rgba(255, 255, 255, 0.8)',
                                       backdropFilter: 'blur(5px)',
                                       transition: 'background-color 0.2s ease',
                                       cursor: 'pointer',
-                                      boxShadow: priorityActive ? `0 0 0 4px rgba(255,0,0,0.08), 0 8px 24px rgba(0,0,0,0.18)` : undefined,
-                                      height: '100%',
+                                      boxShadow: priorityActive ? `0 0 0 4px rgba(255,0,0,0.08), 0 8px 24px rgba(0,0,0,0.18)` : `0 2px 8px rgba(0,0,0,0.1)`,
                                       display: 'flex',
                                       flexDirection: 'column',
+                                      height: { xs: 200, sm: 220 },
                                       '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                       }
@@ -638,31 +646,37 @@ const Dashboard: React.FC = () => {
                                     <Typography variant="h6" fontWeight="bold" sx={{ 
                                       color: theme.palette.text.primary,
                                       mb: 1,
-                                      fontSize: '1rem'
+                                      fontSize: { xs: '1rem', md: '1rem' },
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: { xs: 2, md: 1 },
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden'
                                     }}>
                                       {alerta.nombre_obra}
                                     </Typography>
 
                                     <Typography variant="body2" sx={{ 
                                       color: theme.palette.text.secondary,
-                                      mb: 2,
+                                      mb: 1.5,
                                       display: '-webkit-box',
-                                      WebkitLineClamp: 2,
+                                      WebkitLineClamp: { xs: 3, md: 2 },
                                       WebkitBoxOrient: 'vertical',
                                       overflow: 'hidden',
-                                      flexGrow: 1
+                                      flexGrow: 1,
+                                      lineHeight: 1.3,
+                                      fontSize: { xs: '0.85rem', md: '0.875rem' }
                                     }}>
                                       {alerta.descripcion_alerta}
                                     </Typography>
 
-                                    <Box display="flex" gap={1} flexWrap="wrap" alignItems="center">
-                                      <Box display="flex" alignItems="center" gap={0.5}>
+                                    <Box display="flex" gap={1} flexWrap="nowrap" alignItems="center" sx={{ minWidth: 0 }}>
+                                      <Box display="flex" alignItems="center" gap={0.5} sx={{ minWidth: 0, flex: 1 }}>
                                         <LocationIcon fontSize="small" color="action" />
-                                        <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                                        <Typography variant="caption" noWrap sx={{ color: theme.palette.text.secondary, minWidth: 0, flex: 1, textOverflow: 'ellipsis', overflow: 'hidden' }}>
                                           {alerta.comuna}
                                         </Typography>
                                       </Box>
-                                      <Box display="flex" alignItems="center" gap={0.5}>
+                                      <Box display="flex" alignItems="center" gap={0.5} sx={{ flexShrink: 0 }}>
                                         <ScheduleIcon fontSize="small" color="action" />
                                         <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
                                           {formatDate(alerta.fecha_alerta, 'dd/MM')}
