@@ -315,8 +315,8 @@ const Dashboard: React.FC = () => {
           <Paper
             elevation={3}
             sx={{
-              p: 4,
-              mb: 4,
+              p: { xs: 2, md: 4 },
+              mb: { xs: 2, md: 4 },
               backgroundColor: 'rgba(245, 247, 249, 0.95)',
               backdropFilter: 'blur(20px)',
               borderRadius: 3,
@@ -333,7 +333,7 @@ const Dashboard: React.FC = () => {
                   color: theme.palette.text.primary,
                   mb: 1
                 }}>
-                  🚨 Dashboard de Alertas
+                  Dashboard de Alertas
                 </Typography>
                 {/* Subtítulo removido para simplificar encabezado */}
               </motion.div>
@@ -341,7 +341,7 @@ const Dashboard: React.FC = () => {
             </Box>
 
             {/* Tarjetas de estadísticas por gravedad real + total */}
-            <Grid container spacing={3} alignItems="stretch">
+            <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="stretch">
               {/* Sugerencia removida para limpiar el encabezado */}
               {[
                 { label: 'Leves', value: alertStats.leve, color: theme.palette.info.main, icon: <InfoOutlinedIcon />, onClick: () => handleCardFilter('leve'), key: 'leve' },
@@ -349,7 +349,7 @@ const Dashboard: React.FC = () => {
                 { label: 'Críticas', value: alertStats.alta, color: theme.palette.error.main, icon: <ErrorIcon />, onClick: () => handleCardFilter('crítica'), key: 'crítica' },
                 { label: 'Total Alertas', value: alertStats.total, color: theme.palette.primary.main, icon: <AssignmentIcon />, onClick: () => handleCardFilter(''), key: 'total' },
               ].map((stat, index) => (
-                <Grid item xs={12} sm={6} md={3} key={stat.label}>
+                <Grid item xs={12} sm={6} md={6} lg={3} key={stat.label}>
                   <motion.div
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -358,7 +358,7 @@ const Dashboard: React.FC = () => {
                     <Card
                       onClick={stat.onClick}
                       sx={{
-                        p: 3,
+                        p: { xs: 2, sm: 3 },
                         textAlign: 'center',
                         backgroundColor: 'rgba(255, 255, 255, 0.9)',
                         backdropFilter: 'blur(10px)',
@@ -404,23 +404,23 @@ const Dashboard: React.FC = () => {
 
             {/* Proyectos estratégicos con incidentes */}
             {prioritySummary.length > 0 && (
-              <Box sx={{ mt: 3, mb: 2 }}>
+              <Box sx={{ mt: { xs: 2, md: 3 }, mb: { xs: 1.5, md: 2 } }}>
                 <motion.div
                   initial={{ scale: 1 }}
                   animate={{ scale: [1, 1.02, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  <Paper elevation={3} sx={{ p: 2, borderLeft: `6px solid ${theme.palette.error.main}` }} aria-live="polite">
+                  <Paper elevation={3} sx={{ p: { xs: 1.5, md: 2 }, borderLeft: `6px solid ${theme.palette.error.main}` }} aria-live="polite">
                     <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
                       Proyectos estratégicos con alertas
                     </Typography>
                     <Box display="flex" flexWrap="wrap" gap={1}>
                       {prioritySummary.map(([proj, c]) => (
                         <motion.div key={proj} layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                      <Chip
+                          <Chip
                             icon={<AssignmentIcon fontSize="small" />}
                             label={`${proj} (${c.total})`}
-                        onClick={() => setFilters({ priorityProject: proj })}
+                        onClick={() => setFilters({ priorityProject: proj, gravedad: ['media', 'crítica', 'alta'] })}
                             variant={selectedPriorityProject === proj ? 'filled' : 'outlined'}
                             color={c.critica > 0 ? 'error' : 'warning'}
                             sx={{ textTransform: 'capitalize', cursor: 'pointer' }}
@@ -429,7 +429,7 @@ const Dashboard: React.FC = () => {
                       ))}
                       <Chip
                         label="Quitar filtro"
-                        onClick={() => setFilters({ priorityProject: '' })}
+                        onClick={() => setFilters({ priorityProject: '', gravedad: [] })}
                         variant={selectedPriorityProject === '' ? 'filled' : 'outlined'}
                         sx={{ cursor: 'pointer' }}
                       />
@@ -472,7 +472,7 @@ const Dashboard: React.FC = () => {
               </Alert>
             </motion.div>
           ) : (
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
               {alertasPorDependencia.map((grupo) => (
                 <Grid item xs={12} key={grupo.dependencia}>
                   <motion.div
@@ -554,9 +554,9 @@ const Dashboard: React.FC = () => {
                           </Box>
                         </Box>
 
-                        <Divider sx={{ my: 2 }} />
+                        <Divider sx={{ my: { xs: 1.5, md: 2 } }} />
 
-                        <Grid container spacing={2} alignItems="stretch">
+                        <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="stretch">
                           {(expandedDependencies.has(grupo.dependencia) ? grupo.alertas : grupo.alertas.slice(0, 6)).map((alerta) => {
                             // const isFavorite = favorites.has(alerta.id)
                             const isPriority = PRIORITY_PROJECTS.includes(normalizeStr(alerta.proyecto_estrategico))
@@ -564,7 +564,7 @@ const Dashboard: React.FC = () => {
                             const priorityActive = isPriority && (sev === 'media' || sev === 'crítica' || sev === 'alta')
                              
                             return (
-                              <Grid item xs={12} sm={6} md={4} key={alerta.id} sx={{ display: 'flex' }}>
+                              <Grid item xs={12} sm={6} md={6} lg={4} key={alerta.id} sx={{ display: 'flex' }}>
                                 <motion.div>
                                   <Card
                                     onClick={() => openDetail(alerta)}

@@ -93,52 +93,57 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems: Array<{ text: string; icon: React.ReactNode; path: string }> = []
 
   const drawer = (
-    <Box sx={{ width: 280, height: '100%' }}>
+    <Box sx={{ width: { xs: 260, sm: 280 }, height: '100%' }}>
       <Toolbar>
         <Typography variant="h6" noWrap component="div" sx={{ color: theme.palette.text.primary }}>
-          🚨 Panel de Alertas
+          Panel de Alertas
         </Typography>
       </Toolbar>
       <Divider />
-
+      
       {menuItems.length > 0 && (
-        <List>
-          {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.path)
-                  setMobileOpen(false)
+      <List>
+        {menuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate(item.path)
+                setMobileOpen(false)
+              }}
+              selected={location.pathname === item.path}
+            >
+              <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.text}
+                sx={{ 
+                  '& .MuiListItemText-primary': {
+                    fontWeight: 500,
+                    color: theme.palette.text.primary
+                  }
                 }}
-                selected={location.pathname === item.path}
-              >
-                <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text}
-                  sx={{ 
-                    '& .MuiListItemText-primary': {
-                      fontWeight: 500,
-                      color: theme.palette.text.primary
-                    }
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
       )}
       
       <Divider />
-
+      
       {/* Panel de filtros */}
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1, color: theme.palette.text.secondary }}>
-          Filtros
-        </Typography>
+      <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+          <Typography variant="subtitle2" sx={{ color: theme.palette.text.secondary }}>
+            Filtros
+          </Typography>
+          <Button onClick={clearFilters} startIcon={<ClearIcon />} size="small" variant="outlined">
+            Limpiar
+          </Button>
+        </Box>
 
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
           <TextField
             fullWidth
             value={filters.searchTerm}
@@ -155,7 +160,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           />
         </Box>
 
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
           <FormControl fullWidth size="small">
             <InputLabel>Dependencia</InputLabel>
             <Select
@@ -206,7 +211,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Box>
 
         {/* Impacto */}
-        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <Box sx={{ mb: { xs: 1.5, sm: 2 }, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           <Chip
             label="Todos"
             onClick={() => setFilters({ impacto: [] })}
@@ -232,7 +237,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 variant={active ? 'filled' : 'outlined'}
                 color={active ? 'primary' : 'default'}
                 size="small"
-                sx={{
+          sx={{ 
                   cursor: 'pointer',
                   textTransform: 'capitalize',
                   borderColor: meta.color,
@@ -246,7 +251,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </Box>
 
         {/* Comuna (chips multi-select con realce) */}
-        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <Box sx={{ mb: { xs: 1.5, sm: 2 }, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           <Chip
             label="Todas"
             onClick={() => setFilters({ comuna: [] })}
@@ -276,11 +281,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           })}
         </Box>
 
-        <Box display="flex" justifyContent="flex-end" gap={1}>
-          <Button onClick={clearFilters} startIcon={<ClearIcon />} size="small" variant="outlined">
-            Limpiar
-          </Button>
-        </Box>
+        {/* Botón de limpiar movido arriba para fácil acceso */}
       </Box>
     </Box>
   )
@@ -328,9 +329,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-          <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'white' }}>
-            🚨 Panel de Alertas
-          </Typography>
+              <Typography variant="h5" component="div" sx={{ fontWeight: 700, color: 'white' }}>
+            Panel de Alertas
+              </Typography>
             </motion.div>
           </Box>
 
