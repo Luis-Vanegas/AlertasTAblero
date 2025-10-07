@@ -26,6 +26,10 @@ import {
   Download as DownloadIcon,
   Visibility as VisibilityIcon,
   InfoOutlined as InfoOutlinedIcon,
+  AttachMoney as MoneyIcon,
+  Schedule as TimeIcon,
+  TrackChanges as TargetIcon,
+  Groups as GroupsIcon,
 } from '@mui/icons-material'
 import { motion } from 'framer-motion'
 import { useSnackbar } from 'notistack'
@@ -83,7 +87,28 @@ const Dashboard: React.FC = () => {
     return ''
   }
 
-  // Impact meta y opciones ahora viven en el panel lateral; se omiten aquí
+  // Impacto: helpers locales para chips en tarjeta
+  const getImpactMeta = (impacto: string) => {
+    const v = impacto.toLowerCase()
+    if (v.includes('presupuesto')) return { icon: <MoneyIcon fontSize="small" />, color: theme.palette.secondary.main, label: 'Presupuesto' }
+    if (v.includes('cronograma')) return { icon: <TimeIcon fontSize="small" />, color: theme.palette.info.main, label: 'Cronograma' }
+    if (v.includes('alcance')) return { icon: <TargetIcon fontSize="small" />, color: theme.palette.warning.main, label: 'Alcance' }
+    if (v.includes('comunidad')) return { icon: <GroupsIcon fontSize="small" />, color: theme.palette.success.main, label: 'Comunidad' }
+    return { icon: <InfoOutlinedIcon fontSize="small" />, color: theme.palette.grey[600], label: 'Impacto' }
+  }
+
+  const extractImpacts = (raw?: string | null) => {
+    if (!raw) return [] as string[]
+    const parts = raw.toString().split(',').map(p => p.trim().toLowerCase())
+    const set = new Set<string>()
+    parts.forEach(p => {
+      if (p.includes('presupuesto')) set.add('presupuesto')
+      else if (p.includes('cronograma')) set.add('cronograma')
+      else if (p.includes('alcance')) set.add('alcance')
+      else if (p.includes('comunidad')) set.add('comunidad')
+    })
+    return Array.from(set)
+  }
 
   // Debug: Log para verificar datos
   console.log('Alertas cargadas:', alertas.length)
@@ -571,6 +596,23 @@ const Dashboard: React.FC = () => {
                                             color: 'white'
                                           }}
                                         />
+                                        {extractImpacts(alerta.impacto_riesgo).slice(0,2).map((imp) => {
+                                          const meta = getImpactMeta(imp)
+                                          return (
+                                            <Chip
+                                              key={imp}
+                                              icon={meta.icon}
+                                              label={meta.label}
+                                              size="small"
+                                              sx={{
+                                                borderColor: meta.color,
+                                                color: meta.color,
+                                                '& .MuiChip-icon': { color: meta.color },
+                                              }}
+                                              variant="outlined"
+                                            />
+                                          )
+                                        })}
                                         {priorityActive && (
                                           <motion.div initial={{ scale: 0.9 }} animate={{ scale: [0.9, 1.05, 0.9] }} transition={{ duration: 1.2, repeat: 2 }}>
                                             <Chip

@@ -13,6 +13,7 @@ import {
 import {
   Close as CloseIcon,
   Business as BusinessIcon,
+  Assignment as ProjectIcon,
   Description as DescriptionIcon,
   Event as EventIcon,
   Update as UpdateIcon,
@@ -74,6 +75,12 @@ const DetailDrawer: React.FC<DetailDrawerProps> = ({ open, onClose, alerta }) =>
 
         {alerta && (
           <Stack spacing={2}>
+            <Box display="flex" gap={2} alignItems="center">
+              <ProjectIcon sx={{ color: theme.palette.success.main }} />
+              <Typography variant="body2" sx={labelSx}>Proyecto estratégico</Typography>
+              <Chip size="small" label={alerta.proyecto_estrategico || '—'} color="success" variant="outlined" sx={{ textTransform: 'capitalize' }} />
+            </Box>
+
             <Box display="flex" gap={2} alignItems="center">
               <BusinessIcon sx={{ color: theme.palette.primary.main }} />
               <Typography variant="body2" sx={labelSx}>Dependencia</Typography>
