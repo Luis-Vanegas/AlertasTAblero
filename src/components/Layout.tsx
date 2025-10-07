@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   AppBar,
@@ -19,9 +19,7 @@ import {
 } from '@mui/material'
 import {
   Menu as MenuIcon,
-  Settings as SettingsIcon,
   Refresh as RefreshIcon,
-  Dashboard as DashboardIcon,
 } from '@mui/icons-material'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -31,7 +29,6 @@ import { useAlertas } from '../hooks/useAlertas'
 import { TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Chip, Button } from '@mui/material'
 import { Search as SearchIcon, Clear as ClearIcon, InfoOutlined as InfoOutlinedIcon, AttachMoney as MoneyIcon, Schedule as TimeIcon, TrackChanges as TargetIcon, Groups as GroupsIcon } from '@mui/icons-material'
 import bgImage from '../assets/image.png'
-import { formatDate } from '../utils/dateFormatting'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -43,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [lastSync, setLastSync] = useState<Date>(new Date())
+  
   const { enableAnimations, showReducedMotion, toggleAnimations, filters, setFilters, clearFilters } = useSettingsStore()
   const { alertas } = useAlertas({ limit: 1000 })
 
@@ -82,14 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return { icon: <InfoOutlinedIcon fontSize="small" />, color: theme.palette.grey[600] }
   }
 
-  // Actualizar última sincronización cada minuto
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastSync(new Date())
-    }, 60000)
-
-    return () => clearInterval(interval)
-  }, [])
+  
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen)
@@ -347,7 +337,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Box display="flex" alignItems="center" gap={1}>
             {/* Actualizar: único botón */}
             <Tooltip title="Actualizar datos">
-              <IconButton color="inherit" onClick={() => setLastSync(new Date())}>
+              <IconButton color="inherit" onClick={() => window.location.reload()}>
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
