@@ -41,6 +41,15 @@ export interface Settings {
     severidad?: string
     estado?: string
   }
+  // Filtros activos (para el dashboard)
+  filters: {
+    searchTerm: string
+    dependencia: string[]
+    gravedad: string[]
+    impacto: string[]
+    comuna?: string[]
+    priorityProject: string
+  }
   
   // Última sincronización
   lastSync: string | null
@@ -55,6 +64,9 @@ export interface Settings {
   setDefaultPageSize: (size: number) => void
   toggleColumnVisibility: (column: string) => void
   setDefaultFilters: (filters: Partial<Settings['defaultFilters']>) => void
+  // Acciones de filtros
+  setFilters: (filters: Partial<Settings['filters']>) => void
+  clearFilters: () => void
   updateLastSync: () => void
   resetSettings: () => void
 }
@@ -104,6 +116,14 @@ export const useSettingsStore = create<Settings>()(
       defaultPageSize: 25,
       hiddenColumns: [],
       defaultFilters: {},
+      filters: {
+        searchTerm: '',
+        dependencia: [],
+        gravedad: [],
+        impacto: [],
+        comuna: [],
+        priorityProject: '',
+      },
       lastSync: null,
 
       // Métodos
@@ -145,6 +165,12 @@ export const useSettingsStore = create<Settings>()(
           defaultFilters: { ...state.defaultFilters, ...filters },
         })),
 
+      setFilters: (filters) =>
+        set((state) => ({ filters: { ...state.filters, ...filters } })),
+
+      clearFilters: () =>
+        set({ filters: { searchTerm: '', dependencia: [], gravedad: [], impacto: [], comuna: [], priorityProject: '' } }),
+
       updateLastSync: () =>
         set({ lastSync: new Date().toISOString() }),
 
@@ -159,6 +185,7 @@ export const useSettingsStore = create<Settings>()(
           defaultPageSize: 25,
           hiddenColumns: [],
           defaultFilters: {},
+          filters: { searchTerm: '', dependencia: [], gravedad: [], impacto: [], comuna: [], priorityProject: '' },
           lastSync: null,
         }),
     }),

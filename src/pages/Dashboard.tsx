@@ -11,22 +11,12 @@ import {
   Tooltip,
   useTheme,
   Alert,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   LinearProgress,
   Avatar,
   Divider,
 } from '@mui/material'
 import {
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  Clear as ClearIcon,
-  Refresh as RefreshIcon,
   Warning as WarningIcon,
   Error as ErrorIcon,
   Assignment as AssignmentIcon,
@@ -36,34 +26,33 @@ import {
   Download as DownloadIcon,
   Visibility as VisibilityIcon,
   InfoOutlined as InfoOutlinedIcon,
-  AttachMoney as MoneyIcon,
-  Schedule as TimeIcon,
-  TrackChanges as TargetIcon,
-  Groups as GroupsIcon,
 } from '@mui/icons-material'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useSnackbar } from 'notistack'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { useAlertas, useAlertasStats } from '../hooks/useAlertas'
+import { useSettingsStore } from '../store/settings'
 import { formatDate } from '../utils/dateFormatting'
-import { exportToCSV, exportByDependency } from '../utils/export'
+import { exportByDependency } from '../utils/export'
 import { MappedAlerta } from '../types/api'
 import DetailDrawer from '../components/DetailDrawer'
 
 const Dashboard: React.FC = () => {
   const theme = useTheme()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedDependency, setSelectedDependency] = useState('')
-  const [selectedGravedad, setSelectedGravedad] = useState('')
-  const [selectedImpacto, setSelectedImpacto] = useState<string>('')
-  const [selectedPriorityProject, setSelectedPriorityProject] = useState<string>('')
-  const [showFilters, setShowFilters] = useState(false)
+  const { filters, setFilters } = useSettingsStore()
+  const searchTerm = filters.searchTerm
+  const selectedDependencies = filters.dependencia
+  const selectedGravedades = filters.gravedad
+  const selectedImpactos = filters.impacto
+  const selectedPriorityProject = filters.priorityProject
+  const selectedComunas = useMemo(() => filters.comuna || [], [filters.comuna])
+  // Sección de filtros propia removida; no se requiere estado local
   const [expandedDependencies, setExpandedDependencies] = useState<Set<string>>(new Set())
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedAlerta, setSelectedAlerta] = useState<MappedAlerta | null>(null)
   
-  const { alertas, isLoading, refetch } = useAlertas({ limit: 1000 })
+  const { alertas, isLoading } = useAlertas({ limit: 1000 })
   const { stats, isLoading: loadingStats } = useAlertasStats()
 
   const { enqueueSnackbar } = useSnackbar()
@@ -94,24 +83,7 @@ const Dashboard: React.FC = () => {
     return ''
   }
 
-  const impactoOptions = useMemo(() => {
-    const counts = alertas.reduce((acc: Record<string, number>, a) => {
-      const v = (a.impacto_riesgo || '').toString().trim().toLowerCase()
-      if (!v) return acc
-      acc[v] = (acc[v] || 0) + 1
-      return acc
-    }, {})
-    return Object.entries(counts).sort((a, b) => b[1] - a[1])
-  }, [alertas])
-
-  const getImpactMeta = (impacto: string) => {
-    const v = impacto.toLowerCase()
-    if (v.includes('presupuesto')) return { icon: <MoneyIcon fontSize="small" />, color: theme.palette.secondary.main }
-    if (v.includes('cronograma')) return { icon: <TimeIcon fontSize="small" />, color: theme.palette.info.main }
-    if (v.includes('alcance')) return { icon: <TargetIcon fontSize="small" />, color: theme.palette.warning.main }
-    if (v.includes('comunidad')) return { icon: <GroupsIcon fontSize="small" />, color: theme.palette.success.main }
-    return { icon: <InfoOutlinedIcon fontSize="small" />, color: theme.palette.grey[600] }
-  }
+  // Impact meta y opciones ahora viven en el panel lateral; se omiten aquí
 
   // Debug: Log para verificar datos
   console.log('Alertas cargadas:', alertas.length)
@@ -147,19 +119,22 @@ const Dashboard: React.FC = () => {
         alerta.dependencia.toLowerCase().includes(searchTerm.toLowerCase()) ||
         alerta.descripcion_alerta.toLowerCase().includes(searchTerm.toLowerCase())
       
-      const matchesDependency = selectedDependency === '' || 
-        alerta.dependencia === selectedDependency
+      const matchesDependency = (selectedDependencies?.length || 0) === 0 || 
+        selectedDependencies.includes(alerta.dependencia)
       
-      const matchesGravedad = selectedGravedad === '' ||
-        normalizeGravedad(alerta.gravedad) === selectedGravedad
+      const matchesGravedad = (selectedGravedades?.length || 0) === 0 ||
+        selectedGravedades.includes(normalizeGravedad(alerta.gravedad))
 
-      const matchesImpacto = selectedImpacto === '' ||
-        (alerta.impacto_riesgo || '').toString().trim().toLowerCase() === selectedImpacto
+      const matchesImpacto = (selectedImpactos?.length || 0) === 0 ||
+        (alerta.impacto_riesgo || '').toString().toLowerCase().split(',').map(p => p.trim()).some(p => selectedImpactos.includes(p))
+
+      const matchesComuna = (selectedComunas?.length || 0) === 0 ||
+        selectedComunas.includes((alerta.comuna || '').toString())
 
       const matchesPriority = selectedPriorityProject === '' ||
         normalizeStr(alerta.proyecto_estrategico) === selectedPriorityProject
       
-      return matchesSearch && matchesDependency && matchesGravedad && matchesImpacto && matchesPriority
+      return matchesSearch && matchesDependency && matchesGravedad && matchesImpacto && matchesComuna && matchesPriority
     })
 
     console.log('Alertas filtradas:', filtered.length)
@@ -172,7 +147,7 @@ const Dashboard: React.FC = () => {
       return 2
     }
     return filtered.sort((a, b) => rank(a.gravedad) - rank(b.gravedad))
-  }, [alertas, searchTerm, selectedDependency, selectedGravedad, selectedImpacto, selectedPriorityProject])
+  }, [alertas, searchTerm, selectedDependencies, selectedGravedades, selectedImpactos, selectedComunas, selectedPriorityProject])
 
   // Estadísticas de alertas
   const alertStats = useMemo(() => {
@@ -223,15 +198,10 @@ const Dashboard: React.FC = () => {
   }, [filteredAlertas])
 
   // Obtener dependencias únicas
-  const dependencias = useMemo(() => {
-    const deps = [...new Set(alertas.map(a => a.dependencia))]
-    return deps.sort()
-  }, [alertas])
+  // Dependencias para selector lateral (si se requiere se puede mover a un store)
 
   // Handlers
-  const handleRefresh = () => {
-    refetch()
-  }
+  // Refetch puede llamarse desde AppBar; aquí no se usa
 
   const handleToggleExpand = (dependencia: string) => {
     const newExpanded = new Set(expandedDependencies)
@@ -243,17 +213,9 @@ const Dashboard: React.FC = () => {
     setExpandedDependencies(newExpanded)
   }
 
-  const handleClearFilters = () => {
-    setSearchTerm('')
-    setSelectedDependency('')
-    setSelectedGravedad('')
-    setSelectedImpacto('')
-    if (isMobile) enqueueSnackbar('Filtros limpiados', { variant: 'info' })
-  }
+  // Limpieza de filtros se hace desde el panel lateral
 
-  const handleExport = () => {
-    exportToCSV(filteredAlertas, { filename: 'alertas_dashboard' })
-  }
+  // Export general removido de la cabecera de filtros
 
   const handleExportByDependency = (dependency: string) => {
     exportByDependency(filteredAlertas, dependency)
@@ -304,16 +266,11 @@ const Dashboard: React.FC = () => {
     )
   }
 
-  const clearAllFilters = () => {
-    setSearchTerm('')
-    setSelectedDependency('')
-    setSelectedGravedad('')
-    setSelectedImpacto('')
-    if (isMobile) enqueueSnackbar('Filtros limpiados', { variant: 'info' })
-  }
+  // Alias no usado para limpiar filtros
 
   const handleCardFilter = (target: 'leve' | 'media' | 'crítica' | '') => {
-    setSelectedGravedad(target)
+    if (target === '') setFilters({ gravedad: [] })
+    else setFilters({ gravedad: [target] })
     if (navigator?.vibrate) navigator.vibrate(10)
     if (isMobile && !hintShown && target) {
       enqueueSnackbar(`Filtro aplicado: ${target.charAt(0).toUpperCase() + target.slice(1)}`, { variant: 'info' })
@@ -353,46 +310,14 @@ const Dashboard: React.FC = () => {
                 }}>
                   🚨 Dashboard de Alertas
                 </Typography>
-                <Typography variant="h6" sx={{ 
-                  color: theme.palette.text.secondary
-                }}>
-                  Monitoreo en tiempo real de proyectos y obras
-                </Typography>
+                {/* Subtítulo removido para simplificar encabezado */}
               </motion.div>
-              <motion.div
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Tooltip title="Actualizar datos">
-                  <IconButton
-                    onClick={handleRefresh}
-                    disabled={loading}
-                    sx={{
-                      backgroundColor: theme.palette.primary.main,
-                      color: 'white',
-                      width: 56,
-                      height: 56,
-                      '&:hover': {
-                        backgroundColor: theme.palette.primary.dark,
-                        transform: 'rotate(180deg)',
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <RefreshIcon fontSize="large" />
-                  </IconButton>
-                </Tooltip>
-              </motion.div>
+              {/* Botón actualizar duplicado removido (queda solo en AppBar) */}
             </Box>
 
             {/* Tarjetas de estadísticas por gravedad real + total */}
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                  Sugerencia: toca una tarjeta para filtrar.
-                </Typography>
-              </Grid>
+            <Grid container spacing={3} alignItems="stretch">
+              {/* Sugerencia removida para limpiar el encabezado */}
               {[
                 { label: 'Leves', value: alertStats.leve, color: theme.palette.info.main, icon: <InfoOutlinedIcon />, onClick: () => handleCardFilter('leve'), key: 'leve' },
                 { label: 'Moderadas', value: alertStats.media, color: theme.palette.warning.main, icon: <WarningIcon />, onClick: () => handleCardFilter('media'), key: 'media' },
@@ -416,8 +341,11 @@ const Dashboard: React.FC = () => {
                         borderRadius: 2,
                         transition: 'transform 0.15s ease, box-shadow 0.3s ease',
                         cursor: 'pointer',
-                        outline: selectedGravedad && stat.key === selectedGravedad ? `2px solid ${stat.color}` : 'none',
-                        transform: selectedGravedad && stat.key === selectedGravedad ? 'scale(1.02)' : 'none',
+                        outline: selectedGravedades.length === 1 && stat.key === selectedGravedades[0] ? `2px solid ${stat.color}` : 'none',
+                        transform: selectedGravedades.length === 1 && stat.key === selectedGravedades[0] ? 'scale(1.02)' : 'none',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
                         '&:hover': {
                           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
                         }
@@ -446,11 +374,7 @@ const Dashboard: React.FC = () => {
                   </motion.div>
                 </Grid>
               ))}
-              <Grid item xs={12} sm={6} md={3}>
-                <Button onClick={clearAllFilters} variant="outlined" size="medium">
-                  Limpiar filtros
-                </Button>
-              </Grid>
+              {/* Botón limpiar filtros duplicado removido (queda en panel lateral) */}
             </Grid>
 
             {/* Proyectos estratégicos con incidentes */}
@@ -468,10 +392,10 @@ const Dashboard: React.FC = () => {
                     <Box display="flex" flexWrap="wrap" gap={1}>
                       {prioritySummary.map(([proj, c]) => (
                         <motion.div key={proj} layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                          <Chip
+                      <Chip
                             icon={<AssignmentIcon fontSize="small" />}
                             label={`${proj} (${c.total})`}
-                            onClick={() => setSelectedPriorityProject(proj)}
+                        onClick={() => setFilters({ priorityProject: proj })}
                             variant={selectedPriorityProject === proj ? 'filled' : 'outlined'}
                             color={c.critica > 0 ? 'error' : 'warning'}
                             sx={{ textTransform: 'capitalize', cursor: 'pointer' }}
@@ -480,7 +404,7 @@ const Dashboard: React.FC = () => {
                       ))}
                       <Chip
                         label="Quitar filtro"
-                        onClick={() => setSelectedPriorityProject('')}
+                        onClick={() => setFilters({ priorityProject: '' })}
                         variant={selectedPriorityProject === '' ? 'filled' : 'outlined'}
                         sx={{ cursor: 'pointer' }}
                       />
@@ -492,157 +416,7 @@ const Dashboard: React.FC = () => {
           </Paper>
         </motion.div>
 
-        {/* Sección de búsqueda y filtros */}
-        <motion.div variants={itemVariants}>
-          <Paper elevation={2} sx={{ 
-            p: 3, 
-            mb: 4, 
-            borderRadius: 2,
-            backgroundColor: 'rgba(245, 247, 249, 0.9)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(0, 0, 0, 0.05)'
-          }}>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.text.primary }}>
-                🔍 Filtros y Búsqueda
-              </Typography>
-              <Box display="flex" gap={1}>
-                <Button
-                  onClick={() => setShowFilters(!showFilters)}
-                  startIcon={<FilterIcon />}
-                  variant="outlined"
-                  size="small"
-                >
-                  Filtros
-                </Button>
-                <Button
-                  onClick={handleExport}
-                  startIcon={<DownloadIcon />}
-                  variant="outlined"
-                  size="small"
-                >
-                  Exportar
-                </Button>
-              </Box>
-            </Box>
-
-            {/* Filtro de Impacto (chips animados) */}
-            <Box mb={2}>
-              <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1 }}>
-                Impacto del riesgo
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={1}>
-                <motion.div layout>
-                  <Chip
-                    label={`Todos${selectedImpacto ? '' : ' ✓'}`}
-                    onClick={() => setSelectedImpacto('')}
-                    color={selectedImpacto === '' ? 'primary' : 'default'}
-                    variant={selectedImpacto === '' ? 'filled' : 'outlined'}
-                    sx={{ cursor: 'pointer' }}
-                  />
-                </motion.div>
-                {impactoOptions.map(([impacto, count]) => {
-                  const meta = getImpactMeta(impacto)
-                  const active = selectedImpacto === impacto
-                  return (
-                    <motion.div key={impacto} layout whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                      <Chip
-                        icon={meta.icon}
-                        label={`${impacto} (${count})${active ? ' ✓' : ''}`}
-                        onClick={() => setSelectedImpacto(impacto)}
-                        variant={active ? 'filled' : 'outlined'}
-                        sx={{
-                          cursor: 'pointer',
-                          textTransform: 'capitalize',
-                          borderColor: meta.color,
-                          color: active ? 'white' : meta.color,
-                          bgcolor: active ? meta.color : 'transparent',
-                          '& .MuiChip-icon': { color: active ? 'white' : meta.color },
-                        }}
-                      />
-                    </motion.div>
-                  )
-                })}
-              </Box>
-            </Box>
-
-            <Box display="flex" alignItems="center" gap={2} mb={2}>
-              <TextField
-                fullWidth
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por obra, dependencia, descripción..."
-                variant="outlined"
-                size="small"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="action" />
-                    </InputAdornment>
-                  ),
-                  endAdornment: searchTerm && (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setSearchTerm('')} size="small">
-                        <ClearIcon fontSize="small" />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-
-            <AnimatePresence>
-              {showFilters && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Box sx={{ 
-                    p: 2, 
-                    border: '1px dashed rgba(0, 0, 0, 0.1)', 
-                    borderRadius: 2, 
-                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                    mb: 2
-                  }}>
-                    <Typography variant="subtitle2" fontWeight="bold" mb={2} sx={{ color: theme.palette.text.primary }}>
-                      Filtros Adicionales
-                    </Typography>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={4}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Dependencia</InputLabel>
-                          <Select
-                            value={selectedDependency}
-                            onChange={(e) => setSelectedDependency(e.target.value)}
-                            label="Dependencia"
-                          >
-                            <MenuItem value="">Todas</MenuItem>
-                            {dependencias.map((dep) => (
-                              <MenuItem key={dep} value={dep}>{dep}</MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      {/* Select de gravedad removido: se controla con las tarjetas resumen */}
-                    </Grid>
-                    <Box mt={2} display="flex" justifyContent="flex-end">
-                      <Button
-                        onClick={handleClearFilters}
-                        startIcon={<ClearIcon />}
-                        variant="outlined"
-                        size="small"
-                      >
-                        Limpiar Filtros
-                      </Button>
-                    </Box>
-                  </Box>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Paper>
-        </motion.div>
+        {/* Sección de filtros eliminada: los filtros viven en el panel lateral */}
 
         {/* Lista de Alertas por Dependencia */}
         <motion.div variants={itemVariants}>
@@ -668,7 +442,7 @@ const Dashboard: React.FC = () => {
                   Total alertas: {alertas.length} | Filtradas: {filteredAlertas.length} | Grupos: {alertasPorDependencia.length}
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  Búsqueda: "{searchTerm}" | Dep: "{selectedDependency}" | Sev: "{selectedGravedad}"
+                  Búsqueda: "{searchTerm}" | Dep: "{selectedDependencies?.join(', ') || 'Todas'}" | Sev: "{selectedGravedades?.join(', ') || 'Todas'}"
                 </Typography>
               </Alert>
             </motion.div>
@@ -757,7 +531,7 @@ const Dashboard: React.FC = () => {
 
                         <Divider sx={{ my: 2 }} />
 
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2} alignItems="stretch">
                           {(expandedDependencies.has(grupo.dependencia) ? grupo.alertas : grupo.alertas.slice(0, 6)).map((alerta) => {
                             // const isFavorite = favorites.has(alerta.id)
                             const isPriority = PRIORITY_PROJECTS.includes(normalizeStr(alerta.proyecto_estrategico))
@@ -765,7 +539,7 @@ const Dashboard: React.FC = () => {
                             const priorityActive = isPriority && (sev === 'media' || sev === 'crítica' || sev === 'alta')
                              
                             return (
-                              <Grid item xs={12} sm={6} md={4} key={alerta.id}>
+                              <Grid item xs={12} sm={6} md={4} key={alerta.id} sx={{ display: 'flex' }}>
                                 <motion.div>
                                   <Card
                                     onClick={() => openDetail(alerta)}
@@ -777,6 +551,9 @@ const Dashboard: React.FC = () => {
                                       transition: 'background-color 0.2s ease',
                                       cursor: 'pointer',
                                       boxShadow: priorityActive ? `0 0 0 4px rgba(255,0,0,0.08), 0 8px 24px rgba(0,0,0,0.18)` : undefined,
+                                      height: '100%',
+                                      display: 'flex',
+                                      flexDirection: 'column',
                                       '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                       }
@@ -830,7 +607,8 @@ const Dashboard: React.FC = () => {
                                       display: '-webkit-box',
                                       WebkitLineClamp: 2,
                                       WebkitBoxOrient: 'vertical',
-                                      overflow: 'hidden'
+                                      overflow: 'hidden',
+                                      flexGrow: 1
                                     }}>
                                       {alerta.descripcion_alerta}
                                     </Typography>
