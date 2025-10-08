@@ -3,16 +3,7 @@
  */
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-  Chip,
-  IconButton,
-  Tooltip,
-  useTheme,
-} from '@mui/material';
+import { Card, Box, Typography, Chip, IconButton, Tooltip, useTheme } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
   AttachMoney as MoneyIcon,
@@ -24,14 +15,8 @@ import {
 import { motion } from 'framer-motion';
 
 import { MappedAlerta } from '../../types/api';
-import {
-  extractImpacts,
-  getImpactMeta,
-  normalizeGravedad,
-  isPriorityAlert,
-} from '../../utils/severity';
+import { extractImpacts, getImpactMeta, normalizeGravedad } from '../../utils/severity';
 import { formatDate } from '../../utils/dateFormatting';
-import { PRIORITY_PROJECTS } from '../../constants';
 
 export interface AlertCardProps {
   alerta: MappedAlerta;
@@ -39,16 +24,11 @@ export interface AlertCardProps {
   isPriority?: boolean;
 }
 
-const AlertCard: React.FC<AlertCardProps> = ({
-  alerta,
-  onViewDetails,
-  isPriority = false,
-}) => {
+const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority = false }) => {
   const theme = useTheme();
 
   const sev = normalizeGravedad(alerta.gravedad);
-  const priorityActive =
-    isPriority && (sev === 'media' || sev === 'crítica' || sev === 'alta');
+  const priorityActive = isPriority && (sev === 'media' || sev === 'crítica' || sev === 'alta');
 
   const getGravedadColor = (g?: string | null) => {
     const n = normalizeGravedad(g);
@@ -82,16 +62,11 @@ const AlertCard: React.FC<AlertCardProps> = ({
           },
         }}
       >
-        <Box
-          display="flex"
-          alignItems="flex-start"
-          justifyContent="space-between"
-          mb={1}
-        >
-          <Box display="flex" alignItems="center" gap={1}>
+        <Box display='flex' alignItems='flex-start' justifyContent='space-between' mb={1}>
+          <Box display='flex' alignItems='center' gap={1}>
             <Chip
               label={(alerta.gravedad || 'sin dato').toUpperCase()}
-              size="small"
+              size='small'
               sx={{
                 fontWeight: 'bold',
                 fontSize: '0.7rem',
@@ -115,24 +90,17 @@ const AlertCard: React.FC<AlertCardProps> = ({
                 return (
                   <Chip
                     key={imp}
-                    icon={<IconComponent fontSize="small" />}
+                    icon={<IconComponent fontSize='small' />}
                     label={meta.label}
-                    size="small"
+                    size='small'
                     sx={{
-                      borderColor:
-                        theme.palette[meta.color as keyof typeof theme.palette]
-                          ?.main || theme.palette.grey[500],
-                      color:
-                        theme.palette[meta.color as keyof typeof theme.palette]
-                          ?.main || theme.palette.grey[500],
+                      borderColor: meta.color,
+                      color: meta.color,
                       '& .MuiChip-icon': {
-                        color:
-                          theme.palette[
-                            meta.color as keyof typeof theme.palette
-                          ]?.main || theme.palette.grey[500],
+                        color: meta.color,
                       },
                     }}
-                    variant="outlined"
+                    variant='outlined'
                   />
                 );
               })}
@@ -143,31 +111,31 @@ const AlertCard: React.FC<AlertCardProps> = ({
                 transition={{ duration: 1.2, repeat: 2 }}
               >
                 <Chip
-                  icon={<InfoOutlinedIcon fontSize="small" />}
-                  label="Estrategico"
-                  size="small"
+                  icon={<InfoOutlinedIcon fontSize='small' />}
+                  label='Estrategico'
+                  size='small'
                   color={sev === 'media' ? 'warning' : 'error'}
                   sx={{ fontWeight: 'bold' }}
                 />
               </motion.div>
             )}
           </Box>
-          <Tooltip title="Ver detalle">
+          <Tooltip title='Ver detalle'>
             <IconButton
-              size="small"
+              size='small'
               onClick={e => {
                 e.stopPropagation();
                 onViewDetails(alerta);
               }}
             >
-              <VisibilityIcon fontSize="small" />
+              <VisibilityIcon fontSize='small' />
             </IconButton>
           </Tooltip>
         </Box>
 
         <Typography
-          variant="h6"
-          fontWeight="bold"
+          variant='h6'
+          fontWeight='bold'
           sx={{
             color: theme.palette.text.primary,
             mb: 1,
@@ -182,7 +150,7 @@ const AlertCard: React.FC<AlertCardProps> = ({
         </Typography>
 
         <Typography
-          variant="body2"
+          variant='body2'
           sx={{
             color: theme.palette.text.secondary,
             mb: 1.5,
@@ -198,21 +166,10 @@ const AlertCard: React.FC<AlertCardProps> = ({
           {alerta.descripcion_alerta}
         </Typography>
 
-        <Box
-          display="flex"
-          gap={1}
-          flexWrap="nowrap"
-          alignItems="center"
-          sx={{ minWidth: 0 }}
-        >
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={0.5}
-            sx={{ minWidth: 0, flex: 1 }}
-          >
+        <Box display='flex' gap={1} flexWrap='nowrap' alignItems='center' sx={{ minWidth: 0 }}>
+          <Box display='flex' alignItems='center' gap={0.5} sx={{ minWidth: 0, flex: 1 }}>
             <Typography
-              variant="caption"
+              variant='caption'
               noWrap
               sx={{
                 color: theme.palette.text.secondary,
@@ -225,16 +182,8 @@ const AlertCard: React.FC<AlertCardProps> = ({
               {alerta.comuna}
             </Typography>
           </Box>
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={0.5}
-            sx={{ flexShrink: 0 }}
-          >
-            <Typography
-              variant="caption"
-              sx={{ color: theme.palette.text.secondary }}
-            >
+          <Box display='flex' alignItems='center' gap={0.5} sx={{ flexShrink: 0 }}>
+            <Typography variant='caption' sx={{ color: theme.palette.text.secondary }}>
               {formatDate(alerta.fecha_alerta, 'dd/MM')}
             </Typography>
           </Box>

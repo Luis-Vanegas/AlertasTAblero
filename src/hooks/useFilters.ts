@@ -24,12 +24,8 @@ export interface UseFiltersProps {
 export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
   // Obtener opciones únicas para filtros
   const filterOptions = useMemo(() => {
-    const dependencias = Array.from(
-      new Set(alertas.map(a => a.dependencia))
-    ).sort();
-    const comunas = Array.from(
-      new Set(alertas.map(a => a.comuna).filter(Boolean))
-    ).sort();
+    const dependencias = Array.from(new Set(alertas.map(a => a.dependencia))).sort();
+    const comunas = Array.from(new Set(alertas.map(a => a.comuna).filter(Boolean))).sort();
 
     const impactoOptions = Array.from(
       new Set(alertas.flatMap(a => extractImpacts(a.impacto_riesgo)))
@@ -47,15 +43,9 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
     return alertas.filter(alerta => {
       const matchesSearch =
         filters.searchTerm === '' ||
-        alerta.nombre_obra
-          .toLowerCase()
-          .includes(filters.searchTerm.toLowerCase()) ||
-        alerta.dependencia
-          .toLowerCase()
-          .includes(filters.searchTerm.toLowerCase()) ||
-        alerta.descripcion_alerta
-          .toLowerCase()
-          .includes(filters.searchTerm.toLowerCase());
+        alerta.nombre_obra.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        alerta.dependencia.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        alerta.descripcion_alerta.toLowerCase().includes(filters.searchTerm.toLowerCase());
 
       const matchesDependency =
         (filters.dependencia?.length || 0) === 0 ||
@@ -67,13 +57,11 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
 
       const matchesImpacto =
         (filters.impacto?.length || 0) === 0 ||
-        extractImpacts(alerta.impacto_riesgo).some(imp =>
-          filters.impacto.includes(imp)
-        );
+        extractImpacts(alerta.impacto_riesgo).some(imp => filters.impacto.includes(imp));
 
       const matchesComuna =
         (filters.comuna?.length || 0) === 0 ||
-        filters.comuna.includes((alerta.comuna || '').toString());
+        (filters.comuna && filters.comuna.includes((alerta.comuna || '').toString()));
 
       const matchesPriority =
         filters.priorityProject === '' ||
@@ -113,9 +101,7 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
           const g = normalizeGravedad(a.gravedad);
           return g === 'crítica' || g === 'alta';
         }).length;
-        const medias = alertas.filter(
-          a => normalizeGravedad(a.gravedad) === 'media'
-        ).length;
+        const medias = alertas.filter(a => normalizeGravedad(a.gravedad) === 'media').length;
         const leves = alertas.filter(a => {
           const g = normalizeGravedad(a.gravedad);
           return g === 'leve' || g === 'baja';
@@ -138,9 +124,7 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
       const g = normalizeGravedad(a.gravedad);
       return g === 'crítica' || g === 'alta';
     }).length;
-    const media = filteredAlertas.filter(
-      a => normalizeGravedad(a.gravedad) === 'media'
-    ).length;
+    const media = filteredAlertas.filter(a => normalizeGravedad(a.gravedad) === 'media').length;
     const leve = filteredAlertas.filter(a => {
       const g = normalizeGravedad(a.gravedad);
       return g === 'leve' || g === 'baja';
@@ -153,22 +137,18 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
 
   // Proyectos prioritarios con incidentes
   const prioritySummary = useMemo(() => {
-    const counts: Record<
-      string,
-      { total: number; media: number; critica: number }
-    > = {};
+    const counts: Record<string, { total: number; media: number; critica: number }> = {};
     alertas.forEach(a => {
       const proj = (a.proyecto_estrategico || '')
         .toLowerCase()
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '');
-      if (!PRIORITY_PROJECTS.includes(proj)) return;
+      if (!PRIORITY_PROJECTS.includes(proj as any)) return;
       const g = normalizeGravedad(a.gravedad);
       if (!counts[proj]) counts[proj] = { total: 0, media: 0, critica: 0 };
       if (g === 'media') counts[proj].media++;
       if (g === 'crítica' || g === 'alta') counts[proj].critica++;
-      if (g === 'media' || g === 'crítica' || g === 'alta')
-        counts[proj].total++;
+      if (g === 'media' || g === 'crítica' || g === 'alta') counts[proj].total++;
     });
     const entries = Object.entries(counts).filter(([, c]) => c.total > 0);
     return entries.sort((a, b) => b[1].total - a[1].total);

@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
 
-import { GRAVEDAD_OPTIONS, IMPACTO_OPTIONS } from '../../constants';
+import { GRAVEDAD_OPTIONS } from '../../constants';
 
 export interface FilterPanelProps {
   searchTerm: string;
@@ -54,21 +54,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 }) => {
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 1 }}
-      >
-        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+      <Box display='flex' alignItems='center' justifyContent='space-between' sx={{ mb: 1 }}>
+        <Typography variant='subtitle2' sx={{ color: 'text.secondary' }}>
           Filtros
         </Typography>
-        <Button
-          onClick={onClearFilters}
-          startIcon={<ClearIcon />}
-          size="small"
-          variant="outlined"
-        >
+        <Button onClick={onClearFilters} startIcon={<ClearIcon />} size='small' variant='outlined'>
           Limpiar
         </Button>
       </Box>
@@ -79,12 +69,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           fullWidth
           value={searchTerm}
           onChange={e => onSearchChange(e.target.value)}
-          placeholder="Buscar..."
-          size="small"
+          placeholder='Buscar...'
+          size='small'
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
+              <InputAdornment position='start'>
+                <SearchIcon color='action' />
               </InputAdornment>
             ),
           }}
@@ -93,12 +83,12 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
 
       {/* Dependencia */}
       <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-        <FormControl fullWidth size="small">
+        <FormControl fullWidth size='small'>
           <InputLabel>Dependencia</InputLabel>
           <Select
             multiple
             value={selectedDependencies}
-            label="Dependencia"
+            label='Dependencia'
             onChange={e => {
               const value = e.target.value as string[];
               if (value.includes('__ALL__')) {
@@ -108,7 +98,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }
             }}
           >
-            <MenuItem value="__ALL__">Todas</MenuItem>
+            <MenuItem value='__ALL__'>Todas</MenuItem>
             {dependencias.map(dep => (
               <MenuItem key={dep} value={dep}>
                 {dep}
@@ -132,16 +122,16 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             }}
             color={selectedGravedades.includes(g.key) ? 'primary' : 'default'}
             variant={selectedGravedades.includes(g.key) ? 'filled' : 'outlined'}
-            size="small"
+            size='small'
             sx={{ cursor: 'pointer' }}
           />
         ))}
         <Chip
-          label="Todas"
+          label='Todas'
           onClick={() => onGravedadChange([])}
           color={selectedGravedades.length === 0 ? 'primary' : 'default'}
           variant={selectedGravedades.length === 0 ? 'filled' : 'outlined'}
-          size="small"
+          size='small'
           sx={{ cursor: 'pointer' }}
         />
       </Box>
@@ -156,11 +146,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         }}
       >
         <Chip
-          label="Todos"
+          label='Todos'
           onClick={() => onImpactoChange([])}
           color={selectedImpactos.length === 0 ? 'primary' : 'default'}
           variant={selectedImpactos.length === 0 ? 'filled' : 'outlined'}
-          size="small"
+          size='small'
           sx={{ cursor: 'pointer' }}
         />
         {impactoOptions.map(impacto => {
@@ -177,7 +167,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }}
               variant={active ? 'filled' : 'outlined'}
               color={active ? 'primary' : 'default'}
-              size="small"
+              size='small'
               sx={{
                 cursor: 'pointer',
                 textTransform: 'capitalize',
@@ -197,11 +187,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         }}
       >
         <Chip
-          label="Todas"
+          label='Todas'
           onClick={() => onComunaChange([])}
           color={(selectedComunas?.length || 0) === 0 ? 'primary' : 'default'}
           variant={(selectedComunas?.length || 0) === 0 ? 'filled' : 'outlined'}
-          size="small"
+          size='small'
           sx={{ cursor: 'pointer' }}
         />
         {comunas.map(c => {
@@ -218,7 +208,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
               }}
               variant={active ? 'filled' : 'outlined'}
               color={active ? 'primary' : 'default'}
-              size="small"
+              size='small'
               sx={{ cursor: 'pointer', fontWeight: active ? 700 : 400 }}
             />
           );
