@@ -7,6 +7,7 @@ import { MappedAlerta } from '../types/api';
 import { normalizeGravedad, extractImpacts } from '../utils/severity';
 import { PRIORITY_PROJECTS } from '../constants';
 
+// Tipo de filtros que coincide con el store
 export interface FilterOptions {
   searchTerm: string;
   dependencia: string[];
@@ -14,6 +15,7 @@ export interface FilterOptions {
   impacto: string[];
   comuna?: string[];
   priorityProject: string;
+  obraIds?: string[];
 }
 
 export interface UseFiltersProps {
@@ -70,19 +72,77 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
           .normalize('NFD')
           .replace(/\p{Diacritic}/gu, '') === filters.priorityProject;
 
+      const matchesObraIds =
+        (filters.obraIds?.length || 0) === 0 ||
+        (filters.obraIds &&
+          filters.obraIds.some(obraId => String(obraId) === String(alerta.obra_id)));
+
+      // Solo mostrar logs cuando hay filtro de obraIds y es la primera alerta
+      if (filters.obraIds && filters.obraIds.length > 0 && alertas.indexOf(alerta) === 0) {
+        console.log('🔍 FILTRO ACTIVO:', {
+          filterObraIds: filters.obraIds,
+          totalAlertas: alertas.length,
+          primeraAlerta: {
+            obra_id: alerta.obra_id,
+            nombre: alerta.nombre_obra,
+          },
+        });
+
+        // Mostrar ejemplos de alertas para comparar
+        console.log('🔍 EJEMPLOS DE ALERTAS (primeras 10):');
+        alertas.slice(0, 10).forEach((a, i) => {
+          console.log(
+            `${i + 1}. obra_id: ${a.obra_id}, nombre: ${a.nombre_obra}, proyecto: ${a.proyecto_estrategico}`
+          );
+        });
+
+        // Mostrar todos los obra_id únicos de las alertas
+        const obraIdsUnicos = [...new Set(alertas.map(a => a.obra_id))].slice(0, 20);
+        console.log('🔍 OBRA_IDS ÚNICOS EN ALERTAS (primeros 20):', obraIdsUnicos);
+
+        // Verificar si hay coincidencias por ID de obra
+        const coincidenciasObraId = alertas.filter(a =>
+          filters.obraIds!.some(obraId => String(obraId) === String(a.obra_id))
+        );
+
+        console.log(
+          '🎯 COINCIDENCIAS POR ID DE OBRA:',
+          coincidenciasObraId.length,
+          'de',
+          alertas.length
+        );
+
+        if (coincidenciasObraId.length > 0) {
+          console.log(
+            '📋 Primeras coincidencias por ID:',
+            coincidenciasObraId.slice(0, 3).map(a => ({
+              obra_id: a.obra_id,
+              nombre: a.nombre_obra,
+              dependencia: a.dependencia,
+            }))
+          );
+        }
+      }
+
       return (
         matchesSearch &&
         matchesDependency &&
         matchesGravedad &&
         matchesImpacto &&
         matchesComuna &&
-        matchesPriority
+        matchesPriority &&
+        matchesObraIds
       );
     });
   }, [alertas, filters]);
 
   // Agrupar alertas por dependencia
   const alertasPorDependencia = useMemo(() => {
+    // Debug: verificar filteredAlertas
+    if (filters.obraIds && filters.obraIds.length > 0) {
+      console.log('🔍 FILTERED ALERTAS:', filteredAlertas.length, 'alertas filtradas');
+    }
+
     const grouped = filteredAlertas.reduce(
       (acc, alerta) => {
         const dep = alerta.dependencia;
@@ -143,7 +203,7 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
         .toLowerCase()
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '');
-      if (!PRIORITY_PROJECTS.includes(proj as any)) return;
+      if (!PRIORITY_PROJECTS.includes(proj as (typeof PRIORITY_PROJECTS)[number])) return;
       const g = normalizeGravedad(a.gravedad);
       if (!counts[proj]) counts[proj] = { total: 0, media: 0, critica: 0 };
       if (g === 'media') counts[proj].media++;
