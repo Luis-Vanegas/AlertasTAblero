@@ -17,53 +17,33 @@ export interface ObraExtra {
   [key: string]: unknown;
 }
 
-const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env || {};
-
-const BASE_URL =
-  env.VITE_OBRAS_API_BASE ||
-  (import.meta.env.DEV
-    ? '/api/obras'
-    : 'https://visorestrategicobackend-gkejc4hthnace6b4.eastus2-01.azurewebsites.net/api/powerbi/obras');
-const API_KEY = env.VITE_OBRAS_API_KEY || 'pow3rb1_visor_3str4t3g1co_2025';
+const BASE_URL = '/api/obras'; // Always use proxy to avoid CORS issues
 
 export class ObrasApiService {
   async getObras(): Promise<ObraExtra[]> {
     try {
-      console.log('ObrasApiService: Fetching obras from:', BASE_URL);
       const resp = await fetch(BASE_URL, {
         method: 'GET',
-        headers: import.meta.env.DEV
-          ? {
-              Accept: 'application/json',
-            }
-          : {
-              Accept: 'application/json',
-              'User-Agent': 'ProyectoGraficos/1.0',
-              'X-API-KEY': API_KEY,
-            },
+        headers: {
+          Accept: 'application/json',
+        },
         mode: 'cors',
       });
-
-      console.log('ObrasApiService: Response status:', resp.status);
       if (!resp.ok) {
         throw new Error(`Obras API error: ${resp.status}`);
       }
 
       const data = (await resp.json()) as unknown;
-      console.log('ObrasApiService: Raw response data:', data);
 
       // Aceptar tanto arreglos directos como { data: [...] }
       if (Array.isArray(data)) {
-        console.log('ObrasApiService: Data is array, length:', data.length);
         return data as ObraExtra[];
       }
       if (data && typeof data === 'object' && Array.isArray((data as { data?: unknown[] }).data)) {
         const obras = (data as { data: ObraExtra[] }).data;
-        console.log('ObrasApiService: Data has data property, length:', obras.length);
         return obras;
       }
       // Si el esquema es desconocido, devolvemos arreglo vacío
-      console.log('ObrasApiService: Unknown data format, returning empty array');
       return [];
     } catch (error) {
       console.warn('ObrasApiService: Error al obtener obras, usando datos vacíos:', error);
@@ -72,10 +52,8 @@ export class ObrasApiService {
   }
 
   async getObraById(obraId: string | number): Promise<ObraExtra | null> {
-    console.log('ObrasApiService: getObraById called with obraId:', obraId);
     // Estrategia simple: obtener todas y buscar por id/ID OBRA/obra_id
     const obras = await this.getObras();
-    console.log('ObrasApiService: Total obras found:', obras.length);
     const idStr = String(obraId);
     const match = obras.find(o => {
       const candidates = [

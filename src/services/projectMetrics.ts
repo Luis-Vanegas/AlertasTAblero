@@ -61,56 +61,11 @@ export interface ProjectMetrics {
 export class ProjectMetricsService {
   async getProjectMetrics(): Promise<ProjectMetrics> {
     try {
-      console.log('🚀 INICIANDO CÁLCULO DE MÉTRICAS DE PROYECTOS...');
-      console.log('🔧 Llamando a obrasApiService.getObras()...');
       const obras = await obrasApiService.getObras();
-      console.log('✅ OBRAS OBTENIDAS:', obras.length);
-      console.log('🔧 Tipo de obras:', typeof obras, Array.isArray(obras));
-      console.log('🔧 Primeras 2 obras:', obras.slice(0, 2));
 
       if (obras.length === 0) {
         console.warn('⚠️ No se obtuvieron obras de la API');
         return this.getEmptyMetrics();
-      }
-
-      console.log('🔧 Continuando con el procesamiento de obras...');
-
-      // Mostrar estructura de datos de las primeras 3 obras
-      console.log('🔍 ESTRUCTURA DE DATOS DE OBRAS (primeras 3):');
-      obras.slice(0, 3).forEach((obra, i) => {
-        console.log(
-          `${i + 1}. ID OBRA: ${obra['ID OBRA']}, NOMBRE: ${obra['NOMBRE']}, NOMBRE OBRA: ${obra['NOMBRE OBRA']}, ESTADO: ${obra['ESTADO DE LA OBRA']}`
-        );
-      });
-
-      // Debug: verificar todos los estados únicos
-      const estadosUnicos = [
-        ...new Set(obras.map(obra => obra['ESTADO DE LA OBRA']).filter(Boolean)),
-      ];
-      console.log('🔍 ESTADOS ÚNICOS ENCONTRADOS:', estadosUnicos);
-
-      // Debug: verificar campos disponibles en las primeras obras
-      console.log('🔍 CAMPOS DISPONIBLES EN PRIMERA OBRA:', Object.keys(obras[0] || {}));
-
-      // Debug: buscar obras con estado que contenga "aplaz" o "paus"
-      const obrasAplazadas = obras.filter(obra => {
-        const estado = obra['ESTADO DE LA OBRA'];
-        return (
-          estado &&
-          typeof estado === 'string' &&
-          (estado.toLowerCase().includes('aplaz') || estado.toLowerCase().includes('paus'))
-        );
-      });
-      console.log('🔍 OBRAS CON ESTADO APLAZADO/PAUSADO:', obrasAplazadas.length);
-      if (obrasAplazadas.length > 0) {
-        console.log(
-          '🔍 PRIMERAS 3 OBRAS APLAZADAS:',
-          obrasAplazadas.slice(0, 3).map(obra => ({
-            id: obra.id,
-            nombre: obra['NOMBRE'] || obra['NOMBRE OBRA'],
-            estado: obra['ESTADO DE LA OBRA'],
-          }))
-        );
       }
 
       const metrics: ProjectMetrics = {
@@ -178,13 +133,6 @@ export class ProjectMetricsService {
           const delayDays = this.calculateDelay(fechaEstimada);
           if (delayDays > 60) {
             // Más de 2 meses
-            console.log('🏗️ OBRA CON RETRASO ENCONTRADA:', {
-              obraId,
-              'ID OBRA': obra['ID OBRA'],
-              nombre: obra['NOMBRE'],
-              delayDays,
-              fechaEstimada,
-            });
             metrics.delayedProjects.count++;
             metrics.delayedProjects.obraIds.push(String(obraId));
             metrics.delayedProjects.projects.push({
@@ -226,20 +174,6 @@ export class ProjectMetricsService {
         // Proyectos pendientes de definición (solo aplazados y pausados)
         const estado = obra['ESTADO DE LA OBRA'];
 
-        // Debug: verificar datos de estado
-        if (
-          estado &&
-          typeof estado === 'string' &&
-          (estado.toLowerCase().includes('aplazado') || estado.toLowerCase().includes('pausado'))
-        ) {
-          console.log('🏗️ OBRA APLAZADA/PAUSADA ENCONTRADA:', {
-            id: obraId,
-            nombre: obra['NOMBRE'] || obra['NOMBRE OBRA'],
-            estado: estado,
-            dependencia: obra['DEPENDENCIA'],
-          });
-        }
-
         // Verificar si está aplazado o pausado
         const isAplazadoPausado =
           estado &&
@@ -275,28 +209,6 @@ export class ProjectMetricsService {
 
       metrics.budgetChanges.totalChange = totalBudgetChange;
       metrics.completionRate = obras.length > 0 ? (completedProjects / obras.length) * 100 : 0;
-
-      console.log('📊 MÉTRICAS CALCULADAS:');
-      console.log(`Total obras: ${obras.length}`);
-      console.log(`Obras con retrasos: ${metrics.delayedProjects.obraIds.length}`);
-      console.log(`Obras pendientes de definición: ${metrics.pendingDefinitionProjects.count}`);
-      console.log('IDs de obras con retrasos:', metrics.delayedProjects.obraIds);
-      console.log(
-        'IDs de obras pendientes de definición:',
-        metrics.pendingDefinitionProjects.obraIds
-      );
-
-      // Mostrar algunos ejemplos de obras para comparar con alertas
-      console.log(
-        '🔍 EJEMPLOS DE OBRAS (primeras 3):',
-        obras.slice(0, 3).map(obra => ({
-          'ID OBRA': obra['ID OBRA'],
-          NOMBRE: obra['NOMBRE'],
-          'FECHA ESTIMADA': obra['FECHA ESTIMADA DE ENTREGA'],
-          'NOMBRE OBRA': obra['NOMBRE OBRA'], // Campo que podría relacionar
-          'PROYECTO ESTRATÉGICO': obra['PROYECTO ESTRATÉGICO'], // Otro campo posible
-        }))
-      );
 
       return metrics;
     } catch (error) {
