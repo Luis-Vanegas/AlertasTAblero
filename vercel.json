@@ -2,26 +2,11 @@
   "rewrites": [
     {
       "source": "/api/obras",
-      "destination": "https://visorestrategicobackend-gkejc4hthnace6b4.eastus2-01.azurewebsites.net/api/powerbi/obras"
+      "destination": "https://visorestrategicobackend-gkejc4hthnace6b4.eastus2-01.azurewebsites.net/api/powerbi/obras?apikey=pow3rb1_visor_3str4t3g1co_2025"
     },
     {
       "source": "/api/alertas",
-      "destination": "https://visorestrategicobackend-gkejc4hthnace6b4.eastus2-01.azurewebsites.net/api/powerbi/alertas"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "X-API-KEY",
-          "value": "pow3rb1_visor_3str4t3g1co_2025"
-        },
-        {
-          "key": "User-Agent",
-          "value": "ProyectoGraficos/1.0"
-        }
-      ]
+      "destination": "https://visorestrategicobackend-gkejc4hthnace6b4.eastus2-01.azurewebsites.net/api/powerbi/alertas?apikey=pow3rb1_visor_3str4t3g1co_2025"
     }
   ]
 }
