@@ -72,3 +72,38 @@ export const useCambiosFechasEstimadas = () => {
     refetch,
   };
 };
+
+export const useCambiosPresupuesto = () => {
+  const { showError } = useNotifications();
+
+  const {
+    data: cambiosData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['cambios-presupuesto'],
+    queryFn: () => historicoApiService.getCambiosPresupuesto(),
+    staleTime: 15 * 60 * 1000, // 15 minutos
+    retry: 3,
+  });
+
+  // Manejar errores con useEffect
+  React.useEffect(() => {
+    if (error) {
+      console.error('Error al cargar cambios de presupuesto:', error);
+      showError('Error al cargar los cambios de presupuesto. Verificando datos del histórico...');
+    }
+  }, [error, showError]);
+
+  return {
+    total_cambios: cambiosData?.total_cambios || 0,
+    cambios: cambiosData?.cambios || [],
+    por_dependencia: cambiosData?.por_dependencia || {},
+    por_comuna: cambiosData?.por_comuna || {},
+    por_proyecto: cambiosData?.por_proyecto || {},
+    isLoading,
+    error,
+    refetch,
+  };
+};
