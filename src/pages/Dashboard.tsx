@@ -28,6 +28,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useAlertas, useAlertasStats } from '../hooks/useAlertas';
 import { useFilters } from '../hooks/useFilters';
 import { useProjectMetrics } from '../hooks/useProjectMetrics';
+import { useCambiosFechasEstimadas } from '../hooks/useHistorico';
 import { useSettingsStore } from '../store/settings';
 import { alertasApiService } from '../services/alertasApi';
 import { obrasApiService } from '../services/obrasApi';
@@ -49,10 +50,16 @@ const Dashboard: React.FC = () => {
   const [activeFilterType, setActiveFilterType] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const [showCambiosFechas, setShowCambiosFechas] = useState(false);
 
   const { alertas, isLoading } = useAlertas({ limit: 1000 });
   const { isLoading: loadingStats } = useAlertasStats();
   const { metrics: projectMetrics, isLoading: loadingMetrics } = useProjectMetrics();
+  const {
+    total_cambios: cambiosFechas,
+    cambios: cambiosFechasLista,
+    isLoading: loadingCambios,
+  } = useCambiosFechasEstimadas();
 
   // Usar el hook de filtros
   const { filteredAlertas, alertasPorDependencia, alertStats } = useFilters({
@@ -65,7 +72,7 @@ const Dashboard: React.FC = () => {
   const [hintShown, setHintShown] = useState(false);
 
   // Estado de carga combinado
-  const loading = isLoading || loadingStats || loadingMetrics;
+  const loading = isLoading || loadingStats || loadingMetrics || loadingCambios;
 
   // Verificar si hay filtros activos
   const hasActiveFilters =
@@ -129,6 +136,7 @@ const Dashboard: React.FC = () => {
       obraIds: [],
     });
     setActiveFilterType(null);
+    setShowCambiosFechas(false);
     enqueueSnackbar('Todos los filtros han sido limpiados', { variant: 'info' });
   };
 
@@ -168,16 +176,12 @@ const Dashboard: React.FC = () => {
         );
         break;
       case 'delayed2months':
-        // Filtrar solo las obras con retrasos > 2 meses (filtro específico)
-        setFilters({
-          obraIds: projectMetrics.delayedProjects.obraIds,
-          gravedad: [],
-          impacto: [],
+        // Mostrar la lista de cambios de fechas estimadas
+        setShowCambiosFechas(true);
+        setActiveFilterType('delayed2months');
+        enqueueSnackbar(`Mostrando ${cambiosFechas} obras con cambios de fechas > 2 meses`, {
+          variant: 'info',
         });
-        enqueueSnackbar(
-          `Filtro aplicado: ${projectMetrics.delayedProjects.obraIds.length} obras con retrasos > 2 meses`,
-          { variant: 'info' }
-        );
         break;
       case 'defunded':
         // Filtrar solo las obras desfinanciadas
@@ -506,7 +510,7 @@ const Dashboard: React.FC = () => {
                       </Typography>
                       <Box flexGrow={1} display='flex' alignItems='center'>
                         <Typography variant='h5' fontWeight='bold' color='info.main'>
-                          {projectMetrics?.delayedProjects.count || 0}
+                          {cambiosFechas || 0}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -907,191 +911,303 @@ const Dashboard: React.FC = () => {
             </motion.div>
           )}
 
-        {/* Lista de Alertas por Dependencia - Solo se muestra con filtros activos, excepto late y definition */}
-        {hasActiveFilters && activeFilterType !== 'late' && activeFilterType !== 'definition' && (
-          <motion.div variants={ANIMATION_VARIANTS.item}>
-            {alertasPorDependencia.length === 0 ? (
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
+        {/* Lista de Cambios de Fechas Estimadas - Solo se muestra cuando se filtra por delayed2months */}
+        {activeFilterType === 'delayed2months' &&
+          showCambiosFechas &&
+          cambiosFechasLista.length > 0 && (
+            <motion.div variants={ANIMATION_VARIANTS.item}>
+              <Paper
+                elevation={3}
+                sx={{
+                  p: { xs: 2, md: 3 },
+                  mb: { xs: 2, md: 3 },
+                  backgroundColor: 'rgba(245, 247, 249, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  borderRadius: { xs: 2, md: 3 },
+                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                }}
               >
-                <Alert
-                  severity='info'
-                  sx={{
-                    mb: 2,
-                    borderRadius: 2,
-                    backgroundColor: 'rgba(245, 247, 249, 0.9)',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                >
-                  <Typography variant='h6'>No se encontraron alertas</Typography>
-                  <Typography variant='body2' sx={{ mt: 1 }}>
-                    Total alertas: {alertas.length} | Filtradas: {filteredAlertas.length} | Grupos:{' '}
-                    {alertasPorDependencia.length}
+                <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
+                  <Typography variant='h5' fontWeight='bold' color='text.primary'>
+                    Cambios de Fechas Estimadas &gt; 2 meses
                   </Typography>
-                  <Typography variant='body2' sx={{ mt: 1 }}>
-                    Búsqueda: "{filters.searchTerm}" | Dep: "
-                    {filters.dependencia?.join(', ') || 'Todas'}" | Sev: "
-                    {filters.gravedad?.join(', ') || 'Todas'}"
-                  </Typography>
-                </Alert>
-              </motion.div>
-            ) : (
-              <Grid container spacing={{ xs: 2, sm: 3 }}>
-                {alertasPorDependencia.map(grupo => (
-                  <Grid item xs={12} key={grupo.dependencia}>
-                    <motion.div
-                      variants={ANIMATION_VARIANTS.item}
-                      initial='hidden'
-                      animate='visible'
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={() => {
+                      setShowCambiosFechas(false);
+                      setActiveFilterType(null);
+                    }}
+                  >
+                    Cerrar
+                  </Button>
+                </Box>
+                <Typography variant='body2' color='text.secondary' mb={3}>
+                  Lista de obras que han tenido cambios significativos en sus fechas estimadas desde
+                  septiembre 2025 ({cambiosFechasLista.length} obras)
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {cambiosFechasLista
+                    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                    .map((cambio, index) => (
+                      <Grid item xs={12} md={6} key={index}>
+                        <Card elevation={2} sx={{ p: 2, height: '100%' }}>
+                          <Typography variant='h6' fontWeight='bold' color='primary.main' mb={1}>
+                            {cambio.nombre_obra}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>ID Obra:</strong> {cambio.obra_id}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Dependencia:</strong> {cambio.dependencia}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Comuna:</strong> {cambio.comuna}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Proyecto Estratégico:</strong> {cambio.proyecto_estrategico}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Campo Modificado:</strong> {cambio.campo_modificado}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Fecha Anterior:</strong>{' '}
+                            {new Date(cambio.fecha_anterior).toLocaleDateString()}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Fecha Nueva:</strong>{' '}
+                            {new Date(cambio.fecha_nueva).toLocaleDateString()}
+                          </Typography>
+                          <Typography variant='body2' color='error.main' fontWeight='bold' mb={1}>
+                            <strong>Meses de Atraso:</strong> {cambio.meses_atraso} meses
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary' mb={1}>
+                            <strong>Fecha Modificación:</strong>{' '}
+                            {new Date(cambio.fecha_modificacion).toLocaleDateString()}
+                          </Typography>
+                          <Typography variant='body2' color='text.secondary'>
+                            <strong>Usuario:</strong> {cambio.usuario_modificador}
+                          </Typography>
+                        </Card>
+                      </Grid>
+                    ))}
+                </Grid>
+
+                {/* Controles de paginación */}
+                {cambiosFechasLista.length > itemsPerPage && (
+                  <Box display='flex' justifyContent='center' alignItems='center' mt={3} gap={2}>
+                    <Button
+                      variant='outlined'
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(currentPage - 1)}
                     >
-                      <Card
-                        elevation={2}
-                        sx={{
-                          mb: 3,
-                          overflow: 'hidden',
-                          borderRadius: 2,
-                          backgroundColor: 'rgba(245, 247, 249, 0.9)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(0, 0, 0, 0.05)',
-                          transition: 'box-shadow 0.3s ease',
-                          '&:hover': {
-                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-                          },
-                        }}
+                      Anterior
+                    </Button>
+                    <Typography variant='body2' color='text.secondary'>
+                      Página {currentPage} de {Math.ceil(cambiosFechasLista.length / itemsPerPage)}
+                    </Typography>
+                    <Button
+                      variant='outlined'
+                      disabled={currentPage >= Math.ceil(cambiosFechasLista.length / itemsPerPage)}
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                      Siguiente
+                    </Button>
+                  </Box>
+                )}
+              </Paper>
+            </motion.div>
+          )}
+
+        {/* Lista de Alertas por Dependencia - Solo se muestra con filtros activos, excepto late, definition y delayed2months */}
+        {hasActiveFilters &&
+          activeFilterType !== 'late' &&
+          activeFilterType !== 'definition' &&
+          activeFilterType !== 'delayed2months' && (
+            <motion.div variants={ANIMATION_VARIANTS.item}>
+              {alertasPorDependencia.length === 0 ? (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Alert
+                    severity='info'
+                    sx={{
+                      mb: 2,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(245, 247, 249, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                    }}
+                  >
+                    <Typography variant='h6'>No se encontraron alertas</Typography>
+                    <Typography variant='body2' sx={{ mt: 1 }}>
+                      Total alertas: {alertas.length} | Filtradas: {filteredAlertas.length} |
+                      Grupos: {alertasPorDependencia.length}
+                    </Typography>
+                    <Typography variant='body2' sx={{ mt: 1 }}>
+                      Búsqueda: "{filters.searchTerm}" | Dep: "
+                      {filters.dependencia?.join(', ') || 'Todas'}" | Sev: "
+                      {filters.gravedad?.join(', ') || 'Todas'}"
+                    </Typography>
+                  </Alert>
+                </motion.div>
+              ) : (
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                  {alertasPorDependencia.map(grupo => (
+                    <Grid item xs={12} key={grupo.dependencia}>
+                      <motion.div
+                        variants={ANIMATION_VARIANTS.item}
+                        initial='hidden'
+                        animate='visible'
                       >
-                        <CardContent>
-                          <Box
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='space-between'
-                            mb={2}
-                          >
-                            <Box display='flex' alignItems='center' gap={2}>
-                              <Avatar
-                                sx={{
-                                  bgcolor: theme.palette.primary.main,
-                                  width: 40,
-                                  height: 40,
-                                }}
-                              >
-                                <BusinessIcon sx={{ color: 'white' }} />
-                              </Avatar>
-                              <Box>
-                                <Typography
-                                  variant='h5'
-                                  fontWeight='bold'
+                        <Card
+                          elevation={2}
+                          sx={{
+                            mb: 3,
+                            overflow: 'hidden',
+                            borderRadius: 2,
+                            backgroundColor: 'rgba(245, 247, 249, 0.9)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(0, 0, 0, 0.05)',
+                            transition: 'box-shadow 0.3s ease',
+                            '&:hover': {
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                            },
+                          }}
+                        >
+                          <CardContent>
+                            <Box
+                              display='flex'
+                              alignItems='center'
+                              justifyContent='space-between'
+                              mb={2}
+                            >
+                              <Box display='flex' alignItems='center' gap={2}>
+                                <Avatar
                                   sx={{
-                                    color: theme.palette.text.primary,
-                                    mb: 0.5,
+                                    bgcolor: theme.palette.primary.main,
+                                    width: 40,
+                                    height: 40,
                                   }}
                                 >
-                                  {grupo.dependencia}
-                                </Typography>
-                                <Typography
-                                  variant='body2'
+                                  <BusinessIcon sx={{ color: 'white' }} />
+                                </Avatar>
+                                <Box>
+                                  <Typography
+                                    variant='h5'
+                                    fontWeight='bold'
+                                    sx={{
+                                      color: theme.palette.text.primary,
+                                      mb: 0.5,
+                                    }}
+                                  >
+                                    {grupo.dependencia}
+                                  </Typography>
+                                  <Typography
+                                    variant='body2'
+                                    sx={{
+                                      color: theme.palette.text.secondary,
+                                    }}
+                                  >
+                                    {grupo.total} alertas • Última actualización:{' '}
+                                    {formatDate(new Date(), 'HH:mm')}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                              <Box display='flex' gap={1}>
+                                <Chip
+                                  label={`${grupo.altas} Críticas`}
+                                  size='small'
                                   sx={{
-                                    color: theme.palette.text.secondary,
+                                    backgroundColor: theme.palette.error.main,
+                                    color: 'white',
+                                    fontWeight: 'bold',
                                   }}
+                                />
+                                <Chip
+                                  label={`${grupo.medias} Moderadas`}
+                                  size='small'
+                                  sx={{
+                                    backgroundColor: theme.palette.warning.main,
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                  }}
+                                />
+                                <Chip
+                                  label={`${grupo.leves} Leves`}
+                                  size='small'
+                                  sx={{
+                                    backgroundColor: theme.palette.info.main,
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                  }}
+                                />
+                                <Button
+                                  onClick={() => handleExportByDependency(grupo.dependencia)}
+                                  startIcon={<DownloadIcon />}
+                                  size='small'
+                                  variant='outlined'
                                 >
-                                  {grupo.total} alertas • Última actualización:{' '}
-                                  {formatDate(new Date(), 'HH:mm')}
-                                </Typography>
+                                  Exportar
+                                </Button>
                               </Box>
                             </Box>
-                            <Box display='flex' gap={1}>
-                              <Chip
-                                label={`${grupo.altas} Críticas`}
-                                size='small'
-                                sx={{
-                                  backgroundColor: theme.palette.error.main,
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                }}
-                              />
-                              <Chip
-                                label={`${grupo.medias} Moderadas`}
-                                size='small'
-                                sx={{
-                                  backgroundColor: theme.palette.warning.main,
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                }}
-                              />
-                              <Chip
-                                label={`${grupo.leves} Leves`}
-                                size='small'
-                                sx={{
-                                  backgroundColor: theme.palette.info.main,
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                }}
-                              />
-                              <Button
-                                onClick={() => handleExportByDependency(grupo.dependencia)}
-                                startIcon={<DownloadIcon />}
-                                size='small'
-                                variant='outlined'
-                              >
-                                Exportar
-                              </Button>
-                            </Box>
-                          </Box>
 
-                          <Divider sx={{ my: { xs: 1.5, md: 2 } }} />
+                            <Divider sx={{ my: { xs: 1.5, md: 2 } }} />
 
-                          <Grid container spacing={{ xs: 3, sm: 2.5 }} alignItems='stretch'>
-                            {(expandedDependencies.has(grupo.dependencia)
-                              ? grupo.alertas
-                              : grupo.alertas.slice(0, 6)
-                            ).map(alerta => {
-                              const isPriority = isPriorityAlert(alerta, PRIORITY_PROJECTS);
+                            <Grid container spacing={{ xs: 3, sm: 2.5 }} alignItems='stretch'>
+                              {(expandedDependencies.has(grupo.dependencia)
+                                ? grupo.alertas
+                                : grupo.alertas.slice(0, 6)
+                              ).map(alerta => {
+                                const isPriority = isPriorityAlert(alerta, PRIORITY_PROJECTS);
 
-                              return (
-                                <Grid
-                                  item
-                                  xs={12}
-                                  sm={6}
-                                  md={6}
-                                  lg={4}
-                                  key={alerta.id}
-                                  sx={{ display: 'flex' }}
+                                return (
+                                  <Grid
+                                    item
+                                    xs={12}
+                                    sm={6}
+                                    md={6}
+                                    lg={4}
+                                    key={alerta.id}
+                                    sx={{ display: 'flex' }}
+                                  >
+                                    <AlertCard
+                                      alerta={alerta}
+                                      onViewDetails={openDetail}
+                                      isPriority={isPriority}
+                                    />
+                                  </Grid>
+                                );
+                              })}
+                            </Grid>
+
+                            {grupo.alertas.length > 6 && (
+                              <Box mt={2} textAlign='center'>
+                                <Button
+                                  variant='outlined'
+                                  size='small'
+                                  onClick={() => handleToggleExpand(grupo.dependencia)}
+                                  aria-expanded={expandedDependencies.has(grupo.dependencia)}
+                                  aria-controls={`grupo-${grupo.dependencia.replace(/\s+/g, '-')}`}
                                 >
-                                  <AlertCard
-                                    alerta={alerta}
-                                    onViewDetails={openDetail}
-                                    isPriority={isPriority}
-                                  />
-                                </Grid>
-                              );
-                            })}
-                          </Grid>
-
-                          {grupo.alertas.length > 6 && (
-                            <Box mt={2} textAlign='center'>
-                              <Button
-                                variant='outlined'
-                                size='small'
-                                onClick={() => handleToggleExpand(grupo.dependencia)}
-                                aria-expanded={expandedDependencies.has(grupo.dependencia)}
-                                aria-controls={`grupo-${grupo.dependencia.replace(/\s+/g, '-')}`}
-                              >
-                                {expandedDependencies.has(grupo.dependencia)
-                                  ? 'Ver menos'
-                                  : `Ver ${grupo.alertas.length - 6} más`}
-                              </Button>
-                            </Box>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-          </motion.div>
-        )}
+                                  {expandedDependencies.has(grupo.dependencia)
+                                    ? 'Ver menos'
+                                    : `Ver ${grupo.alertas.length - 6} más`}
+                                </Button>
+                              </Box>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </motion.div>
+          )}
       </motion.div>
 
       <DetailDrawer open={detailOpen} onClose={closeDetail} alerta={selectedAlerta} />
