@@ -10,7 +10,7 @@ function App() {
     <Layout>
       <Routes>
         <Route
-          path="/"
+          path='/'
           element={
             <motion.div
               initial={ANIMATION_VARIANTS.page.initial}
@@ -23,9 +23,9 @@ function App() {
             </motion.div>
           }
         />
-        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        <Route path='/dashboard' element={<Navigate to='/' replace />} />
         <Route
-          path="/reporte"
+          path='/reporte'
           element={
             <motion.div
               initial={ANIMATION_VARIANTS.page.initial}
@@ -39,7 +39,7 @@ function App() {
           }
         />
         <Route
-          path="/consulta"
+          path='/consulta'
           element={
             <motion.div
               initial={ANIMATION_VARIANTS.page.initial}

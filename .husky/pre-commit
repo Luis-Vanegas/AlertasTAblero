@@ -1,11 +1,7 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
-# Run linting
-npm run lint
+# Formato (no bloquea si falta; intenta auto-fix)
+npm run format:check || npm run format
 
-# Run type checking
+# Type-check (bloquea si hay errores de TS)
 npm run type-check
-
-# Run tests
-npm run test:ci

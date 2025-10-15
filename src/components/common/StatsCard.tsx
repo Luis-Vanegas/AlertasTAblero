@@ -69,9 +69,9 @@ const StatsCard: React.FC<StatsCardProps> = ({
           }}
         >
           <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
             flex={1}
             sx={{ minHeight: 0, mb: 1 }}
           >
@@ -89,8 +89,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
             </Avatar>
             <Box>
               <Typography
-                variant="h3"
-                fontWeight="bold"
+                variant='h3'
+                fontWeight='bold'
                 sx={{
                   color: theme.palette.text.primary,
                   lineHeight: 1,
@@ -102,8 +102,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
             </Box>
           </Box>
           <Typography
-            variant="body2"
-            fontWeight="500"
+            variant='body2'
+            fontWeight='500'
             sx={{
               color: theme.palette.text.primary,
               textAlign: 'center',

@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, vi } from 'vitest'
-import '@testing-library/jest-dom'
+import { afterAll, beforeAll, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Mock de window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -14,39 +14,39 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 
 // Mock de ResizeObserver
-;(globalThis as any).ResizeObserver = vi.fn().mockImplementation(() => ({
+(globalThis as any).ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-})) as unknown as typeof ResizeObserver
+})) as unknown as typeof ResizeObserver;
 
 // Mock de IntersectionObserver
-;(globalThis as any).IntersectionObserver = vi.fn().mockImplementation(() => ({
+(globalThis as any).IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-})) as unknown as typeof IntersectionObserver
+})) as unknown as typeof IntersectionObserver;
 
 // Mock de fetch para tests
-;(globalThis as any).fetch = vi.fn()
+(globalThis as any).fetch = vi.fn();
 
 // Mock de console.error para evitar ruido en tests
-const originalError = console.error
+const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is no longer supported')
     ) {
-      return
+      return;
     }
-    originalError.call(console, ...args)
-  }
-})
+    originalError.call(console, ...args);
+  };
+});
 
 afterAll(() => {
-  console.error = originalError
-})
+  console.error = originalError;
+});

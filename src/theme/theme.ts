@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles';
 
 // Colores personalizados según especificaciones
 const colors = {
@@ -11,7 +11,7 @@ const colors = {
   warning: '#FFA726', // Naranja para advertencias
   success: '#66BB6A', // Verde para OK
   background: '#FFFFFF', // Fondo blanco
-}
+};
 
 export const theme = createTheme({
   palette: {
@@ -218,23 +218,23 @@ export const theme = createTheme({
       },
     },
   },
-})
+});
 
 // Declarar módulo para colores personalizados
 declare module '@mui/material/styles' {
   interface Palette {
     severity: {
-      critical: string
-      warning: string
-      ok: string
-    }
+      critical: string;
+      warning: string;
+      ok: string;
+    };
   }
 
   interface PaletteOptions {
     severity?: {
-      critical?: string
-      warning?: string
-      ok?: string
-    }
+      critical?: string;
+      warning?: string;
+      ok?: string;
+    };
   }
 }

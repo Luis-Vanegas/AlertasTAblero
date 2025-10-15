@@ -8,14 +8,15 @@ export interface ExportOptions {
   encoding?: string;
 }
 
+export type ExportPrimitive = string | number | boolean | null | undefined | Date;
 export interface ExportData {
-  [key: string]: any;
+  [key: string]: ExportPrimitive | ExportPrimitive[] | Record<string, ExportPrimitive>;
 }
 
 /**
  * Exporta datos a CSV usando PapaParse
  */
-export const exportToCSV = (data: ExportData[], options: ExportOptions = {}): void => {
+export const exportToCSV = <T extends object>(data: T[], options: ExportOptions = {}): void => {
   const {
     filename = 'alertas',
     includeHeaders = true,
@@ -37,8 +38,11 @@ export const exportToCSV = (data: ExportData[], options: ExportOptions = {}): vo
     escapeChar: '"',
   };
 
+  // Normalizar datos antes de exportar
+  const normalized = prepareDataForExport(data as unknown as ExportData[]);
+
   // Convertir a CSV
-  const csv = Papa.unparse(data, config);
+  const csv = Papa.unparse(normalized, config);
 
   // Crear blob y descargar (forzar charset en el MIME type)
   const blob = new Blob([csv], { type: `text/csv;charset=${encoding};` });
@@ -59,14 +63,16 @@ export const exportToCSV = (data: ExportData[], options: ExportOptions = {}): vo
 /**
  * Exporta datos filtrados por dependencia
  */
-export const exportByDependency = (
-  data: ExportData[],
+export const exportByDependency = <T extends object>(
+  data: T[],
   dependency: string,
   options: ExportOptions = {}
 ): void => {
-  const filteredData = data.filter(
-    item => item.dependencia === dependency || item['DEPENDENCIA'] === dependency
-  );
+  const get = (obj: Record<string, unknown>, key: string): unknown => obj?.[key];
+  const filteredData = data.filter(item => {
+    const rec = item as Record<string, unknown>;
+    return get(rec, 'dependencia') === dependency || get(rec, 'DEPENDENCIA') === dependency;
+  });
 
   exportToCSV(filteredData, {
     ...options,
@@ -77,9 +83,15 @@ export const exportByDependency = (
 /**
  * Exporta solo alertas críticas
  */
-export const exportCriticalAlerts = (data: ExportData[], options: ExportOptions = {}): void => {
-  const criticalData = data.filter(
-    item => item.severity === 'critical' || item.gravedad === 'alta' || item.gravedad === 'Crítica'
+export const exportCriticalAlerts = <T extends object>(
+  data: T[],
+  options: ExportOptions = {}
+): void => {
+  const criticalData = (data as unknown as ExportData[]).filter(
+    item =>
+      (item as Record<string, unknown>)['severity'] === 'critical' ||
+      (item as Record<string, unknown>)['gravedad'] === 'alta' ||
+      (item as Record<string, unknown>)['gravedad'] === 'Crítica'
   );
 
   exportToCSV(criticalData, {
