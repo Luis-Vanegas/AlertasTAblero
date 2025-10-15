@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { formatForFilename } from './dateFormatting';
 
 export interface ExportOptions {
   filename?: string;
@@ -46,7 +47,7 @@ export const exportToCSV = (data: ExportData[], options: ExportOptions = {}): vo
   if (link.download !== undefined) {
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `${filename}_${formatDateForFilename(new Date())}.csv`);
+    link.setAttribute('download', `${filename}_${formatForFilename(new Date())}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -87,18 +88,7 @@ export const exportCriticalAlerts = (data: ExportData[], options: ExportOptions 
   });
 };
 
-/**
- * Formatea fecha para nombre de archivo
- */
-const formatDateForFilename = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}${month}${day}_${hours}${minutes}`;
-};
+// Nota: se reutiliza `formatForFilename` desde utils/dateFormatting
 
 /**
  * Prepara datos para exportación (limpia y formatea)

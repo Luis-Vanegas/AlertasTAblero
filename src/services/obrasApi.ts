@@ -61,15 +61,10 @@ export class ObrasApiService {
         (o as Record<string, unknown>)['ID OBRA'],
         (o as Record<string, unknown>)['obra_id'],
       ];
-      console.log('ObrasApiService: Checking obra:', {
-        id: o['id'],
-        'ID OBRA': (o as Record<string, unknown>)['ID OBRA'],
-        obra_id: (o as Record<string, unknown>)['obra_id'],
-        searchingFor: idStr,
-      });
+      // Debug removido
       return candidates.some(c => c !== undefined && String(c) === idStr);
     });
-    console.log('ObrasApiService: Match found:', match);
+    // Debug removido
     return match ?? null;
   }
 }

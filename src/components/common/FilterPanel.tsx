@@ -24,15 +24,18 @@ export interface FilterPanelProps {
   dependencias: string[];
   comunas: string[];
   impactoOptions: string[];
+  priorityProjects?: Array<{ key: string; label: string }>;
   selectedDependencies: string[];
   selectedGravedades: string[];
   selectedImpactos: string[];
   selectedComunas: string[];
+  selectedPriorityProject?: string;
   onSearchChange: (value: string) => void;
   onDependencyChange: (dependencies: string[]) => void;
   onGravedadChange: (gravedades: string[]) => void;
   onImpactoChange: (impactos: string[]) => void;
   onComunaChange: (comunas: string[]) => void;
+  onPriorityProjectChange?: (projectKey: string) => void;
   onClearFilters: () => void;
 }
 
@@ -41,15 +44,18 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   dependencias,
   comunas,
   impactoOptions,
+  priorityProjects,
   selectedDependencies,
   selectedGravedades,
   selectedImpactos,
   selectedComunas,
+  selectedPriorityProject,
   onSearchChange,
   onDependencyChange,
   onGravedadChange,
   onImpactoChange,
   onComunaChange,
+  onPriorityProjectChange,
   onClearFilters,
 }) => {
   return (
@@ -107,6 +113,29 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           </Select>
         </FormControl>
       </Box>
+
+      {/* Proyecto estratégico */}
+      {priorityProjects && priorityProjects.length > 0 && (
+        <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+          <FormControl fullWidth size='small'>
+            <InputLabel>Proyecto estratégico</InputLabel>
+            <Select
+              value={selectedPriorityProject || ''}
+              label='Proyecto estratégico'
+              onChange={e =>
+                onPriorityProjectChange && onPriorityProjectChange(e.target.value as string)
+              }
+            >
+              <MenuItem value=''>Todos</MenuItem>
+              {priorityProjects.map(p => (
+                <MenuItem key={p.key} value={p.key}>
+                  {p.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      )}
 
       {/* Gravedad */}
       <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>

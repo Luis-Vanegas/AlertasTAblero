@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { historicoApiService } from '../services/historicoApi';
-import { useNotifications } from '../components/NotificationProvider';
+import { useNotifications } from '../components/notifications/useNotifications';
 
 export const useHistorico = () => {
   const { showError } = useNotifications();

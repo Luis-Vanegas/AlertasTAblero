@@ -95,11 +95,7 @@ const Dashboard: React.FC = () => {
     filters.searchTerm ||
     (filters.obraIds && filters.obraIds.length > 0);
 
-  // Debug: verificar hasActiveFilters
-  if (filters.obraIds && filters.obraIds.length > 0) {
-    console.log('🔍 HAS ACTIVE FILTERS:', hasActiveFilters);
-    console.log('🔍 FILTERS OBRAIDS:', filters.obraIds);
-  }
+  // Debug removido
 
   // Handlers
   const handleToggleExpand = (dependencia: string) => {
@@ -156,7 +152,7 @@ const Dashboard: React.FC = () => {
   // Funciones de filtrado para las tarjetas de métricas
   const handleMetricFilter = (filterType: string) => {
     if (!projectMetrics) {
-      console.log('❌ No hay métricas disponibles');
+      enqueueSnackbar('No hay métricas disponibles', { variant: 'warning' });
       return;
     }
 
@@ -346,6 +342,41 @@ const Dashboard: React.FC = () => {
         return null;
       }
     };
+
+    // Utilidad: listar valores únicos de proyecto_estrategico y sus conteos
+    (window as unknown as Record<string, unknown>).listProyectosEstrategicos = (): Array<{
+      proyecto: string;
+      total: number;
+    }> => {
+      try {
+        const values = alertas.map(a => (a.proyecto_estrategico ?? '').toString().trim());
+        const normalized = values.map(
+          v =>
+            v
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/\p{Diacritic}/gu, '')
+              .trim() || '(vacío)'
+        );
+
+        const counts: Record<string, number> = {};
+        normalized.forEach(v => {
+          counts[v] = (counts[v] || 0) + 1;
+        });
+        const entries = Object.entries(counts)
+          .map(([proyecto, total]) => ({ proyecto, total }))
+          .sort((a, b) => b.total - a.total);
+
+        // Mostrar en tabla en consola
+        // eslint-disable-next-line no-console
+        console.table(entries);
+        return entries;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Error listando proyectos estratégicos:', e);
+        return [];
+      }
+    };
   }
 
   return (
@@ -387,9 +418,9 @@ const Dashboard: React.FC = () => {
               </motion.div>
             </Box>
 
-            <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems='stretch'>
+            <Grid container spacing={{ xs: 1, sm: 1.2 }} alignItems='stretch'>
               {/* Cambios Presupuesto */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6} md={4}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -399,7 +430,7 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('budget')}
                     sx={{
-                      height: '180px',
+                      height: { xs: 120, sm: 140 },
                       backgroundColor: '#ffffff',
                       borderRadius: 2,
                       border: '2px solid #fca5a5',
@@ -415,49 +446,69 @@ const Dashboard: React.FC = () => {
                   >
                     <CardContent
                       sx={{
-                        p: 2,
+                        p: 1.5,
                         height: '100%',
+                        position: 'relative',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
                         justifyContent: 'space-between',
+                        gap: { xs: 1, sm: 1.5 },
                       }}
                     >
-                      <Box>
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='space-between'
-                          mb={2}
-                        >
-                          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
-                            <TrendingUpIcon />
-                          </Avatar>
-                          <Chip label='-12%' size='small' color='error' />
+                      <Chip
+                        label='-12%'
+                        size='small'
+                        color='error'
+                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                      />
+                      <Box display='flex' alignItems='center' gap={1.5} minWidth={0}>
+                        <Avatar sx={{ bgcolor: 'error.main', width: 36, height: 36 }}>
+                          <TrendingUpIcon />
+                        </Avatar>
+                        <Box minWidth={0}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='text.primary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: { xs: 2, md: 1 },
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Cambios &gt; 500M
+                          </Typography>
+                          <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 1,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Proyectos con incrementos presupuestales
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle1'
-                          fontWeight='bold'
-                          color='text.primary'
-                          mb={1}
-                        >
-                          Cambios &gt; 500M
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          Proyectos con incrementos presupuestales
-                        </Typography>
                       </Box>
-                      <Box display='flex' justifyContent='center' alignItems='center'>
-                        <Typography variant='h3' fontWeight='bold' color='error.main'>
-                          {cambiosPresupuesto || 152}
-                        </Typography>
-                      </Box>
+                      <Typography
+                        variant='h4'
+                        fontWeight='bold'
+                        color='error.main'
+                        sx={{ alignSelf: { xs: 'flex-end', sm: 'center' } }}
+                      >
+                        {cambiosPresupuesto || 152}
+                      </Typography>
                     </CardContent>
                   </Card>
                 </motion.div>
               </Grid>
 
               {/* Proyectos Tardíos */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6} md={4}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -467,7 +518,7 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('late')}
                     sx={{
-                      height: '180px',
+                      height: { xs: 120, sm: 140 },
                       backgroundColor: '#ffffff',
                       borderRadius: 2,
                       border: '2px solid #fbbf24',
@@ -483,49 +534,64 @@ const Dashboard: React.FC = () => {
                   >
                     <CardContent
                       sx={{
-                        p: 2,
+                        p: 1.5,
                         height: '100%',
+                        position: 'relative',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
                         justifyContent: 'space-between',
+                        gap: { xs: 1, sm: 1.5 },
                       }}
                     >
-                      <Box>
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='space-between'
-                          mb={2}
-                        >
-                          <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40 }}>
-                            <ScheduleIcon />
-                          </Avatar>
-                          <Chip label='-8%' size='small' color='warning' />
+                      <Chip
+                        label='-8%'
+                        size='small'
+                        color='warning'
+                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                      />
+                      <Box display='flex' alignItems='center' gap={1.5} minWidth={0}>
+                        <Avatar sx={{ bgcolor: 'warning.main', width: 36, height: 36 }}>
+                          <ScheduleIcon />
+                        </Avatar>
+                        <Box minWidth={0}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='text.primary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: { xs: 2, md: 1 },
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Proyectos Tardíos
+                          </Typography>
+                          <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 1,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Obras que terminan después del 01/07/2027
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle1'
-                          fontWeight='bold'
-                          color='text.primary'
-                          mb={1}
-                        >
-                          Proyectos Tardíos
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          Obras que terminan después del 01/07/2027
-                        </Typography>
                       </Box>
-                      <Box display='flex' justifyContent='center' alignItems='center'>
-                        <Typography variant='h3' fontWeight='bold' color='warning.main'>
-                          {projectMetrics?.lateProjects.count || 326}
-                        </Typography>
-                      </Box>
+                      <Typography variant='h4' fontWeight='bold' color='warning.main'>
+                        {projectMetrics?.lateProjects.count || 326}
+                      </Typography>
                     </CardContent>
                   </Card>
                 </motion.div>
               </Grid>
 
               {/* Retrasos */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6} md={4}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -535,7 +601,7 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('delayed2months')}
                     sx={{
-                      height: '180px',
+                      height: { xs: 120, sm: 140 },
                       backgroundColor: '#ffffff',
                       borderRadius: 2,
                       border: '2px solid #0ea5e9',
@@ -551,49 +617,73 @@ const Dashboard: React.FC = () => {
                   >
                     <CardContent
                       sx={{
-                        p: 2,
+                        p: 1.5,
                         height: '100%',
+                        position: 'relative',
                         display: 'flex',
-                        flexDirection: 'column',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
                         justifyContent: 'space-between',
+                        gap: { xs: 1, sm: 1.5 },
                       }}
                     >
-                      <Box>
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='space-between'
-                          mb={2}
-                        >
-                          <Avatar sx={{ bgcolor: 'info.main', width: 40, height: 40 }}>
-                            <TimelineIcon />
-                          </Avatar>
-                          <Chip label='-15%' size='small' color='info' />
+                      <Chip
+                        label='-15%'
+                        size='small'
+                        color='info'
+                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                      />
+                      <Box display='flex' alignItems='center' gap={1.5} minWidth={0}>
+                        <Avatar sx={{ bgcolor: 'info.main', width: 36, height: 36 }}>
+                          <TimelineIcon />
+                        </Avatar>
+                        <Box minWidth={0}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='text.primary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: { xs: 2, md: 1 },
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Cambios mayores a &gt; 2 meses
+                          </Typography>
+                          <Typography
+                            variant='caption'
+                            color='text.secondary'
+                            sx={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 1,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            Proyectos con cambios de fechas
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle1'
-                          fontWeight='bold'
-                          color='text.primary'
-                          mb={1}
-                        >
-                          Retrasos &gt; 2 meses
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          Proyectos con cambios de fechas
-                        </Typography>
                       </Box>
-                      <Box display='flex' justifyContent='center' alignItems='center'>
-                        <Typography variant='h3' fontWeight='bold' color='info.main'>
-                          {cambiosFechas || 134}
-                        </Typography>
-                      </Box>
+                      <Typography variant='h4' fontWeight='bold' color='info.main'>
+                        {cambiosFechas || 134}
+                      </Typography>
                     </CardContent>
                   </Card>
                 </motion.div>
               </Grid>
+            </Grid>
 
+            {/* Fila 2 (centrada): 2 tarjetas */}
+            <Grid
+              container
+              spacing={{ xs: 1, sm: 1.2 }}
+              alignItems='stretch'
+              justifyContent='center'
+              sx={{ mt: { xs: 1.3, sm: 1 } }}
+            >
               {/* Sin Financiación */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6} md={4}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -603,7 +693,7 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('defunded')}
                     sx={{
-                      height: '180px',
+                      height: '140px',
                       backgroundColor: '#ffffff',
                       borderRadius: 2,
                       border: '2px solid #fca5a5',
@@ -619,48 +709,43 @@ const Dashboard: React.FC = () => {
                   >
                     <CardContent
                       sx={{
-                        p: 2,
+                        p: 1.5,
                         height: '100%',
+                        position: 'relative',
                         display: 'flex',
-                        flexDirection: 'column',
+                        alignItems: 'center',
                         justifyContent: 'space-between',
+                        gap: 1.5,
                       }}
                     >
-                      <Box>
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='space-between'
-                          mb={2}
-                        >
-                          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
-                            <MoneyOffIcon />
-                          </Avatar>
+                      <Box display='flex' alignItems='center' gap={1.5} minWidth={0}>
+                        <Avatar sx={{ bgcolor: 'error.main', width: 36, height: 36 }}>
+                          <MoneyOffIcon />
+                        </Avatar>
+                        <Box minWidth={0}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='text.primary'
+                            noWrap
+                          >
+                            Sin Financiación
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary' noWrap>
+                            Proyectos desfinanciados
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle1'
-                          fontWeight='bold'
-                          color='text.primary'
-                          mb={1}
-                        >
-                          Sin Financiación
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          Proyectos desfinanciados
-                        </Typography>
                       </Box>
-                      <Box display='flex' justifyContent='center' alignItems='center'>
-                        <Typography variant='h3' fontWeight='bold' color='error.main'>
-                          0
-                        </Typography>
-                      </Box>
+                      <Typography variant='h4' fontWeight='bold' color='error.main'>
+                        0
+                      </Typography>
                     </CardContent>
                   </Card>
                 </motion.div>
               </Grid>
 
               {/* Pendientes */}
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6} md={4}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -670,7 +755,7 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('definition')}
                     sx={{
-                      height: '180px',
+                      height: '140px',
                       backgroundColor: '#ffffff',
                       borderRadius: 2,
                       border: '2px solid #fbbf24',
@@ -686,42 +771,42 @@ const Dashboard: React.FC = () => {
                   >
                     <CardContent
                       sx={{
-                        p: 2,
+                        p: 1.5,
                         height: '100%',
+                        position: 'relative',
                         display: 'flex',
-                        flexDirection: 'column',
+                        alignItems: 'center',
                         justifyContent: 'space-between',
+                        gap: 1.5,
                       }}
                     >
-                      <Box>
-                        <Box
-                          display='flex'
-                          alignItems='center'
-                          justifyContent='space-between'
-                          mb={2}
-                        >
-                          <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40 }}>
-                            <AssignmentIcon />
-                          </Avatar>
-                          <Chip label='+5%' size='small' color='warning' />
+                      <Chip
+                        label='+5%'
+                        size='small'
+                        color='warning'
+                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                      />
+                      <Box display='flex' alignItems='center' gap={1.5} minWidth={0}>
+                        <Avatar sx={{ bgcolor: 'warning.main', width: 36, height: 36 }}>
+                          <AssignmentIcon />
+                        </Avatar>
+                        <Box minWidth={0}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='text.primary'
+                            noWrap
+                          >
+                            Pendientes
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary' noWrap>
+                            Proyectos en espera de definición
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle1'
-                          fontWeight='bold'
-                          color='text.primary'
-                          mb={1}
-                        >
-                          Pendientes
-                        </Typography>
-                        <Typography variant='caption' color='text.secondary'>
-                          Proyectos en espera de definición
-                        </Typography>
                       </Box>
-                      <Box display='flex' justifyContent='center' alignItems='center'>
-                        <Typography variant='h3' fontWeight='bold' color='warning.main'>
-                          {projectMetrics?.pendingDefinitionProjects.count || 20}
-                        </Typography>
-                      </Box>
+                      <Typography variant='h4' fontWeight='bold' color='warning.main'>
+                        {projectMetrics?.pendingDefinitionProjects.count || 20}
+                      </Typography>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -866,8 +951,8 @@ const Dashboard: React.FC = () => {
                   Proyectos que terminan después de 01/07/2027
                 </Typography>
                 <Typography variant='body2' color='text.secondary' mb={3}>
-                  Información detallada de las obras con fecha estimada después del 01/07/2027 (
-                  {projectMetrics.lateProjects.projects.length} obras)
+                  Información detallada de las obras con fecha de entrega estimada después del
+                  01/07/2027 ({projectMetrics.lateProjects.projects.length} obras)
                 </Typography>
 
                 <Grid container spacing={2}>
@@ -875,29 +960,34 @@ const Dashboard: React.FC = () => {
                     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                     .map((proyecto, index) => (
                       <Grid item xs={12} md={6} key={index}>
-                        <Card elevation={2} sx={{ p: 2, height: '100%' }}>
-                          <Typography variant='h6' fontWeight='bold' color='primary.main' mb={1}>
+                        <Card elevation={2} sx={{ p: 1.5, height: '100%' }}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='primary.main'
+                            mb={0.5}
+                          >
                             {proyecto.name}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Etapa:</strong> {proyecto.etapa}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Fecha de entrega real:</strong> {proyecto.fechaEstimada}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Estado Entrega:</strong> {proyecto.estadoEntrega}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Progreso:</strong> {proyecto.porcentajeEjecucion}%
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Dependencia:</strong> {proyecto.dependencia}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Proyecto Estratégico:</strong> {proyecto.proyectoEstrategico}
                           </Typography>
-                          <Typography variant='body2' color='warning.main' fontWeight='bold'>
+                          <Typography variant='caption' color='warning.main' fontWeight='bold'>
                             <strong>Razón:</strong> {proyecto.razon}
                           </Typography>
                         </Card>
@@ -965,29 +1055,34 @@ const Dashboard: React.FC = () => {
                     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                     .map((proyecto, index) => (
                       <Grid item xs={12} md={6} key={index}>
-                        <Card elevation={2} sx={{ p: 2, height: '100%' }}>
-                          <Typography variant='h6' fontWeight='bold' color='primary.main' mb={1}>
+                        <Card elevation={2} sx={{ p: 1.5, height: '100%' }}>
+                          <Typography
+                            variant='subtitle1'
+                            fontWeight='bold'
+                            color='primary.main'
+                            mb={0.5}
+                          >
                             {proyecto.name}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Etapa:</strong> {proyecto.etapa}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Fecha Estimada:</strong> {proyecto.fechaEstimada}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Estado Entrega:</strong> {proyecto.estadoEntrega}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Progreso:</strong> {proyecto.porcentajeEjecucion}%
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Dependencia:</strong> {proyecto.dependencia}
                           </Typography>
-                          <Typography variant='body2' color='text.secondary' mb={1}>
+                          <Typography variant='caption' color='text.secondary' mb={0.5}>
                             <strong>Proyecto Estratégico:</strong> {proyecto.proyectoEstrategico}
                           </Typography>
-                          <Typography variant='body2' color='warning.main' fontWeight='bold'>
+                          <Typography variant='caption' color='warning.main' fontWeight='bold'>
                             <strong>Razón:</strong> {proyecto.razon}
                           </Typography>
                         </Card>

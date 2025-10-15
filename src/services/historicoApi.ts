@@ -1,5 +1,5 @@
 import { ApiHistoricoResponse, ApiHistoricoItem, CambioFechaEstimada } from '../types/api';
-import { formatCurrency, parseCurrency } from '../utils/currencyFormatting';
+import { parseCurrency } from '../utils/currencyFormatting';
 
 const env =
   (import.meta as unknown as { env?: { VITE_API_BASE?: string; VITE_API_KEY?: string } }).env || {};
@@ -17,7 +17,7 @@ export class HistoricoApiService {
     try {
       const url = `${this.baseUrl}/historico?apikey=${this.apiKey}`;
 
-      console.log('Fetching histórico URL:', url);
+      // Debug removido
 
       const response = await fetch(url, {
         method: 'GET',
@@ -34,16 +34,10 @@ export class HistoricoApiService {
 
       const data: ApiHistoricoResponse = await response.json();
 
-      console.log('📊 Histórico data received:', {
-        count: data.data?.length,
-        pagination: data.pagination,
-        metadata: data.metadata,
-      });
+      // Debug removido
 
       // Mostrar algunos ejemplos de la respuesta
-      if (data.data && data.data.length > 0) {
-        console.log('📋 Primeros 3 registros del histórico:', data.data.slice(0, 3));
-      }
+      // Debug removido
 
       return data;
     } catch (error) {
@@ -58,22 +52,10 @@ export class HistoricoApiService {
    * Detecta alertas porque "eso no se puede" (no debería pasar)
    */
   calculateCambiosFechasEstimadas(historicoData: ApiHistoricoItem[]): CambioFechaEstimada[] {
-    console.log('📊 Procesando histórico:', historicoData.length, 'registros');
+    // Debug removido
 
     // Mostrar algunos ejemplos de los datos que llegan
-    if (historicoData.length > 0) {
-      console.log(
-        '📋 Ejemplos de datos del histórico:',
-        historicoData.slice(0, 3).map(item => ({
-          id: item.id,
-          obra: item['ID OBRA'],
-          campo: item['CAMPO MODIFICADO'],
-          valorAnterior: item['VALOR ANTERIOR'],
-          valorNuevo: item['VALOR NUEVO'],
-          fechaModificacion: item['FECHA MODIFICACIÓN'],
-        }))
-      );
-    }
+    // Debug removido
 
     // Filtrar desde 2 meses antes de septiembre 2025 (agosto 2025)
     const fechaLimite = new Date('2025-08-01');
@@ -102,7 +84,7 @@ export class HistoricoApiService {
       );
     });
 
-    console.log('📅 Cambios de fechas filtrados:', cambiosFechas.length, 'registros');
+    // Debug removido
 
     // Ordenar por fecha de modificación (mayor a menor)
     const cambiosOrdenados = cambiosFechas.sort(
@@ -110,7 +92,7 @@ export class HistoricoApiService {
         new Date(b['FECHA MODIFICACIÓN']).getTime() - new Date(a['FECHA MODIFICACIÓN']).getTime()
     );
 
-    console.log('📅 Cambios ordenados por fecha de modificación');
+    // Debug removido
 
     // Agrupar por obra para encontrar el cambio más significativo de cada obra
     const cambiosPorObra = new Map<number, ApiHistoricoItem[]>();
@@ -146,12 +128,7 @@ export class HistoricoApiService {
               this.calcularDiferenciaMeses(fechaAnterior, fechaNueva)
             );
 
-            console.log(`📅 Analizando cambio obra ${obraId}:`, {
-              campo: cambio['CAMPO MODIFICADO'],
-              fechaAnterior: fechaAnterior.toLocaleDateString(),
-              fechaNueva: fechaNueva.toLocaleDateString(),
-              mesesDiferencia: mesesDiferencia,
-            });
+            // Debug removido
 
             // Si es mayor a 2 meses y es el mayor cambio encontrado para esta obra
             if (mesesDiferencia > 2 && mesesDiferencia > mayorDiferencia) {
@@ -164,7 +141,7 @@ export class HistoricoApiService {
 
       // Si encontramos un cambio significativo para esta obra, agregarlo
       if (mejorCambio !== null) {
-        console.log(`✅ ALERTA: Obra ${obraId} tiene ${mayorDiferencia} meses de diferencia`);
+        // Debug removido
         cambios.push({
           obra_id: obraId,
           nombre_obra: mejorCambio['NOMBRE OBRA'] || 'Sin nombre',
@@ -183,11 +160,7 @@ export class HistoricoApiService {
 
     // Ordenar por meses de atraso (mayor atraso primero)
     const cambiosFinales = cambios.sort((a, b) => b.meses_atraso - a.meses_atraso);
-    console.log(
-      '✅ Obras con cambios de fecha estimada > 2 meses:',
-      cambiosFinales.length,
-      'obras'
-    );
+    // Debug removido
     return cambiosFinales;
   }
 
@@ -209,22 +182,10 @@ export class HistoricoApiService {
    * Detecta alertas por cambios significativos de presupuesto
    */
   calculateCambiosPresupuesto(historicoData: ApiHistoricoItem[]): CambioFechaEstimada[] {
-    console.log('💰 Procesando cambios de presupuesto:', historicoData.length, 'registros');
+    // Debug removido
 
     // Mostrar algunos ejemplos de los datos que llegan
-    if (historicoData.length > 0) {
-      console.log(
-        '📋 Ejemplos de datos del histórico (presupuesto):',
-        historicoData.slice(0, 3).map(item => ({
-          id: item.id,
-          obra: item['ID OBRA'],
-          campo: item['CAMPO MODIFICADO'],
-          valorAnterior: item['VALOR ANTERIOR'],
-          valorNuevo: item['VALOR NUEVO'],
-          fechaModificacion: item['FECHA MODIFICACIÓN'],
-        }))
-      );
-    }
+    // Debug removido
 
     // Filtrar desde septiembre 1, 2025
     const fechaLimite = new Date('2025-09-01');
@@ -252,7 +213,7 @@ export class HistoricoApiService {
       );
     });
 
-    console.log('💰 Cambios de presupuesto filtrados:', cambiosPresupuesto.length, 'registros');
+    // Debug removido
 
     // Ordenar por fecha de modificación (mayor a menor)
     const cambiosOrdenados = cambiosPresupuesto.sort(
@@ -260,7 +221,7 @@ export class HistoricoApiService {
         new Date(b['FECHA MODIFICACIÓN']).getTime() - new Date(a['FECHA MODIFICACIÓN']).getTime()
     );
 
-    console.log('💰 Cambios ordenados por fecha de modificación');
+    // Debug removido
 
     // Agrupar por obra para encontrar el cambio más significativo de cada obra
     const cambiosPorObra = new Map<number, ApiHistoricoItem[]>();
@@ -294,12 +255,7 @@ export class HistoricoApiService {
           if (costoAnterior !== null && costoNuevo !== null) {
             const diferenciaCosto = Math.abs(costoNuevo - costoAnterior);
 
-            console.log(`💰 Analizando cambio presupuesto obra ${obraId}:`, {
-              campo: cambio['CAMPO MODIFICADO'],
-              costoAnterior: formatCurrency(costoAnterior),
-              costoNuevo: formatCurrency(costoNuevo),
-              diferencia: formatCurrency(diferenciaCosto),
-            });
+            // Debug removido
 
             // Si la diferencia es mayor a 500 millones y es el mayor cambio encontrado para esta obra
             if (diferenciaCosto > 500000000 && diferenciaCosto > mayorDiferencia) {
@@ -312,9 +268,7 @@ export class HistoricoApiService {
 
       // Si encontramos un cambio significativo para esta obra, agregarlo
       if (mejorCambio !== null) {
-        console.log(
-          `✅ ALERTA PRESUPUESTO: Obra ${obraId} tiene ${formatCurrency(mayorDiferencia)} de diferencia`
-        );
+        // Debug removido
         cambios.push({
           obra_id: obraId,
           nombre_obra: mejorCambio['NOMBRE OBRA'] || 'Sin nombre',
@@ -333,7 +287,7 @@ export class HistoricoApiService {
 
     // Ordenar por diferencia de presupuesto (mayor diferencia primero)
     const cambiosFinales = cambios.sort((a, b) => b.meses_atraso - a.meses_atraso);
-    console.log('✅ Obras con cambios de presupuesto > 500M:', cambiosFinales.length, 'obras');
+    // Debug removido
     return cambiosFinales;
   }
 
@@ -348,9 +302,9 @@ export class HistoricoApiService {
     por_proyecto: Record<string, number>;
   }> {
     try {
-      console.log('🚀 Iniciando cálculo de cambios de fechas estimadas...');
+      // Debug removido
       const historicoResponse = await this.getHistorico();
-      console.log('📊 Datos del histórico obtenidos, iniciando cálculo...');
+      // Debug removido
       const cambios = this.calculateCambiosFechasEstimadas(historicoResponse.data);
 
       // Calcular estadísticas
@@ -389,9 +343,9 @@ export class HistoricoApiService {
     por_proyecto: Record<string, number>;
   }> {
     try {
-      console.log('🚀 Iniciando cálculo de cambios de presupuesto...');
+      // Debug removido
       const historicoResponse = await this.getHistorico();
-      console.log('📊 Datos del histórico obtenidos, iniciando cálculo de presupuesto...');
+      // Debug removido
       const cambios = this.calculateCambiosPresupuesto(historicoResponse.data);
 
       // Calcular estadísticas

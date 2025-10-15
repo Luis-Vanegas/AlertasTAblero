@@ -3,7 +3,7 @@
  */
 
 import { MappedAlerta } from '../types/api';
-import { SEVERITY_THRESHOLDS } from '../constants';
+import { severityService } from '../services/severity';
 
 /**
  * Normaliza valores de gravedad a llaves consistentes
@@ -85,46 +85,7 @@ export const getImpactMeta = (impacto: string) => {
  * Calcula la severidad de una alerta
  */
 export const calculateSeverity = (alerta: MappedAlerta): 'ok' | 'warning' | 'critical' => {
-  const gravedad = normalizeGravedad(alerta.gravedad);
-  const impacto = (alerta.impacto_riesgo || '').toLowerCase();
-  const generaCambio = alerta.genera_cambio_proyecto === true;
-
-  // 1) Clasificación base por gravedad (prioritaria)
-  let level: 'ok' | 'warning' | 'critical';
-  if (
-    SEVERITY_THRESHOLDS.critical.gravedad.includes(gravedad as 'alta' | 'critica') ||
-    gravedad === 'crítica'
-  ) {
-    level = 'critical';
-  } else if (SEVERITY_THRESHOLDS.warning.gravedad.includes(gravedad as 'media')) {
-    level = 'warning';
-  } else {
-    // Leve/baja/normal/null => ok
-    level = 'ok';
-  }
-
-  // 2) Ajuste por impacto (solo sube si aún no es crítico)
-  if (level !== 'critical') {
-    if (
-      SEVERITY_THRESHOLDS.critical.impacto_riesgo.includes(
-        impacto as 'cronograma' | 'presupuesto' | 'calidad'
-      )
-    ) {
-      level = 'warning';
-    } else if (
-      SEVERITY_THRESHOLDS.warning.impacto_riesgo.includes(impacto as 'riesgo' | 'administrativo')
-    ) {
-      level = level === 'ok' ? 'warning' : level;
-    }
-  }
-
-  // 3) Genera cambio: escalar un nivel, no forzar crítico siempre
-  if (generaCambio) {
-    if (level === 'ok') level = 'warning';
-    else if (level === 'warning') level = 'critical';
-  }
-
-  return level;
+  return severityService.calculateSeverity(alerta);
 };
 
 /**

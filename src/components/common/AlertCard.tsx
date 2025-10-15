@@ -43,7 +43,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
       <Card
         onClick={() => onViewDetails(alerta)}
         sx={{
-          p: { xs: 2, sm: 2 },
+          p: { xs: 1.25, sm: 1.5 },
           borderLeft: priorityActive
             ? `6px solid ${sev === 'media' ? theme.palette.warning.main : theme.palette.error.main}`
             : `4px solid ${getGravedadColor(alerta.gravedad)}`,
@@ -56,7 +56,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
             : `0 2px 8px rgba(0,0,0,0.1)`,
           display: 'flex',
           flexDirection: 'column',
-          height: { xs: 200, sm: 220 },
+          height: { xs: 160, sm: 190 },
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
           },

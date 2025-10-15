@@ -6,24 +6,16 @@ export const useObraExtra = (obraId?: string | number) => {
     queryKey: ['obra-extra', obraId],
     queryFn: async () => {
       if (!obraId) {
-        console.log('useObraExtra: No obraId provided');
         return null;
       }
-      console.log('useObraExtra: Fetching data for obraId:', obraId);
       const data = await obrasApiService.getObraById(obraId);
-      console.log('useObraExtra: Received data:', data);
       return data;
     },
     enabled: !!obraId,
     staleTime: 10 * 60 * 1000,
   });
 
-  console.log('useObraExtra: Query state:', {
-    obraId,
-    isLoading: query.isLoading,
-    error: query.error,
-    data: query.data,
-  });
+  // Debug removido
 
   return {
     obraExtra: (query.data as ObraExtra | null) ?? null,

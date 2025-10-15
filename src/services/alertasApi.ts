@@ -164,7 +164,7 @@ export class AlertasApiService {
       const queryString = params.toString();
       const url = `${this.baseUrl}/alertas?apikey=${this.apiKey}${queryString ? `&${queryString}` : ''}`;
 
-      console.log('Fetching URL:', url);
+      // Debug removido
 
       const response = await fetch(url, {
         method: 'GET',
@@ -188,14 +188,7 @@ export class AlertasApiService {
           : [];
         const distGravedad: Record<string, number> = {};
         const distImpacto: Record<string, number> = {};
-        raw.slice(0, 5).forEach((a, idx: number) => {
-          console.log(
-            `Ejemplo[${idx}] → GRAVEDAD:`,
-            getField(a, 'GRAVEDAD') ?? getField(a, 'Gravedad') ?? getField(a, 'SEVERIDAD') ?? null,
-            '| IMPACTO:',
-            getField(a, 'IMPACTO RIESGO') ?? null
-          );
-        });
+        // Debug removido
         raw.forEach(a => {
           const g =
             getString(a, 'GRAVEDAD') ?? getString(a, 'Gravedad') ?? getString(a, 'SEVERIDAD') ?? '';
@@ -203,16 +196,12 @@ export class AlertasApiService {
           if (g) distGravedad[g] = (distGravedad[g] || 0) + 1;
           if (i) distImpacto[i] = (distImpacto[i] || 0) + 1;
         });
-        console.log('Distribución GRAVEDAD (raw):', distGravedad);
-        console.log('Distribución IMPACTO RIESGO (raw):', distImpacto);
+        // Debug removido
       } catch (e) {
         console.warn('No se pudo calcular distribución de campos', e);
       }
 
-      console.log('API Data received:', {
-        count: (data as unknown as { data?: unknown[] }).data?.length,
-        pagination: (data as unknown as { pagination?: unknown }).pagination,
-      });
+      // Debug removido
       return data;
     } catch (error) {
       console.warn('API no disponible, usando datos mock:', error);
@@ -345,10 +334,7 @@ export class AlertasApiService {
       usuario_actualizador: apiAlerta['USUARIO ACTUALIZADOR'] || null,
     };
 
-    console.log('Mapeando alerta:', {
-      original: apiAlerta,
-      mapped: mapped,
-    });
+    // Debug removido
 
     return mapped;
   }

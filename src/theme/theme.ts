@@ -199,7 +199,7 @@ export const theme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 16,
-          boxShadow: '0 16px 48px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 1px 48px rgba(0, 0, 0, 0.2)',
         },
       },
     },
@@ -210,7 +210,7 @@ export const theme = createTheme({
           color: colors.textSecondary,
           fontSize: '0.875rem',
           borderRadius: 8,
-          padding: '8px 12px',
+          padding: '2px 12px',
         },
         arrow: {
           color: colors.textPrimary,

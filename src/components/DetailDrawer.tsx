@@ -45,8 +45,7 @@ const DetailDrawer: React.FC<DetailDrawerProps> = ({ open, onClose, alerta }) =>
   const labelSx = { color: 'text.secondary', fontWeight: 600, minWidth: 170 };
   const { obraExtra } = useObraExtra(alerta?.obra_id);
 
-  console.log('DetailDrawer: alerta.obra_id:', alerta?.obra_id);
-  console.log('DetailDrawer: obraExtra:', obraExtra);
+
 
   return (
     <Drawer
