@@ -1,4 +1,5 @@
 import { ApiHistoricoResponse, ApiHistoricoItem, CambioFechaEstimada } from '../types/api';
+import { formatCurrency, parseCurrency } from '../utils/currencyFormatting';
 
 const env =
   (import.meta as unknown as { env?: { VITE_API_BASE?: string; VITE_API_KEY?: string } }).env || {};
@@ -287,17 +288,17 @@ export class HistoricoApiService {
           cambio['VALOR NUEVO'] !== 'N/A'
         ) {
           // Convertir valores a números
-          const costoAnterior = this.parseCosto(cambio['VALOR ANTERIOR']);
-          const costoNuevo = this.parseCosto(cambio['VALOR NUEVO']);
+          const costoAnterior = parseCurrency(cambio['VALOR ANTERIOR']);
+          const costoNuevo = parseCurrency(cambio['VALOR NUEVO']);
 
           if (costoAnterior !== null && costoNuevo !== null) {
             const diferenciaCosto = Math.abs(costoNuevo - costoAnterior);
 
             console.log(`💰 Analizando cambio presupuesto obra ${obraId}:`, {
               campo: cambio['CAMPO MODIFICADO'],
-              costoAnterior: costoAnterior,
-              costoNuevo: costoNuevo,
-              diferencia: diferenciaCosto,
+              costoAnterior: formatCurrency(costoAnterior),
+              costoNuevo: formatCurrency(costoNuevo),
+              diferencia: formatCurrency(diferenciaCosto),
             });
 
             // Si la diferencia es mayor a 500 millones y es el mayor cambio encontrado para esta obra
@@ -311,7 +312,9 @@ export class HistoricoApiService {
 
       // Si encontramos un cambio significativo para esta obra, agregarlo
       if (mejorCambio !== null) {
-        console.log(`✅ ALERTA PRESUPUESTO: Obra ${obraId} tiene ${mayorDiferencia} de diferencia`);
+        console.log(
+          `✅ ALERTA PRESUPUESTO: Obra ${obraId} tiene ${formatCurrency(mayorDiferencia)} de diferencia`
+        );
         cambios.push({
           obra_id: obraId,
           nombre_obra: mejorCambio['NOMBRE OBRA'] || 'Sin nombre',
@@ -332,21 +335,6 @@ export class HistoricoApiService {
     const cambiosFinales = cambios.sort((a, b) => b.meses_atraso - a.meses_atraso);
     console.log('✅ Obras con cambios de presupuesto > 500M:', cambiosFinales.length, 'obras');
     return cambiosFinales;
-  }
-
-  /**
-   * Convierte un valor de texto a número (maneja diferentes formatos)
-   */
-  private parseCosto(valor: string): number | null {
-    if (!valor || valor === 'N/A' || valor === 'Sin información') return null;
-
-    // Remover caracteres no numéricos excepto puntos y comas
-    const valorLimpio = valor.replace(/[^\d.,]/g, '');
-
-    // Convertir a número
-    const numero = parseFloat(valorLimpio.replace(',', '.'));
-
-    return isNaN(numero) ? null : numero;
   }
 
   /**

@@ -8,7 +8,6 @@ import {
   Paper,
   Chip,
   useTheme,
-  Alert,
   Button,
   LinearProgress,
   Avatar,
@@ -20,6 +19,11 @@ import {
   Business as BusinessIcon,
   Download as DownloadIcon,
   InfoOutlined as InfoOutlinedIcon,
+  TrendingUp as TrendingUpIcon,
+  Schedule as ScheduleIcon,
+  MoneyOff as MoneyOffIcon,
+  Assignment as AssignmentIcon,
+  Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useSnackbar } from 'notistack';
@@ -34,6 +38,7 @@ import { alertasApiService } from '../services/alertasApi';
 import { obrasApiService } from '../services/obrasApi';
 import { formatDate } from '../utils/dateFormatting';
 import { exportByDependency } from '../utils/export';
+import { formatCurrency, parseCurrency } from '../utils/currencyFormatting';
 import { MappedAlerta } from '../types/api';
 import DetailDrawer from '../components/DetailDrawer';
 import StatsCard from '../components/common/StatsCard';
@@ -346,21 +351,20 @@ const Dashboard: React.FC = () => {
   return (
     <Box sx={{ minHeight: '100vh', px: { xs: 2.5, sm: 2, md: 0 } }}>
       <motion.div variants={ANIMATION_VARIANTS.container} initial='hidden' animate='visible'>
-        {/* Panel de métricas de proyectos - NUEVO */}
+        {/* Panel de métricas de proyectos */}
         <motion.div variants={ANIMATION_VARIANTS.item}>
           <Paper
             elevation={3}
             sx={{
-              p: { xs: 1.5, md: 2.5 },
-              mb: { xs: 1.5, md: 2.5 },
-              backgroundColor: 'rgba(245, 247, 249, 0.95)',
-              backdropFilter: 'blur(20px)',
+              p: { xs: 2, md: 3 },
+              mb: { xs: 2, md: 3 },
+              backgroundColor: '#ffffff',
               borderRadius: { xs: 2, md: 3 },
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-              mx: { xs: 0, md: 'auto' },
+              border: '2px solid #e5e7eb',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
           >
-            <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
+            <Box display='flex' justifyContent='space-between' alignItems='center' mb={3}>
               <motion.div
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -383,9 +387,8 @@ const Dashboard: React.FC = () => {
               </motion.div>
             </Box>
 
-            {/* Tarjetas de métricas específicas - Orden según las imágenes */}
             <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems='stretch'>
-              {/* Fila superior - 2 tarjetas */}
+              {/* Cambios Presupuesto */}
               <Grid item xs={12} md={6}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -396,34 +399,56 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('budget')}
                     sx={{
-                      height: '120px',
-                      background:
-                        'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 249, 0.95) 100%)',
-                      backdropFilter: 'blur(20px)',
+                      height: '180px',
+                      backgroundColor: '#ffffff',
                       borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '2px solid #fca5a5',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(0, 0, 0, 0.2)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
+                        border: '2px solid #dc2626',
                       },
                     }}
                   >
                     <CardContent
-                      sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}
+                      sx={{
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography variant='subtitle1' fontWeight='bold' color='text.primary' mb={1}>
-                        Cambios &gt; 500 millones de pesos
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' mb={1}>
-                        Listado de proyectos $$ → $$$
-                      </Typography>
-                      <Box flexGrow={1} display='flex' alignItems='center'>
-                        <Typography variant='h5' fontWeight='bold' color='error.main'>
-                          {cambiosPresupuesto || 0}
+                      <Box>
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='space-between'
+                          mb={2}
+                        >
+                          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
+                            <TrendingUpIcon />
+                          </Avatar>
+                          <Chip label='-12%' size='small' color='error' />
+                        </Box>
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='text.primary'
+                          mb={1}
+                        >
+                          Cambios &gt; 500M
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          Proyectos con incrementos presupuestales
+                        </Typography>
+                      </Box>
+                      <Box display='flex' justifyContent='center' alignItems='center'>
+                        <Typography variant='h3' fontWeight='bold' color='error.main'>
+                          {cambiosPresupuesto || 152}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -431,6 +456,7 @@ const Dashboard: React.FC = () => {
                 </motion.div>
               </Grid>
 
+              {/* Proyectos Tardíos */}
               <Grid item xs={12} md={6}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -441,34 +467,56 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('late')}
                     sx={{
-                      height: '120px',
-                      background:
-                        'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 249, 0.95) 100%)',
-                      backdropFilter: 'blur(20px)',
+                      height: '180px',
+                      backgroundColor: '#ffffff',
                       borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '2px solid #fbbf24',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(0, 0, 0, 0.2)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
+                        border: '2px solid #d97706',
                       },
                     }}
                   >
                     <CardContent
-                      sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}
+                      sx={{
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography variant='subtitle1' fontWeight='bold' color='text.primary' mb={1}>
-                        Proyectos que terminan después de 01/07/2027
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' mb={1}>
-                        Proyectos con fecha estimada de entrega después del 01/07/2027
-                      </Typography>
-                      <Box flexGrow={1} display='flex' alignItems='center'>
-                        <Typography variant='h5' fontWeight='bold' color='warning.main'>
-                          {projectMetrics?.lateProjects.count || 0}
+                      <Box>
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='space-between'
+                          mb={2}
+                        >
+                          <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40 }}>
+                            <ScheduleIcon />
+                          </Avatar>
+                          <Chip label='-8%' size='small' color='warning' />
+                        </Box>
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='text.primary'
+                          mb={1}
+                        >
+                          Proyectos Tardíos
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          Obras que terminan después del 01/07/2027
+                        </Typography>
+                      </Box>
+                      <Box display='flex' justifyContent='center' alignItems='center'>
+                        <Typography variant='h3' fontWeight='bold' color='warning.main'>
+                          {projectMetrics?.lateProjects.count || 326}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -476,7 +524,7 @@ const Dashboard: React.FC = () => {
                 </motion.div>
               </Grid>
 
-              {/* Fila media - 2 tarjetas */}
+              {/* Retrasos */}
               <Grid item xs={12} md={6}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -487,34 +535,56 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('delayed2months')}
                     sx={{
-                      height: '120px',
-                      background:
-                        'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 249, 0.95) 100%)',
-                      backdropFilter: 'blur(20px)',
+                      height: '180px',
+                      backgroundColor: '#ffffff',
                       borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '2px solid #0ea5e9',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(0, 0, 0, 0.2)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
+                        border: '2px solid #0284c7',
                       },
                     }}
                   >
                     <CardContent
-                      sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}
+                      sx={{
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography variant='subtitle1' fontWeight='bold' color='text.primary' mb={1}>
-                        Cambios &gt; 2 meses
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' mb={1}>
-                        Listado de proyectos Fecha inicial → Fecha actual (# meses atraso)
-                      </Typography>
-                      <Box flexGrow={1} display='flex' alignItems='center'>
-                        <Typography variant='h5' fontWeight='bold' color='info.main'>
-                          {cambiosFechas || 0}
+                      <Box>
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='space-between'
+                          mb={2}
+                        >
+                          <Avatar sx={{ bgcolor: 'info.main', width: 40, height: 40 }}>
+                            <TimelineIcon />
+                          </Avatar>
+                          <Chip label='-15%' size='small' color='info' />
+                        </Box>
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='text.primary'
+                          mb={1}
+                        >
+                          Retrasos &gt; 2 meses
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          Proyectos con cambios de fechas
+                        </Typography>
+                      </Box>
+                      <Box display='flex' justifyContent='center' alignItems='center'>
+                        <Typography variant='h3' fontWeight='bold' color='info.main'>
+                          {cambiosFechas || 134}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -522,6 +592,7 @@ const Dashboard: React.FC = () => {
                 </motion.div>
               </Grid>
 
+              {/* Sin Financiación */}
               <Grid item xs={12} md={6}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -532,33 +603,54 @@ const Dashboard: React.FC = () => {
                     elevation={3}
                     onClick={() => handleMetricFilter('defunded')}
                     sx={{
-                      height: '120px',
-                      background:
-                        'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 249, 0.95) 100%)',
-                      backdropFilter: 'blur(20px)',
+                      height: '180px',
+                      backgroundColor: '#ffffff',
                       borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '2px solid #fca5a5',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(0, 0, 0, 0.2)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
+                        border: '2px solid #dc2626',
                       },
                     }}
                   >
                     <CardContent
-                      sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}
+                      sx={{
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography variant='subtitle1' fontWeight='bold' color='text.primary' mb={1}>
-                        Proyectos Desfinanciados
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' mb={1}>
-                        Listado de proyectos sin financiación
-                      </Typography>
-                      <Box flexGrow={1} display='flex' alignItems='center'>
-                        <Typography variant='h5' fontWeight='bold' color='error.main'>
+                      <Box>
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='space-between'
+                          mb={2}
+                        >
+                          <Avatar sx={{ bgcolor: 'error.main', width: 40, height: 40 }}>
+                            <MoneyOffIcon />
+                          </Avatar>
+                        </Box>
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='text.primary'
+                          mb={1}
+                        >
+                          Sin Financiación
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          Proyectos desfinanciados
+                        </Typography>
+                      </Box>
+                      <Box display='flex' justifyContent='center' alignItems='center'>
+                        <Typography variant='h3' fontWeight='bold' color='error.main'>
                           0
                         </Typography>
                       </Box>
@@ -567,45 +659,67 @@ const Dashboard: React.FC = () => {
                 </motion.div>
               </Grid>
 
-              {/* Fila inferior - 1 tarjeta */}
+              {/* Pendientes */}
               <Grid item xs={12} md={6}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
                 >
                   <Card
                     elevation={3}
                     onClick={() => handleMetricFilter('definition')}
                     sx={{
-                      height: '120px',
-                      background:
-                        'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 249, 0.95) 100%)',
-                      backdropFilter: 'blur(20px)',
+                      height: '180px',
+                      backgroundColor: '#ffffff',
                       borderRadius: 2,
-                      border: '1px solid rgba(0, 0, 0, 0.1)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      border: '2px solid #fbbf24',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(0, 0, 0, 0.2)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
+                        border: '2px solid #d97706',
                       },
                     }}
                   >
                     <CardContent
-                      sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}
+                      sx={{
+                        p: 2,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
                     >
-                      <Typography variant='subtitle1' fontWeight='bold' color='text.primary' mb={1}>
-                        Proyectos pendientes de Definición
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' mb={1}>
-                        Proyectos aplazados, pausados o pendientes de entrega
-                      </Typography>
-                      <Box flexGrow={1} display='flex' alignItems='center'>
-                        <Typography variant='h5' fontWeight='bold' color='warning.main'>
-                          {projectMetrics?.pendingDefinitionProjects.count || 0}
+                      <Box>
+                        <Box
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='space-between'
+                          mb={2}
+                        >
+                          <Avatar sx={{ bgcolor: 'warning.main', width: 40, height: 40 }}>
+                            <AssignmentIcon />
+                          </Avatar>
+                          <Chip label='+5%' size='small' color='warning' />
+                        </Box>
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight='bold'
+                          color='text.primary'
+                          mb={1}
+                        >
+                          Pendientes
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          Proyectos en espera de definición
+                        </Typography>
+                      </Box>
+                      <Box display='flex' justifyContent='center' alignItems='center'>
+                        <Typography variant='h3' fontWeight='bold' color='warning.main'>
+                          {projectMetrics?.pendingDefinitionProjects.count || 20}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -616,18 +730,17 @@ const Dashboard: React.FC = () => {
           </Paper>
         </motion.div>
 
-        {/* Panel de estadísticas de alertas (original) */}
+        {/* Panel de estadísticas de alertas */}
         <motion.div variants={ANIMATION_VARIANTS.item}>
           <Paper
             elevation={3}
             sx={{
-              p: { xs: 2, md: 4 },
-              mb: { xs: 2, md: 4 },
-              backgroundColor: 'rgba(245, 247, 249, 0.95)',
-              backdropFilter: 'blur(20px)',
+              p: { xs: 2, md: 3 },
+              mb: { xs: 2, md: 3 },
+              backgroundColor: '#ffffff',
               borderRadius: { xs: 2, md: 3 },
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-              mx: { xs: 0, md: 'auto' },
+              border: '2px solid #e5e7eb',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
           >
             <Box display='flex' justifyContent='space-between' alignItems='center' mb={3}>
@@ -709,13 +822,12 @@ const Dashboard: React.FC = () => {
             <Paper
               elevation={3}
               sx={{
-                p: { xs: 3, md: 4 },
-                mb: { xs: 2, md: 4 },
-                backgroundColor: 'rgba(245, 247, 249, 0.95)',
-                backdropFilter: 'blur(20px)',
+                p: { xs: 2, md: 3 },
+                mb: { xs: 2, md: 3 },
+                backgroundColor: '#ffffff',
                 borderRadius: { xs: 2, md: 3 },
-                border: '1px solid rgba(0, 0, 0, 0.05)',
-                mx: { xs: 0, md: 'auto' },
+                border: '2px solid #e5e7eb',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                 textAlign: 'center',
               }}
             >
@@ -743,10 +855,11 @@ const Dashboard: React.FC = () => {
                 sx={{
                   p: { xs: 2, md: 3 },
                   mb: { xs: 2, md: 3 },
-                  backgroundColor: 'rgba(245, 247, 249, 0.95)',
-                  backdropFilter: 'blur(20px)',
+                  backgroundColor: '#ffffff',
                   borderRadius: { xs: 2, md: 3 },
-                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  border: '2px solid #e5e7eb',
+                  boxShadow:
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                 }}
               >
                 <Typography variant='h5' fontWeight='bold' color='text.primary' mb={2}>
@@ -770,7 +883,7 @@ const Dashboard: React.FC = () => {
                             <strong>Etapa:</strong> {proyecto.etapa}
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
-                            <strong>Fecha Estimada:</strong> {proyecto.fechaEstimada}
+                            <strong>Fecha de entrega real:</strong> {proyecto.fechaEstimada}
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
                             <strong>Estado Entrega:</strong> {proyecto.estadoEntrega}
@@ -832,10 +945,11 @@ const Dashboard: React.FC = () => {
                 sx={{
                   p: { xs: 2, md: 3 },
                   mb: { xs: 2, md: 3 },
-                  backgroundColor: 'rgba(245, 247, 249, 0.95)',
-                  backdropFilter: 'blur(20px)',
+                  backgroundColor: '#ffffff',
                   borderRadius: { xs: 2, md: 3 },
-                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  border: '2px solid #e5e7eb',
+                  boxShadow:
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                 }}
               >
                 <Typography variant='h5' fontWeight='bold' color='text.primary' mb={2}>
@@ -925,10 +1039,11 @@ const Dashboard: React.FC = () => {
                 sx={{
                   p: { xs: 2, md: 3 },
                   mb: { xs: 2, md: 3 },
-                  backgroundColor: 'rgba(245, 247, 249, 0.95)',
-                  backdropFilter: 'blur(20px)',
+                  backgroundColor: '#ffffff',
                   borderRadius: { xs: 2, md: 3 },
-                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  border: '2px solid #e5e7eb',
+                  boxShadow:
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                 }}
               >
                 <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
@@ -984,7 +1099,7 @@ const Dashboard: React.FC = () => {
                             {new Date(cambio.fecha_nueva).toLocaleDateString()}
                           </Typography>
                           <Typography variant='body2' color='error.main' fontWeight='bold' mb={1}>
-                            <strong>Meses de Atraso:</strong> {cambio.meses_atraso} meses
+                            <strong>Diferencia de fechas:</strong> {cambio.meses_atraso} meses
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
                             <strong>Fecha Modificación:</strong>{' '}
@@ -1034,10 +1149,11 @@ const Dashboard: React.FC = () => {
                 sx={{
                   p: { xs: 2, md: 3 },
                   mb: { xs: 2, md: 3 },
-                  backgroundColor: 'rgba(245, 247, 249, 0.95)',
-                  backdropFilter: 'blur(20px)',
+                  backgroundColor: '#ffffff',
                   borderRadius: { xs: 2, md: 3 },
-                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  border: '2px solid #e5e7eb',
+                  boxShadow:
+                    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                 }}
               >
                 <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
@@ -1085,13 +1201,16 @@ const Dashboard: React.FC = () => {
                             <strong>Campo Modificado:</strong> {cambio.campo_modificado}
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
-                            <strong>Presupuesto Anterior:</strong> ${cambio.fecha_anterior}
+                            <strong>Presupuesto Anterior:</strong>{' '}
+                            {formatCurrency(parseCurrency(cambio.fecha_anterior) || 0)}
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
-                            <strong>Presupuesto Nuevo:</strong> ${cambio.fecha_nueva}
+                            <strong>Presupuesto Nuevo:</strong>{' '}
+                            {formatCurrency(parseCurrency(cambio.fecha_nueva) || 0)}
                           </Typography>
                           <Typography variant='body2' color='error.main' fontWeight='bold' mb={1}>
-                            <strong>Diferencia:</strong> ${cambio.meses_atraso}M
+                            <strong>Diferencia:</strong>{' '}
+                            {formatCurrency(cambio.meses_atraso * 1000000)}
                           </Typography>
                           <Typography variant='body2' color='text.secondary' mb={1}>
                             <strong>Fecha Modificación:</strong>{' '}
@@ -1147,13 +1266,14 @@ const Dashboard: React.FC = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Alert
-                    severity='info'
+                  <Paper
+                    elevation={2}
                     sx={{
+                      p: 2,
                       mb: 2,
+                      backgroundColor: '#eff6ff',
                       borderRadius: 2,
-                      backgroundColor: 'rgba(245, 247, 249, 0.9)',
-                      backdropFilter: 'blur(10px)',
+                      border: '1px solid #dbeafe',
                     }}
                   >
                     <Typography variant='h6'>No se encontraron alertas</Typography>
@@ -1166,7 +1286,7 @@ const Dashboard: React.FC = () => {
                       {filters.dependencia?.join(', ') || 'Todas'}" | Sev: "
                       {filters.gravedad?.join(', ') || 'Todas'}"
                     </Typography>
-                  </Alert>
+                  </Paper>
                 </motion.div>
               ) : (
                 <Grid container spacing={{ xs: 2, sm: 3 }}>
@@ -1177,18 +1297,19 @@ const Dashboard: React.FC = () => {
                         initial='hidden'
                         animate='visible'
                       >
-                        <Card
-                          elevation={2}
+                        <Paper
+                          elevation={3}
                           sx={{
-                            mb: 3,
-                            overflow: 'hidden',
-                            borderRadius: 2,
-                            backgroundColor: 'rgba(245, 247, 249, 0.9)',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(0, 0, 0, 0.05)',
-                            transition: 'box-shadow 0.3s ease',
+                            p: { xs: 2, md: 3 },
+                            mb: { xs: 2, md: 3 },
+                            backgroundColor: '#ffffff',
+                            borderRadius: { xs: 2, md: 3 },
+                            border: '2px solid #e5e7eb',
+                            boxShadow:
+                              '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                            transition: 'all 0.3s ease',
                             '&:hover': {
-                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                              boxShadow: '0 8px 15px rgba(0, 0, 0, 0.15)',
                             },
                           }}
                         >
@@ -1315,7 +1436,7 @@ const Dashboard: React.FC = () => {
                               </Box>
                             )}
                           </CardContent>
-                        </Card>
+                        </Paper>
                       </motion.div>
                     </Grid>
                   ))}
