@@ -45,6 +45,7 @@ export const PRIORITY_PROJECTS = [
 
 // Opciones de gravedad
 export const GRAVEDAD_OPTIONS = [
+  { key: 'sin_riesgo', label: 'Sin riesgo', color: 'success' },
   { key: 'leve', label: 'Leve', color: 'info' },
   { key: 'media', label: 'Media', color: 'warning' },
   { key: 'crítica', label: 'Crítica', color: 'error' },

@@ -136,6 +136,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           {GRAVEDAD_OPTIONS.map(g => {
             const active = selectedGravedades.includes(g.key);
             const colorMap = {
+              success: 'bg-green-100 text-green-700 border border-green-300',
               error: 'bg-red-500 text-white',
               warning: 'bg-yellow-500 text-white',
               info: 'bg-blue-500 text-white',

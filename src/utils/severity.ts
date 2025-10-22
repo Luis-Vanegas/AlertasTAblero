@@ -10,7 +10,7 @@ import { severityService } from '../services/severity';
  */
 export const normalizeGravedad = (
   value?: string | null
-): 'crítica' | 'alta' | 'media' | 'leve' | 'baja' | '' => {
+): 'crítica' | 'alta' | 'media' | 'leve' | 'baja' | 'sin_riesgo' | '' => {
   if (!value) return '';
   const v = value
     .toString()
@@ -23,6 +23,7 @@ export const normalizeGravedad = (
   if (v === 'media' || v === 'moderada' || v === 'moderado') return 'media';
   if (v === 'leve') return 'leve';
   if (v === 'baja' || v === 'bajo') return 'baja';
+  if (v === 'sin riesgo' || v === 'sin_riesgo' || v === 'sinriesgo') return 'sin_riesgo';
   return '';
 };
 
@@ -96,6 +97,7 @@ export const getGravedadColor = (gravedad?: string | null): string => {
   if (n === 'crítica' || n === 'alta') return 'error';
   if (n === 'media') return 'warning';
   if (n === 'leve' || n === 'baja') return 'info';
+  if (n === 'sin_riesgo') return 'success';
   return 'default';
 };
 
@@ -125,6 +127,7 @@ export const getSeverityStats = (alertas: MappedAlerta[]) => {
     alta: 0,
     media: 0,
     leve: 0,
+    sinRiesgo: 0,
   };
 
   alertas.forEach(alerta => {
@@ -136,6 +139,7 @@ export const getSeverityStats = (alertas: MappedAlerta[]) => {
     if (gravedad === 'crítica' || gravedad === 'alta') stats.alta++;
     else if (gravedad === 'media') stats.media++;
     else if (gravedad === 'leve' || gravedad === 'baja') stats.leve++;
+    else if (gravedad === 'sin_riesgo') stats.sinRiesgo++;
   });
 
   return stats;

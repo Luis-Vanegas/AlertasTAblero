@@ -193,6 +193,10 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
           const g = normalizeGravedad(a.gravedad);
           return g === 'leve' || g === 'baja';
         }).length;
+        const sinRiesgo = alertas.filter(a => {
+          const g = normalizeGravedad(a.gravedad);
+          return g === 'sin_riesgo';
+        }).length;
         return {
           dependencia,
           alertas,
@@ -200,6 +204,7 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
           altas,
           medias,
           leves,
+          sinRiesgo,
         };
       })
       .sort((a, b) => b.altas - a.altas);
@@ -216,10 +221,14 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
       const g = normalizeGravedad(a.gravedad);
       return g === 'leve' || g === 'baja';
     }).length;
+    const sinRiesgo = filteredAlertas.filter(a => {
+      const g = normalizeGravedad(a.gravedad);
+      return g === 'sin_riesgo';
+    }).length;
     const total = filteredAlertas.length;
     const totalObras = new Set(filteredAlertas.map(a => a.obra_id)).size;
 
-    return { total, totalObras, alta, media, leve };
+    return { total, totalObras, alta, media, leve, sinRiesgo };
   }, [filteredAlertas]);
 
   // Proyectos prioritarios con incidentes

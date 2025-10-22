@@ -32,6 +32,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
     if (n === 'crítica' || n === 'alta') return 'bg-red-500';
     if (n === 'media') return 'bg-yellow-500';
     if (n === 'leve' || n === 'baja') return 'bg-blue-500';
+    if (n === 'sin_riesgo') return 'bg-green-100 text-green-700 border border-green-300';
     return 'bg-gray-500';
   };
 
@@ -40,6 +41,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
     if (n === 'crítica' || n === 'alta') return 'border-red-500';
     if (n === 'media') return 'border-yellow-500';
     if (n === 'leve' || n === 'baja') return 'border-blue-500';
+    if (n === 'sin_riesgo') return 'border-green-300';
     return 'border-gray-500';
   };
 

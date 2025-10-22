@@ -384,7 +384,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Tarjetas de estadísticas */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6'>
               <StatsCard
                 label='Total Alertas'
                 value={alertStats.total}
@@ -420,6 +420,15 @@ const Dashboard: React.FC = () => {
                 delay={0.3}
                 onClick={() => handleCardFilter('leve')}
                 isSelected={filters.gravedad.includes('leve')}
+              />
+              <StatsCard
+                label='Sin riesgo'
+                value={alertStats.sinRiesgo}
+                icon={<InfoOutlinedIcon />}
+                color='#10b981'
+                delay={0.4}
+                onClick={() => handleCardFilter('sin_riesgo')}
+                isSelected={filters.gravedad.includes('sin_riesgo')}
               />
             </div>
           </div>
@@ -889,6 +898,9 @@ const Dashboard: React.FC = () => {
                           </span>
                           <span className='px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded-full'>
                             {grupo.leves} Leves
+                          </span>
+                          <span className='px-2 py-1 bg-green-100 text-green-700 border border-green-300 text-xs font-medium rounded-full'>
+                            {grupo.sinRiesgo || 0} Sin riesgo
                           </span>
                           <button
                             onClick={() => handleExportByDependency(grupo.dependencia)}
