@@ -48,7 +48,7 @@ export class HistoricoApiService {
 
   /**
    * Calcula las obras que cambiaron su fecha estimada de entrega más de 2 meses
-   * Filtra desde agosto 1, 2025 (2 meses antes de septiembre)
+   * Filtra desde agosto 1, 2024 (2 meses antes de septiembre)
    * Detecta alertas porque "eso no se puede" (no debería pasar)
    */
   calculateCambiosFechasEstimadas(historicoData: ApiHistoricoItem[]): CambioFechaEstimada[] {
@@ -57,11 +57,11 @@ export class HistoricoApiService {
     // Mostrar algunos ejemplos de los datos que llegan
     // Debug removido
 
-    // Filtrar desde 2 meses antes de septiembre 2025 (agosto 2025)
-    const fechaLimite = new Date('2025-08-01');
+    // Filtrar desde 2 meses antes de septiembre 2024 (agosto 2024)
+    const fechaLimite = new Date('2024-08-01');
     const cambios: CambioFechaEstimada[] = [];
 
-    // Filtrar solo cambios de fechas estimadas desde agosto 1, 2025
+    // Filtrar solo cambios de fechas estimadas desde agosto 1, 2024
     const cambiosFechas = historicoData.filter(item => {
       // Verificar que la fecha de modificación existe
       if (!item['FECHA MODIFICACIÓN']) return false;
@@ -178,7 +178,7 @@ export class HistoricoApiService {
 
   /**
    * Calcula las obras que cambiaron su presupuesto más de 500 millones
-   * Filtra desde septiembre 1, 2025
+   * Filtra desde septiembre 1, 2024
    * Detecta alertas por cambios significativos de presupuesto
    */
   calculateCambiosPresupuesto(historicoData: ApiHistoricoItem[]): CambioFechaEstimada[] {
@@ -187,11 +187,11 @@ export class HistoricoApiService {
     // Mostrar algunos ejemplos de los datos que llegan
     // Debug removido
 
-    // Filtrar desde septiembre 1, 2025
-    const fechaLimite = new Date('2025-09-01');
+    // Filtrar desde septiembre 1, 2024
+    const fechaLimite = new Date('2024-09-01');
     const cambios: CambioFechaEstimada[] = [];
 
-    // Filtrar solo cambios de presupuesto desde septiembre 1, 2025
+    // Filtrar solo cambios de presupuesto desde septiembre 1, 2024
     const cambiosPresupuesto = historicoData.filter(item => {
       // Verificar que la fecha de modificación existe
       if (!item['FECHA MODIFICACIÓN']) return false;

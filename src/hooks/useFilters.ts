@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { MappedAlerta } from '../types/api';
 import { normalizeGravedad, extractImpacts } from '../utils/severity';
 import { PRIORITY_PROJECTS } from '../constants';
+import { useUnifiedData } from './useUnifiedData';
 
 // Tipo de filtros que coincide con el store
 export interface FilterOptions {
@@ -16,6 +17,10 @@ export interface FilterOptions {
   comuna?: string[];
   priorityProject: string;
   obraIds?: string[];
+  // Filtros adicionales de obras
+  etapa?: string[];
+  estadoObra?: string[];
+  tipoIntervencion?: string[];
 }
 
 export interface UseFiltersProps {
@@ -24,14 +29,18 @@ export interface UseFiltersProps {
 }
 
 export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
+  // Obtener datos unificados para filtros adicionales
+  const { projects: unifiedProjects, filterOptions: unifiedFilterOptions } = useUnifiedData();
+
   const normalize = (value: string): string =>
     value
       .toLowerCase()
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .trim();
-  // Obtener opciones únicas para filtros
+  // Obtener opciones únicas para filtros (combinando alertas y datos unificados)
   const filterOptions = useMemo(() => {
+    // Opciones de alertas
     const dependencias = Array.from(new Set(alertas.map(a => a.dependencia))).sort();
     const comunas = Array.from(new Set(alertas.map(a => a.comuna).filter(Boolean))).sort();
 
@@ -61,15 +70,24 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
       .map(([key, label]) => ({ key, label }))
       .sort((a, b) => a.label.localeCompare(b.label));
 
+    // Opciones adicionales de datos unificados
+    const etapas = unifiedFilterOptions?.etapas || [];
+    const estadosObra = unifiedFilterOptions?.estadosObra || [];
+    const tiposIntervencion = unifiedFilterOptions?.tiposIntervencion || [];
+
     return {
       dependencias,
       comunas,
       impactoOptions,
       priorityProjects,
+      // Opciones adicionales de obras
+      etapas,
+      estadosObra,
+      tiposIntervencion,
     };
-  }, [alertas]);
+  }, [alertas, unifiedFilterOptions]);
 
-  // Filtrar alertas
+  // Filtrar alertas (incluyendo filtros de obras relacionadas)
   const filteredAlertas = useMemo(() => {
     return alertas.filter(alerta => {
       const matchesSearch =
@@ -109,7 +127,31 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
         (filters.obraIds &&
           filters.obraIds.some(obraId => String(obraId) === String(alerta.obra_id)));
 
-      // Logs de depuración removidos
+      // Filtros adicionales basados en datos unificados
+      const obraId = String(alerta.obra_id);
+      const obraRelacionada = unifiedProjects.find(p => p.idObra === obraId);
+
+      // Si hay obra relacionada, aplicar filtros adicionales
+      let matchesObraFilters = true;
+      if (obraRelacionada) {
+        // Filtro por etapa de obra
+        if (filters.etapa && filters.etapa.length > 0) {
+          matchesObraFilters = matchesObraFilters && filters.etapa.includes(obraRelacionada.etapa);
+        }
+
+        // Filtro por estado de obra
+        if (filters.estadoObra && filters.estadoObra.length > 0) {
+          matchesObraFilters =
+            matchesObraFilters && filters.estadoObra.includes(obraRelacionada.estadoObraDetallado);
+        }
+
+        // Filtro por tipo de intervención
+        if (filters.tipoIntervencion && filters.tipoIntervencion.length > 0) {
+          matchesObraFilters =
+            matchesObraFilters &&
+            filters.tipoIntervencion.includes(obraRelacionada.tipoIntervencion);
+        }
+      }
 
       return (
         matchesSearch &&
@@ -118,10 +160,11 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
         matchesImpacto &&
         matchesComuna &&
         matchesPriority &&
-        matchesObraIds
+        matchesObraIds &&
+        matchesObraFilters
       );
     });
-  }, [alertas, filters]);
+  }, [alertas, filters, unifiedProjects]);
 
   // Agrupar alertas por dependencia
   const alertasPorDependencia = useMemo(() => {

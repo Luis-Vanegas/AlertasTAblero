@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import { Card, Box, Typography, Chip, IconButton, Tooltip, useTheme } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
   AttachMoney as MoneyIcon,
@@ -25,55 +24,49 @@ export interface AlertCardProps {
 }
 
 const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority = false }) => {
-  const theme = useTheme();
-
   const sev = normalizeGravedad(alerta.gravedad);
   const priorityActive = isPriority && (sev === 'media' || sev === 'crítica' || sev === 'alta');
 
   const getGravedadColor = (g?: string | null) => {
     const n = normalizeGravedad(g);
-    if (n === 'crítica' || n === 'alta') return theme.palette.error.main;
-    if (n === 'media') return theme.palette.warning.main;
-    if (n === 'leve' || n === 'baja') return theme.palette.info.main;
-    return theme.palette.grey[500];
+    if (n === 'crítica' || n === 'alta') return 'bg-red-500';
+    if (n === 'media') return 'bg-yellow-500';
+    if (n === 'leve' || n === 'baja') return 'bg-blue-500';
+    return 'bg-gray-500';
+  };
+
+  const getGravedadBorderColor = (g?: string | null) => {
+    const n = normalizeGravedad(g);
+    if (n === 'crítica' || n === 'alta') return 'border-red-500';
+    if (n === 'media') return 'border-yellow-500';
+    if (n === 'leve' || n === 'baja') return 'border-blue-500';
+    return 'border-gray-500';
   };
 
   return (
-    <motion.div style={{ width: '100%', height: '100%' }}>
-      <Card
+    <motion.div className='w-full h-full'>
+      <div
         onClick={() => onViewDetails(alerta)}
-        sx={{
-          p: { xs: 1.25, sm: 1.5 },
-          borderLeft: priorityActive
-            ? `6px solid ${sev === 'media' ? theme.palette.warning.main : theme.palette.error.main}`
-            : `4px solid ${getGravedadColor(alerta.gravedad)}`,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(5px)',
-          transition: 'background-color 0.2s ease',
-          cursor: 'pointer',
-          boxShadow: priorityActive
-            ? `0 0 0 4px rgba(255,0,0,0.08), 0 8px 24px rgba(0,0,0,0.18)`
-            : `0 2px 8px rgba(0,0,0,0.1)`,
-          display: 'flex',
-          flexDirection: 'column',
-          height: { xs: 160, sm: 190 },
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          },
-        }}
+        className={`
+          relative p-3 sm:p-4 bg-white/80 backdrop-blur-sm rounded-lg cursor-pointer
+          transition-all duration-200 hover:bg-white/95 hover:shadow-lg
+          flex flex-col h-40 sm:h-48
+          ${
+            priorityActive
+              ? `border-l-4 ${sev === 'media' ? 'border-yellow-500' : 'border-red-500'} shadow-lg`
+              : `border-l-4 ${getGravedadBorderColor(alerta.gravedad)}`
+          }
+        `}
       >
-        <Box display='flex' alignItems='flex-start' justifyContent='space-between' mb={1}>
-          <Box display='flex' alignItems='center' gap={1}>
-            <Chip
-              label={(alerta.gravedad || 'sin dato').toUpperCase()}
-              size='small'
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '0.7rem',
-                backgroundColor: getGravedadColor(alerta.gravedad),
-                color: 'white',
-              }}
-            />
+        {/* Header con chips y botón */}
+        <div className='flex items-start justify-between mb-2'>
+          <div className='flex items-center gap-2 flex-wrap'>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-bold text-white ${getGravedadColor(alerta.gravedad)}`}
+            >
+              {(alerta.gravedad || 'sin dato').toUpperCase()}
+            </span>
+
             {extractImpacts(alerta.impacto_riesgo)
               .slice(0, 2)
               .map(imp => {
@@ -88,107 +81,68 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
                   }[meta.icon] || InfoOutlinedIcon;
 
                 return (
-                  <Chip
+                  <span
                     key={imp}
-                    icon={<IconComponent fontSize='small' />}
-                    label={meta.label}
-                    size='small'
-                    sx={{
+                    className='inline-flex items-center px-2 py-1 rounded-full text-xs border'
+                    style={{
                       borderColor: meta.color,
                       color: meta.color,
-                      '& .MuiChip-icon': {
-                        color: meta.color,
-                      },
                     }}
-                    variant='outlined'
-                  />
+                  >
+                    <IconComponent className='w-3 h-3 mr-1' />
+                    {meta.label}
+                  </span>
                 );
               })}
+
             {priorityActive && (
               <motion.div
                 initial={{ scale: 0.9 }}
                 animate={{ scale: [0.9, 1.05, 0.9] }}
                 transition={{ duration: 1.2, repeat: 2 }}
               >
-                <Chip
-                  icon={<InfoOutlinedIcon fontSize='small' />}
-                  label='Estrategico'
-                  size='small'
-                  color={sev === 'media' ? 'warning' : 'error'}
-                  sx={{ fontWeight: 'bold' }}
-                />
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${
+                    sev === 'media'
+                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                      : 'bg-red-100 text-red-800 border border-red-300'
+                  }`}
+                >
+                  <InfoOutlinedIcon className='w-3 h-3 mr-1' />
+                  Estratégico
+                </span>
               </motion.div>
             )}
-          </Box>
-          <Tooltip title='Ver detalle'>
-            <IconButton
-              size='small'
-              onClick={e => {
-                e.stopPropagation();
-                onViewDetails(alerta);
-              }}
-            >
-              <VisibilityIcon fontSize='small' />
-            </IconButton>
-          </Tooltip>
-        </Box>
+          </div>
 
-        <Typography
-          variant='h6'
-          fontWeight='bold'
-          sx={{
-            color: theme.palette.text.primary,
-            mb: 1,
-            fontSize: { xs: '1rem', md: '1rem' },
-            display: '-webkit-box',
-            WebkitLineClamp: { xs: 2, md: 1 },
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onViewDetails(alerta);
+            }}
+            className='p-1 text-gray-400 hover:text-gray-600 transition-colors'
+            title='Ver detalle'
+          >
+            <VisibilityIcon className='w-4 h-4' />
+          </button>
+        </div>
+
+        {/* Título de la obra */}
+        <h3 className='text-sm sm:text-base font-bold text-gray-800 mb-2 line-clamp-2'>
           {alerta.nombre_obra}
-        </Typography>
+        </h3>
 
-        <Typography
-          variant='body2'
-          sx={{
-            color: theme.palette.text.secondary,
-            mb: 1.5,
-            display: '-webkit-box',
-            WebkitLineClamp: { xs: 3, md: 2 },
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            flexGrow: 1,
-            lineHeight: 1.3,
-            fontSize: { xs: '0.85rem', md: '0.875rem' },
-          }}
-        >
+        {/* Descripción */}
+        <p className='text-xs sm:text-sm text-gray-600 mb-3 line-clamp-3 flex-grow'>
           {alerta.descripcion_alerta}
-        </Typography>
+        </p>
 
-        <Box display='flex' gap={1} flexWrap='nowrap' alignItems='center' sx={{ minWidth: 0 }}>
-          <Box display='flex' alignItems='center' gap={0.5} sx={{ minWidth: 0, flex: 1 }}>
-            <Typography
-              variant='caption'
-              noWrap
-              sx={{
-                color: theme.palette.text.secondary,
-                minWidth: 0,
-                flex: 1,
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-              }}
-            >
-              {alerta.comuna}
-            </Typography>
-          </Box>
-          <Box display='flex' alignItems='center' gap={0.5} sx={{ flexShrink: 0 }}>
-            <Typography variant='caption' sx={{ color: theme.palette.text.secondary }}>
-              {formatDate(alerta.fecha_alerta, 'dd/MM')}
-            </Typography>
-          </Box>
-        </Box>
-      </Card>
+        {/* Footer con comuna y fecha */}
+        <div className='flex items-center justify-between text-xs text-gray-500 mt-auto'>
+          <span className='truncate flex-1 mr-2'>{alerta.comuna}</span>
+          <span className='flex-shrink-0'>{formatDate(alerta.fecha_alerta, 'dd/MM')}</span>
+        </div>
+      </div>
     </motion.div>
   );
 };
