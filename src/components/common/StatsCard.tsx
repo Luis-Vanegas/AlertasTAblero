@@ -26,35 +26,42 @@ const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
     >
       <div
         onClick={onClick}
         className={`
-          relative p-4 sm:p-6 text-center bg-white/90 backdrop-blur-lg 
-          border border-gray-200 rounded-xl transition-all duration-300
-          ${onClick ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1' : 'cursor-default'}
-          ${isSelected ? 'ring-2 ring-cyan-500 scale-105' : ''}
-          h-28 sm:h-32 flex flex-col justify-center
+          relative bg-white rounded-lg border-2 shadow-md transition-all duration-300
+          ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg' : 'cursor-default'}
+          ${isSelected ? 'ring-2 scale-105' : ''}
+          p-4
         `}
         style={{
+          borderColor: color,
           outline: isSelected ? `2px solid ${color}` : 'none',
         }}
       >
-        <div className='flex items-center justify-center flex-1 mb-2'>
-          <div
-            className='flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full mr-3 shadow-lg border-2 border-white/80'
-            style={{ backgroundColor: color }}
-          >
-            {icon}
+        <div className='flex items-center justify-between gap-4'>
+          <div className='flex items-center gap-3 flex-1 min-w-0'>
+            <div
+              className='w-12 h-12 rounded-full flex items-center justify-center text-white flex-shrink-0'
+              style={{ backgroundColor: color }}
+            >
+              {icon}
+            </div>
+            <div className='flex-1 min-w-0'>
+              <h3 className='text-sm font-bold text-gray-800 leading-tight'>{label}</h3>
+              <div className='text-xs text-transparent mt-0.5 leading-tight'>placeholder</div>
+            </div>
           </div>
-          <div>
-            <div className='text-2xl sm:text-3xl font-bold text-gray-800 leading-none'>{value}</div>
+          <div className='flex flex-col items-end flex-shrink-0'>
+            <span className='text-2xl font-bold' style={{ color: color }}>
+              {value}
+            </span>
           </div>
         </div>
-        <div className='text-sm font-medium text-gray-700 text-center flex-shrink-0'>{label}</div>
       </div>
     </motion.div>
   );

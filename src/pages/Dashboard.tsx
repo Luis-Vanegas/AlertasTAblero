@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import {
-  Warning as WarningIcon,
-  Error as ErrorIcon,
   Business as BusinessIcon,
   Download as DownloadIcon,
-  InfoOutlined as InfoOutlinedIcon,
   TrendingUp as TrendingUpIcon,
   Schedule as ScheduleIcon,
   MoneyOff as MoneyOffIcon,
@@ -12,6 +9,12 @@ import {
   Timeline as TimelineIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  // Nuevos iconos más bonitos y contextuales
+  Dashboard as DashboardIcon,
+  Dangerous as DangerousIcon,
+  ReportProblem as ReportProblemIcon,
+  CheckCircle as CheckCircleIcon,
+  Security as SecurityIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
@@ -190,246 +193,253 @@ const Dashboard: React.FC = () => {
         animate='visible'
         className='space-y-6'
       >
-        {/* Panel de métricas de proyectos */}
+        {/* Panel unificado de métricas */}
         <motion.div variants={ANIMATION_VARIANTS.item}>
-          <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6'>
-            <div className='flex justify-between items-center mb-6'>
-              <motion.div
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className='text-xl md:text-2xl font-bold text-gray-800 mb-1'>
-                  Métricas de Proyectos
-                </h2>
-                <p className='text-gray-600 text-sm'>Análisis financiero y temporal de obras</p>
-              </motion.div>
-            </div>
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4'>
-              {/* Cambios Presupuesto */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0 }}
-                className='col-span-1'
-              >
-                <div
-                  onClick={() => handleMetricFilter('budget')}
-                  className='relative h-28 sm:h-32 bg-white rounded-lg border-2 border-red-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-red-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3'
-                >
-                  <span className='absolute top-2 right-2 px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full'>
-                    -12%
-                  </span>
-                  <div className='flex items-center gap-3 min-w-0 flex-1'>
-                    <div className='w-9 h-9 bg-red-500 rounded-full flex items-center justify-center text-white'>
-                      <TrendingUpIcon className='w-5 h-5' />
-                    </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='text-sm font-bold text-gray-800 line-clamp-1'>
-                        Cambios &gt; 500M
-                      </h3>
-                      <p className='text-xs text-gray-600 line-clamp-1'>
-                        Proyectos con incrementos presupuestales
-                      </p>
-                    </div>
-                  </div>
-                  <div className='text-2xl font-bold text-red-500 self-end sm:self-center'>
-                    {cambiosPresupuesto || 152}
-                  </div>
+          <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-6'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+              {/* Columna Izquierda - Alertas reportadas */}
+              <div>
+                <div className='mb-5'>
+                  <h2 className='text-lg font-bold text-gray-800'>Alertas reportadas</h2>
+                  <p className='text-sm text-gray-600 mt-1'>
+                    Análisis financiero y temporal de obras
+                  </p>
                 </div>
-              </motion.div>
+                <div className='space-y-3'>
+                  {/* Cambios Presupuesto */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0 }}
+                  >
+                    <div
+                      onClick={() => handleMetricFilter('budget')}
+                      className='relative bg-white rounded-lg border-2 border-red-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-red-500 p-4'
+                    >
+                      <div className='flex items-center justify-between gap-4'>
+                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                          <div className='w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                            <TrendingUpIcon className='w-6 h-6' />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h3 className='text-sm font-bold text-gray-800 leading-tight'>
+                              Cambios &gt; 500M
+                            </h3>
+                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                              Proyectos con incrementos presupuestales
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end flex-shrink-0'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full'>
+                            -12%
+                          </span>
+                          <span className='text-2xl font-bold text-red-500'>
+                            {cambiosPresupuesto || 152}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
 
-              {/* Proyectos Tardíos */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className='col-span-1'
-              >
-                <div
-                  onClick={() => handleMetricFilter('late')}
-                  className='relative h-28 sm:h-32 bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3'
-                >
-                  <span className='absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
-                    -8%
-                  </span>
-                  <div className='flex items-center gap-3 min-w-0 flex-1'>
-                    <div className='w-9 h-9 bg-yellow-500 rounded-full flex items-center justify-center text-white'>
-                      <ScheduleIcon className='w-5 h-5' />
+                  {/* Proyectos Tardíos */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    <div
+                      onClick={() => handleMetricFilter('late')}
+                      className='relative bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4'
+                    >
+                      <div className='flex items-center justify-between gap-4'>
+                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                          <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                            <ScheduleIcon className='w-6 h-6' />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h3 className='text-sm font-bold text-gray-800 leading-tight'>
+                              Proyectos Tardíos
+                            </h3>
+                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                              Obras que terminan después del 01/07/2027
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end flex-shrink-0'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
+                            +8%
+                          </span>
+                          <span className='text-2xl font-bold text-yellow-500'>
+                            {projectMetrics?.lateProjects.count || 326}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='text-sm font-bold text-gray-800 line-clamp-1'>
-                        Proyectos Tardíos
-                      </h3>
-                      <p className='text-xs text-gray-600 line-clamp-1'>
-                        Obras que terminan después del 01/07/2027
-                      </p>
+                  </motion.div>
+
+                  {/* Retrasos */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <div
+                      onClick={() => handleMetricFilter('delayed2months')}
+                      className='relative bg-white rounded-lg border-2 border-blue-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-500 p-4'
+                    >
+                      <div className='flex items-center justify-between gap-4'>
+                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                          <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                            <TimelineIcon className='w-6 h-6' />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h3 className='text-sm font-bold text-gray-800 leading-tight'>
+                              Cambios &gt; 2 meses
+                            </h3>
+                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                              Proyectos con cambios de fechas
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end flex-shrink-0'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full'>
+                            -15%
+                          </span>
+                          <span className='text-2xl font-bold text-blue-500'>
+                            {cambiosFechas || 134}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className='text-2xl font-bold text-yellow-500 self-end sm:self-center'>
-                    {projectMetrics?.lateProjects.count || 326}
-                  </div>
+                  </motion.div>
+
+                  {/* Sin Financiación */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    <div
+                      onClick={() => handleMetricFilter('defunded')}
+                      className='relative bg-white rounded-lg border-2 border-gray-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-500 p-4'
+                    >
+                      <div className='flex items-center justify-between gap-4'>
+                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                          <div className='w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                            <MoneyOffIcon className='w-6 h-6' />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h3 className='text-sm font-bold text-gray-800 leading-tight'>
+                              Sin Financiación
+                            </h3>
+                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                              Proyectos desfinanciados
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end flex-shrink-0'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-gray-100 text-gray-800 text-xs font-medium rounded-full'>
+                            0%
+                          </span>
+                          <span className='text-2xl font-bold text-gray-500'>0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Pendientes */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <div
+                      onClick={() => handleMetricFilter('definition')}
+                      className='relative bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4'
+                    >
+                      <div className='flex items-center justify-between gap-4'>
+                        <div className='flex items-center gap-3 flex-1 min-w-0'>
+                          <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                            <AssignmentIcon className='w-6 h-6' />
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h3 className='text-sm font-bold text-gray-800 leading-tight'>
+                              Pendientes
+                            </h3>
+                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                              Proyectos en espera de definición
+                            </p>
+                          </div>
+                        </div>
+                        <div className='flex flex-col items-end flex-shrink-0'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
+                            +3%
+                          </span>
+                          <span className='text-2xl font-bold text-yellow-500'>
+                            {projectMetrics?.pendingDefinitionProjects.count || 20}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Retrasos */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className='col-span-1'
-              >
-                <div
-                  onClick={() => handleMetricFilter('delayed2months')}
-                  className='relative h-28 sm:h-32 bg-white rounded-lg border-2 border-blue-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3'
-                >
-                  <span className='absolute top-2 right-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full'>
-                    -15%
-                  </span>
-                  <div className='flex items-center gap-3 min-w-0 flex-1'>
-                    <div className='w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white'>
-                      <TimelineIcon className='w-5 h-5' />
-                    </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='text-sm font-bold text-gray-800 line-clamp-1'>
-                        Cambios mayores a &gt; 2 meses
-                      </h3>
-                      <p className='text-xs text-gray-600 line-clamp-1'>
-                        Proyectos con cambios de fechas
-                      </p>
-                    </div>
-                  </div>
-                  <div className='text-2xl font-bold text-blue-500 self-end sm:self-center'>
-                    {cambiosFechas || 134}
-                  </div>
+              {/* Columna Derecha - Dashboard de Alertas */}
+              <div>
+                <div className='mb-5'>
+                  <h2 className='text-lg font-bold text-gray-800'>Alertas generadas</h2>
+                  <p className='text-sm text-gray-600 mt-1'>Resumen por dependencia</p>
                 </div>
-              </motion.div>
-
-              {/* Sin Financiación */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className='col-span-1'
-              >
-                <div
-                  onClick={() => handleMetricFilter('defunded')}
-                  className='relative h-28 sm:h-32 bg-white rounded-lg border-2 border-red-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-red-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3'
-                >
-                  <div className='flex items-center gap-3 min-w-0 flex-1'>
-                    <div className='w-9 h-9 bg-red-500 rounded-full flex items-center justify-center text-white'>
-                      <MoneyOffIcon className='w-5 h-5' />
-                    </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='text-sm font-bold text-gray-800 line-clamp-1'>
-                        Sin Financiación
-                      </h3>
-                      <p className='text-xs text-gray-600 line-clamp-1'>Proyectos desfinanciados</p>
-                    </div>
-                  </div>
-                  <div className='text-2xl font-bold text-red-500 self-end sm:self-center'>0</div>
+                <div className='space-y-3'>
+                  <StatsCard
+                    label='Total Alertas'
+                    value={alertStats.total}
+                    icon={<DashboardIcon />}
+                    color='#06b6d4'
+                    delay={0}
+                    onClick={handleClearAllFilters}
+                    isSelected={!hasActiveFilters}
+                  />
+                  <StatsCard
+                    label='Críticas'
+                    value={alertStats.alta}
+                    icon={<DangerousIcon />}
+                    color='#ef4444'
+                    delay={0.1}
+                    onClick={() => handleCardFilter('crítica')}
+                    isSelected={filters.gravedad.includes('crítica')}
+                  />
+                  <StatsCard
+                    label='Moderadas'
+                    value={alertStats.media}
+                    icon={<ReportProblemIcon />}
+                    color='#f59e0b'
+                    delay={0.2}
+                    onClick={() => handleCardFilter('media')}
+                    isSelected={filters.gravedad.includes('media')}
+                  />
+                  <StatsCard
+                    label='Leves'
+                    value={alertStats.leve}
+                    icon={<SecurityIcon />}
+                    color='#3b82f6'
+                    delay={0.3}
+                    onClick={() => handleCardFilter('leve')}
+                    isSelected={filters.gravedad.includes('leve')}
+                  />
+                  <StatsCard
+                    label='Sin riesgo'
+                    value={alertStats.sinRiesgo}
+                    icon={<CheckCircleIcon />}
+                    color='#10b981'
+                    delay={0.4}
+                    onClick={() => handleCardFilter('sin_riesgo')}
+                    isSelected={filters.gravedad.includes('sin_riesgo')}
+                  />
                 </div>
-              </motion.div>
-
-              {/* Pendientes */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className='col-span-1'
-              >
-                <div
-                  onClick={() => handleMetricFilter('definition')}
-                  className='relative h-28 sm:h-32 bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3'
-                >
-                  <span className='absolute top-2 right-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
-                    +5%
-                  </span>
-                  <div className='flex items-center gap-3 min-w-0 flex-1'>
-                    <div className='w-9 h-9 bg-yellow-500 rounded-full flex items-center justify-center text-white'>
-                      <AssignmentIcon className='w-5 h-5' />
-                    </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='text-sm font-bold text-gray-800 line-clamp-1'>Pendientes</h3>
-                      <p className='text-xs text-gray-600 line-clamp-1'>
-                        Proyectos en espera de definición
-                      </p>
-                    </div>
-                  </div>
-                  <div className='text-2xl font-bold text-yellow-500 self-end sm:self-center'>
-                    {projectMetrics?.pendingDefinitionProjects.count || 20}
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Panel de estadísticas de alertas */}
-        <motion.div variants={ANIMATION_VARIANTS.item}>
-          <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6'>
-            <div className='flex justify-between items-center mb-6'>
-              <motion.div
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className='text-xl md:text-2xl font-bold text-gray-800 mb-1'>
-                  Dashboard de Alertas
-                </h2>
-                <p className='text-gray-600 text-sm'>
-                  Resumen estadístico de alertas por dependencia
-                </p>
-              </motion.div>
-            </div>
-
-            {/* Tarjetas de estadísticas */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6'>
-              <StatsCard
-                label='Total Alertas'
-                value={alertStats.total}
-                icon={<WarningIcon />}
-                color='#06b6d4'
-                delay={0}
-                onClick={handleClearAllFilters}
-                isSelected={!hasActiveFilters}
-              />
-              <StatsCard
-                label='Críticas'
-                value={alertStats.alta}
-                icon={<ErrorIcon />}
-                color='#ef4444'
-                delay={0.1}
-                onClick={() => handleCardFilter('crítica')}
-                isSelected={filters.gravedad.includes('crítica')}
-              />
-              <StatsCard
-                label='Moderadas'
-                value={alertStats.media}
-                icon={<WarningIcon />}
-                color='#f59e0b'
-                delay={0.2}
-                onClick={() => handleCardFilter('media')}
-                isSelected={filters.gravedad.includes('media')}
-              />
-              <StatsCard
-                label='Leves'
-                value={alertStats.leve}
-                icon={<InfoOutlinedIcon />}
-                color='#3b82f6'
-                delay={0.3}
-                onClick={() => handleCardFilter('leve')}
-                isSelected={filters.gravedad.includes('leve')}
-              />
-              <StatsCard
-                label='Sin riesgo'
-                value={alertStats.sinRiesgo}
-                icon={<InfoOutlinedIcon />}
-                color='#10b981'
-                delay={0.4}
-                onClick={() => handleCardFilter('sin_riesgo')}
-                isSelected={filters.gravedad.includes('sin_riesgo')}
-              />
+              </div>
             </div>
           </div>
         </motion.div>

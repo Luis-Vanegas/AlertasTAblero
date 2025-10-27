@@ -107,7 +107,7 @@ npm run preview
 docker build -f Dockerfile.dev -t alertas-web:dev .
 
 # Ejecutar contenedor de desarrollo
-docker run -p 5173:5173 alertas-web:dev
+docker run -p 74:74 alertas-web:dev
 ```
 
 ### Producción

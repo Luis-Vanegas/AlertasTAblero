@@ -5,7 +5,6 @@ import {
   Refresh as RefreshIcon,
   FilterList as FilterIcon,
   Close as CloseIcon,
-  Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 import { useSettingsStore } from '../store/settings';
@@ -23,16 +22,9 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const {
-    enableAnimations,
-    showReducedMotion,
-    toggleAnimations,
-    filters,
-    setFilters,
-    clearFilters,
-  } = useSettingsStore();
+  const { enableAnimations, showReducedMotion, filters, setFilters, clearFilters } =
+    useSettingsStore();
   const { alertas } = useAlertas({ limit: 1000 });
 
   // Usar el hook de filtros
@@ -44,10 +36,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleFiltersToggle = () => {
     setFiltersOpen(!filtersOpen);
-  };
-
-  const handleSettingsToggle = () => {
-    setSettingsOpen(!settingsOpen);
   };
 
   const appTitle = import.meta.env.VITE_APP_TITLE || 'Alertas';
@@ -72,71 +60,70 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       />
 
       {/* Barra superior */}
-      <header className='bg-gradient-to-r from-cyan-500 to-blue-600 backdrop-blur-lg shadow-lg sticky top-0 z-50'>
+      <header className='bg-white backdrop-blur-lg shadow-lg sticky top-0 z-50'>
         <div className='px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between h-16'>
+          <div className='flex items-center justify-between py-4'>
             {/* Título y menú móvil */}
             <div className='flex items-center space-x-4'>
               <button
                 onClick={handleMobileMenuToggle}
-                className='md:hidden p-2 rounded-md text-white hover:bg-white/20 transition-colors'
+                className='md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors'
               >
                 <MenuIcon />
               </button>
 
-              <motion.h1
-                className='text-xl font-bold text-white'
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                {appTitle}
-              </motion.h1>
-            </div>
-
-            {/* Botones de acción */}
-            <div className='flex items-center space-x-2'>
-              {/* Botón de filtros */}
-              <button
-                onClick={handleFiltersToggle}
-                className={`relative p-2 rounded-md text-white transition-colors ${
-                  hasActiveFilters ? 'bg-white/30 ring-2 ring-white/50' : 'hover:bg-white/20'
-                }`}
-                title='Filtros'
-              >
-                <FilterIcon />
-                {hasActiveFilters && (
-                  <span className='absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full'></span>
-                )}
-              </button>
-
-              {/* Botón de actualizar */}
-              <button
-                onClick={() => window.location.reload()}
-                className='p-2 rounded-md text-white hover:bg-white/20 transition-colors'
-                title='Actualizar datos'
-              >
-                <RefreshIcon />
-              </button>
-
-              {/* Botón de configuración */}
-              <button
-                onClick={handleSettingsToggle}
-                className='p-2 rounded-md text-white hover:bg-white/20 transition-colors'
-                title='Configuración'
-              >
-                <SettingsIcon />
-              </button>
-
-              {/* Logo de la Alcaldía */}
-              <div className='ml-4 pl-4 border-l border-white/30'>
-                <img
-                  src={logoImage}
-                  alt='Logo Alcaldía de Medellín'
-                  className='h-10 w-auto object-contain'
-                />
+              <div>
+                <motion.h1
+                  className='text-2xl font-bold text-gray-800'
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {appTitle}
+                </motion.h1>
+                <p className='text-sm text-gray-600'>Alcaldía de Medellín</p>
               </div>
             </div>
+
+            {/* Botones de acción y Logo */}
+            <div className='flex items-center space-x-3'>
+              {/* Logo de la Alcaldía */}
+              <div>
+                <img src={logoImage} alt='Logo Alcaldía de Medellín' className='h-12 w-auto' />
+              </div>
+            </div>
+          </div>
+
+          {/* Barra de búsqueda y filtros */}
+          <div className='flex items-center gap-3 pb-4'>
+            <div className='flex-1 relative'>
+              <input
+                type='text'
+                placeholder='Buscar proyecto, dependencia...'
+                value={filters.searchTerm || ''}
+                onChange={e => setFilters({ searchTerm: e.target.value })}
+                className='w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent'
+              />
+              <FilterIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
+            </div>
+            <button
+              onClick={handleFiltersToggle}
+              className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                hasActiveFilters
+                  ? 'bg-cyan-500 text-white border-cyan-500'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <FilterIcon className='inline w-4 h-4 mr-1' />
+              {hasActiveFilters ? 'Filtros Activos' : 'Filtros'}
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className='p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
+              title='Actualizar datos'
+            >
+              <RefreshIcon />
+            </button>
           </div>
         </div>
       </header>
@@ -237,54 +224,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {/* Aquí puedes agregar elementos del menú móvil si los necesitas */}
                 <div className='space-y-2'>
                   <p className='text-gray-600'>Opciones del menú móvil</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Panel de configuración */}
-      <AnimatePresence>
-        {settingsOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className='fixed inset-0 z-50'
-          >
-            <div className='absolute inset-0 bg-black/50' onClick={handleSettingsToggle} />
-            <motion.div
-              initial={{ x: 320 }}
-              animate={{ x: 0 }}
-              exit={{ x: 320 }}
-              transition={{ type: 'tween', duration: 0.3 }}
-              className='absolute right-0 top-0 w-80 h-full bg-white/95 backdrop-blur-lg shadow-xl'
-            >
-              <div className='p-6'>
-                <div className='flex items-center justify-between mb-6'>
-                  <h2 className='text-lg font-semibold text-gray-800'>⚙️ Configuración</h2>
-                  <button
-                    onClick={handleSettingsToggle}
-                    className='p-1 rounded-md text-gray-500 hover:bg-gray-100 transition-colors'
-                  >
-                    <CloseIcon />
-                  </button>
-                </div>
-
-                <div className='space-y-4'>
-                  <div>
-                    <h3 className='text-sm font-medium text-gray-700 mb-2'>Interfaz</h3>
-                    <label className='flex items-center space-x-3'>
-                      <input
-                        type='checkbox'
-                        checked={enableAnimations}
-                        onChange={toggleAnimations}
-                        className='w-4 h-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500'
-                      />
-                      <span className='text-sm text-gray-600'>Habilitar animaciones</span>
-                    </label>
-                  </div>
                 </div>
               </div>
             </motion.div>
