@@ -196,11 +196,14 @@ const Dashboard: React.FC = () => {
         {/* Panel unificado de métricas */}
         <motion.div variants={ANIMATION_VARIANTS.item}>
           <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-6'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-8 relative'>
+              {/* Línea divisoria vertical */}
+              <div className='hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 -translate-x-1/2'></div>
+
               {/* Columna Izquierda - Alertas reportadas */}
-              <div>
+              <div className='pr-4'>
                 <div className='mb-5'>
-                  <h2 className='text-lg font-bold text-gray-800'>Alertas reportadas</h2>
+                  <h2 className='text-lg font-bold text-gray-800'>Alertas Generadas</h2>
                   <p className='text-sm text-gray-600 mt-1'>
                     Análisis financiero y temporal de obras
                   </p>
@@ -214,7 +217,11 @@ const Dashboard: React.FC = () => {
                   >
                     <div
                       onClick={() => handleMetricFilter('budget')}
-                      className='relative bg-white rounded-lg border-2 border-red-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-red-500 p-4'
+                      className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
+                        activeFilterType === 'budget'
+                          ? 'ring-2 ring-red-500 border-red-500'
+                          : 'border-red-200 hover:border-red-500'
+                      }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
@@ -225,7 +232,7 @@ const Dashboard: React.FC = () => {
                             <h3 className='text-sm font-bold text-gray-800 leading-tight'>
                               Cambios &gt; 500M
                             </h3>
-                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                            <p className='text-sm text-gray-700 mt-0.5 leading-tight'>
                               Proyectos con incrementos presupuestales
                             </p>
                           </div>
@@ -250,7 +257,11 @@ const Dashboard: React.FC = () => {
                   >
                     <div
                       onClick={() => handleMetricFilter('late')}
-                      className='relative bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4'
+                      className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
+                        activeFilterType === 'late'
+                          ? 'ring-2 ring-yellow-500 border-yellow-500'
+                          : 'border-yellow-200 hover:border-yellow-500'
+                      }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
@@ -261,7 +272,7 @@ const Dashboard: React.FC = () => {
                             <h3 className='text-sm font-bold text-gray-800 leading-tight'>
                               Proyectos Tardíos
                             </h3>
-                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                            <p className='text-sm text-gray-700 mt-0.5 leading-tight'>
                               Obras que terminan después del 01/07/2027
                             </p>
                           </div>
@@ -286,7 +297,11 @@ const Dashboard: React.FC = () => {
                   >
                     <div
                       onClick={() => handleMetricFilter('delayed2months')}
-                      className='relative bg-white rounded-lg border-2 border-blue-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-500 p-4'
+                      className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
+                        activeFilterType === 'delayed2months'
+                          ? 'ring-2 ring-blue-500 border-blue-500'
+                          : 'border-blue-200 hover:border-blue-500'
+                      }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
@@ -295,10 +310,10 @@ const Dashboard: React.FC = () => {
                           </div>
                           <div className='flex-1 min-w-0'>
                             <h3 className='text-sm font-bold text-gray-800 leading-tight'>
-                              Cambios &gt; 2 meses
+                              Cambios mayores a 2 meses
                             </h3>
-                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
-                              Proyectos con cambios de fechas
+                            <p className='text-sm text-gray-700 mt-0.5 leading-tight'>
+                              Proyectos con cambios de fechas estimdas de entrega
                             </p>
                           </div>
                         </div>
@@ -322,7 +337,11 @@ const Dashboard: React.FC = () => {
                   >
                     <div
                       onClick={() => handleMetricFilter('defunded')}
-                      className='relative bg-white rounded-lg border-2 border-gray-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-500 p-4'
+                      className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
+                        activeFilterType === 'defunded'
+                          ? 'ring-2 ring-gray-500 border-gray-500'
+                          : 'border-gray-200 hover:border-gray-500'
+                      }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
@@ -333,7 +352,7 @@ const Dashboard: React.FC = () => {
                             <h3 className='text-sm font-bold text-gray-800 leading-tight'>
                               Sin Financiación
                             </h3>
-                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                            <p className='text-sm text-gray-700 mt-0.5 leading-tight'>
                               Proyectos desfinanciados
                             </p>
                           </div>
@@ -356,7 +375,11 @@ const Dashboard: React.FC = () => {
                   >
                     <div
                       onClick={() => handleMetricFilter('definition')}
-                      className='relative bg-white rounded-lg border-2 border-yellow-200 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-500 p-4'
+                      className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
+                        activeFilterType === 'definition'
+                          ? 'ring-2 ring-yellow-500 border-yellow-500'
+                          : 'border-yellow-200 hover:border-yellow-500'
+                      }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
@@ -367,7 +390,7 @@ const Dashboard: React.FC = () => {
                             <h3 className='text-sm font-bold text-gray-800 leading-tight'>
                               Pendientes
                             </h3>
-                            <p className='text-xs text-gray-600 mt-0.5 leading-tight'>
+                            <p className='text-sm text-gray-700 mt-0.5 leading-tight'>
                               Proyectos en espera de definición
                             </p>
                           </div>
@@ -387,9 +410,9 @@ const Dashboard: React.FC = () => {
               </div>
 
               {/* Columna Derecha - Dashboard de Alertas */}
-              <div>
+              <div className='pl-4'>
                 <div className='mb-5'>
-                  <h2 className='text-lg font-bold text-gray-800'>Alertas generadas</h2>
+                  <h2 className='text-lg font-bold text-gray-800'>Alertas Reportadas</h2>
                   <p className='text-sm text-gray-600 mt-1'>Resumen por dependencia</p>
                 </div>
                 <div className='space-y-3'>
@@ -591,13 +614,26 @@ const Dashboard: React.FC = () => {
           projectMetrics.pendingDefinitionProjects.projects.length > 0 && (
             <motion.div variants={ANIMATION_VARIANTS.item}>
               <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6'>
-                <h3 className='text-lg font-bold text-gray-800 mb-2'>
-                  Proyectos Pendientes de Definición
-                </h3>
-                <p className='text-sm text-gray-600 mb-4'>
-                  Información detallada de las obras que requieren atención (
-                  {projectMetrics.pendingDefinitionProjects.projects.length} obras)
-                </p>
+                <div className='flex justify-between items-center mb-4'>
+                  <div>
+                    <h3 className='text-lg font-bold text-gray-800 mb-2'>
+                      Proyectos Pendientes de Definición
+                    </h3>
+                    <p className='text-sm text-gray-600'>
+                      Información detallada de las obras que requieren atención (
+                      {projectMetrics.pendingDefinitionProjects.projects.length} obras)
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setActiveFilterType(null);
+                      setCurrentPage(1);
+                    }}
+                    className='px-3 py-1 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors'
+                  >
+                    Cerrar
+                  </button>
+                </div>
 
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
                   {projectMetrics.pendingDefinitionProjects.projects
@@ -689,15 +725,18 @@ const Dashboard: React.FC = () => {
               <div className='flex justify-between items-center mb-4'>
                 <div>
                   <h3 className='text-lg font-bold text-gray-800 mb-2'>
-                    Cambios de Fechas Estimadas
+                    Cambios de fechas estimadas de entrega
                   </h3>
                   <p className='text-sm text-gray-600'>
-                    Proyectos con cambios de fechas mayores a 2 meses ({cambiosFechasLista.length}{' '}
+                    Proyectos con cambios de fecha mayores a 2 meses ({cambiosFechasLista.length}{' '}
                     cambios)
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowCambiosFechas(false)}
+                  onClick={() => {
+                    setShowCambiosFechas(false);
+                    setActiveFilterType(null);
+                  }}
                   className='px-3 py-1 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors'
                 >
                   Cerrar
@@ -783,7 +822,10 @@ const Dashboard: React.FC = () => {
                     </p>
                   </div>
                   <button
-                    onClick={() => setShowCambiosPresupuesto(false)}
+                    onClick={() => {
+                      setShowCambiosPresupuesto(false);
+                      setActiveFilterType(null);
+                    }}
                     className='px-3 py-1 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors'
                   >
                     Cerrar

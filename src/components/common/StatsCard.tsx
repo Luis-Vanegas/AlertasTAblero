@@ -35,7 +35,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
         className={`
           relative bg-white rounded-lg border-2 shadow-md transition-all duration-300
           ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg' : 'cursor-default'}
-          ${isSelected ? 'ring-2 scale-105' : ''}
+          ${isSelected ? 'ring-2' : ''}
           p-4
         `}
         style={{
