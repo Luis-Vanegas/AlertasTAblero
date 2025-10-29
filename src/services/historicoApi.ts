@@ -159,7 +159,7 @@ export class HistoricoApiService {
     });
 
     // Ordenar por meses de atraso (mayor atraso primero)
-    const cambiosFinales = cambios.sort((a, b) => b.meses_atraso - a.meses_atraso);
+    const cambiosFinales = cambios.sort((a, b) => (b.meses_atraso || 0) - (a.meses_atraso || 0));
     // Debug removido
     return cambiosFinales;
   }
@@ -269,8 +269,8 @@ export class HistoricoApiService {
       // Si encontramos un cambio significativo para esta obra, agregarlo
       if (mejorCambio !== null) {
         // Obtener los valores numéricos para formatear
-        const valorAnteriorStr = mejorCambio['VALOR ANTERIOR'] || '';
-        const valorNuevoStr = mejorCambio['VALOR NUEVO'] || '';
+        const valorAnteriorStr: string = mejorCambio['VALOR ANTERIOR'] || '';
+        const valorNuevoStr: string = mejorCambio['VALOR NUEVO'] || '';
 
         const costoAnterior = parseCurrency(valorAnteriorStr);
         const costoNuevo = parseCurrency(valorNuevoStr);
