@@ -94,18 +94,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
 
-          {/* Barra de búsqueda y filtros */}
-          <div className='flex items-center gap-3 pb-4'>
-            <div className='flex-1 relative'>
-              <input
-                type='text'
-                placeholder='Buscar proyecto, dependencia...'
-                value={filters.searchTerm || ''}
-                onChange={e => setFilters({ searchTerm: e.target.value })}
-                className='w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent'
-              />
-              <FilterIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
-            </div>
+          {/* Barra de filtros */}
+          <div className='flex items-center justify-end gap-3 pb-4'>
             <button
               onClick={handleFiltersToggle}
               className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${

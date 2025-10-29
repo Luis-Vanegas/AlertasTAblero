@@ -1,9 +1,19 @@
 /**
- * Panel de filtros reutilizable
+ * Panel de filtros reutilizable con acordeones y colores distintivos
  */
 
-import React from 'react';
-import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
+import React, { useState } from 'react';
+import {
+  Search as SearchIcon,
+  Clear as ClearIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Business as BusinessIcon,
+  Assignment as AssignmentIcon,
+  Warning as WarningIcon,
+  Timeline as ImpactIcon,
+  LocationOn as LocationIcon,
+} from '@mui/icons-material';
 
 import { GRAVEDAD_OPTIONS } from '../../constants';
 
@@ -27,6 +37,58 @@ export interface FilterPanelProps {
   onClearFilters: () => void;
 }
 
+// Configuración de colores por sección
+const SECTION_CONFIG = {
+  search: {
+    color: 'blue',
+    icon: SearchIcon,
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-300',
+    headerColor: 'bg-blue-100',
+    textColor: 'text-blue-900',
+  },
+  dependencia: {
+    color: 'indigo',
+    icon: BusinessIcon,
+    bgColor: 'bg-indigo-50',
+    borderColor: 'border-indigo-300',
+    headerColor: 'bg-indigo-100',
+    textColor: 'text-indigo-900',
+  },
+  proyecto: {
+    color: 'purple',
+    icon: AssignmentIcon,
+    bgColor: 'bg-purple-50',
+    borderColor: 'border-purple-300',
+    headerColor: 'bg-purple-100',
+    textColor: 'text-purple-900',
+  },
+  gravedad: {
+    color: 'red',
+    icon: WarningIcon,
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-300',
+    headerColor: 'bg-red-100',
+    textColor: 'text-red-900',
+  },
+  impacto: {
+    color: 'orange',
+    icon: ImpactIcon,
+    bgColor: 'bg-orange-50',
+    borderColor: 'border-orange-300',
+    headerColor: 'bg-orange-100',
+    textColor: 'text-orange-900',
+  },
+  comuna: {
+    color: 'green',
+    icon: LocationIcon,
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-300',
+    headerColor: 'bg-green-100',
+    textColor: 'text-green-900',
+  },
+};
+
 const FilterPanel: React.FC<FilterPanelProps> = ({
   searchTerm,
   dependencias,
@@ -46,68 +108,142 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onPriorityProjectChange,
   onClearFilters,
 }) => {
+  // Estado para controlar qué secciones están expandidas
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['search']) // Por defecto, solo el buscador está abierto
+  );
+
+  const toggleSection = (section: string) => {
+    const newExpanded = new Set(expandedSections);
+    if (newExpanded.has(section)) {
+      newExpanded.delete(section);
+    } else {
+      newExpanded.add(section);
+    }
+    setExpandedSections(newExpanded);
+  };
+
+  const isExpanded = (section: string) => expandedSections.has(section);
+
+  // Función para renderizar una sección colapsable
+  const renderCollapsibleSection = (
+    sectionKey: string,
+    title: string,
+    icon: React.ElementType,
+    content: React.ReactNode,
+    badgeCount?: number
+  ) => {
+    const config = SECTION_CONFIG[sectionKey as keyof typeof SECTION_CONFIG];
+    const Icon = icon;
+    const expanded = isExpanded(sectionKey);
+
+    return (
+      <div
+        className={`border-2 ${config.borderColor} rounded-lg overflow-hidden ${config.bgColor} transition-all duration-200`}
+      >
+        <button
+          onClick={() => toggleSection(sectionKey)}
+          className={`w-full px-4 py-3 ${config.headerColor} flex items-center justify-between hover:opacity-90 transition-all duration-200`}
+        >
+          <div className='flex items-center gap-3'>
+            <Icon className={`${config.textColor} w-5 h-5`} />
+            <h3 className={`font-semibold ${config.textColor}`}>{title}</h3>
+            {badgeCount !== undefined && badgeCount > 0 && (
+              <span
+                className={`px-2 py-0.5 ${config.textColor} ${config.bgColor} rounded-full text-xs font-bold`}
+              >
+                {badgeCount}
+              </span>
+            )}
+          </div>
+          {expanded ? (
+            <ExpandLessIcon className={`${config.textColor} w-5 h-5`} />
+          ) : (
+            <ExpandMoreIcon className={`${config.textColor} w-5 h-5`} />
+          )}
+        </button>
+        {expanded && <div className='p-4 border-t border-gray-200'>{content}</div>}
+      </div>
+    );
+  };
+
   return (
-    <div className='space-y-4'>
-      {/* Búsqueda */}
-      <div className='relative'>
-        <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-          <SearchIcon className='h-5 w-5 text-gray-400' />
+    <div className='space-y-3'>
+      {/* Búsqueda - Siempre visible */}
+      <div
+        className={`border-2 ${SECTION_CONFIG.search.borderColor} rounded-lg ${SECTION_CONFIG.search.bgColor} p-4`}
+      >
+        <div className='flex items-center gap-2 mb-2'>
+          <SearchIcon className={`${SECTION_CONFIG.search.textColor} w-5 h-5`} />
+          <h3 className={`font-semibold ${SECTION_CONFIG.search.textColor}`}>Búsqueda</h3>
         </div>
-        <input
-          type='text'
-          placeholder='Buscar por obra, dependencia o descripción...'
-          value={searchTerm}
-          onChange={e => onSearchChange(e.target.value)}
-          className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/90 backdrop-blur-sm'
-        />
+        <div className='relative'>
+          <input
+            type='text'
+            placeholder='Buscar por obra, dependencia o descripción...'
+            value={searchTerm}
+            onChange={e => onSearchChange(e.target.value)}
+            className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white'
+          />
+          <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+        </div>
       </div>
 
       {/* Dependencia */}
-      <div>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>Dependencia</label>
-        <div className='flex flex-wrap gap-2'>
-          <button
-            onClick={() => onDependencyChange([])}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              selectedDependencies.length === 0
-                ? 'bg-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Todas
-          </button>
-          {dependencias.map(dep => {
-            const active = selectedDependencies.includes(dep);
-            return (
-              <button
-                key={dep}
-                onClick={() => {
-                  const set = new Set(selectedDependencies);
-                  if (set.has(dep)) set.delete(dep);
-                  else set.add(dep);
-                  onDependencyChange(Array.from(set));
-                }}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  active ? 'bg-cyan-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {dep}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {renderCollapsibleSection(
+        'dependencia',
+        'Dependencia',
+        BusinessIcon,
+        <div className='max-h-60 overflow-y-auto'>
+          <div className='flex flex-wrap gap-2'>
+            <button
+              onClick={() => onDependencyChange([])}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                selectedDependencies.length === 0
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-indigo-700 hover:bg-indigo-100 border border-indigo-300'
+              }`}
+            >
+              Todas
+            </button>
+            {dependencias.map(dep => {
+              const active = selectedDependencies.includes(dep);
+              return (
+                <button
+                  key={dep}
+                  onClick={() => {
+                    const set = new Set(selectedDependencies);
+                    if (set.has(dep)) set.delete(dep);
+                    else set.add(dep);
+                    onDependencyChange(Array.from(set));
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors truncate max-w-[200px] ${
+                    active
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-white text-indigo-700 hover:bg-indigo-100 border border-indigo-300'
+                  }`}
+                  title={dep}
+                >
+                  {dep}
+                </button>
+              );
+            })}
+          </div>
+        </div>,
+        selectedDependencies.length || undefined
+      )}
 
       {/* Proyecto estratégico */}
-      {priorityProjects && priorityProjects.length > 0 && (
-        <div>
-          <label className='block text-sm font-medium text-gray-700 mb-2'>
-            Proyecto Estratégico
-          </label>
+      {priorityProjects &&
+        priorityProjects.length > 0 &&
+        renderCollapsibleSection(
+          'proyecto',
+          'Proyecto Estratégico',
+          AssignmentIcon,
           <select
             value={selectedPriorityProject || ''}
             onChange={e => onPriorityProjectChange?.(e.target.value)}
-            className='w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-white/90 backdrop-blur-sm'
+            className='w-full p-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white'
           >
             <option value=''>Todos los proyectos</option>
             {priorityProjects.map(project => (
@@ -115,20 +251,22 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 {project.label}
               </option>
             ))}
-          </select>
-        </div>
-      )}
+          </select>,
+          selectedPriorityProject ? 1 : undefined
+        )}
 
       {/* Gravedad */}
-      <div>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>Gravedad</label>
+      {renderCollapsibleSection(
+        'gravedad',
+        'Gravedad',
+        WarningIcon,
         <div className='flex flex-wrap gap-2'>
           <button
             onClick={() => onGravedadChange([])}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               selectedGravedades.length === 0
-                ? 'bg-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-red-600 text-white'
+                : 'bg-white text-red-700 hover:bg-red-100 border border-red-300'
             }`}
           >
             Todas
@@ -136,13 +274,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           {GRAVEDAD_OPTIONS.map(g => {
             const active = selectedGravedades.includes(g.key);
             const colorMap = {
-              success: 'bg-green-100 text-green-700 border border-green-300',
-              error: 'bg-red-500 text-white',
-              warning: 'bg-yellow-500 text-white',
-              info: 'bg-blue-500 text-white',
+              success: 'bg-green-600 text-white',
+              error: 'bg-red-600 text-white',
+              warning: 'bg-yellow-600 text-white',
+              info: 'bg-blue-600 text-white',
             };
             const colorClass: string =
-              colorMap[g.color as keyof typeof colorMap] || 'bg-gray-500 text-white';
+              colorMap[g.color as keyof typeof colorMap] || 'bg-gray-600 text-white';
 
             return (
               <button
@@ -154,26 +292,31 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                   onGravedadChange(Array.from(set));
                 }}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  active ? colorClass : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  active
+                    ? colorClass
+                    : 'bg-white text-red-700 hover:bg-red-100 border border-red-300'
                 }`}
               >
                 {g.label}
               </button>
             );
           })}
-        </div>
-      </div>
+        </div>,
+        selectedGravedades.length || undefined
+      )}
 
       {/* Impacto */}
-      <div>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>Impacto</label>
+      {renderCollapsibleSection(
+        'impacto',
+        'Impacto',
+        ImpactIcon,
         <div className='flex flex-wrap gap-2'>
           <button
             onClick={() => onImpactoChange([])}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               selectedImpactos.length === 0
-                ? 'bg-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-orange-600 text-white'
+                : 'bg-white text-orange-700 hover:bg-orange-100 border border-orange-300'
             }`}
           >
             Todos
@@ -191,63 +334,69 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
                 }}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize ${
                   active
-                    ? 'bg-purple-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-white text-orange-700 hover:bg-orange-100 border border-orange-300'
                 }`}
               >
                 {impacto}
               </button>
             );
           })}
-        </div>
-      </div>
+        </div>,
+        selectedImpactos.length || undefined
+      )}
 
       {/* Comuna */}
-      <div>
-        <label className='block text-sm font-medium text-gray-700 mb-2'>Comuna</label>
-        <div className='flex flex-wrap gap-2'>
-          <button
-            onClick={() => onComunaChange([])}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              (selectedComunas?.length || 0) === 0
-                ? 'bg-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Todas
-          </button>
-          {comunas.map(c => {
-            const active = (selectedComunas || []).includes(c);
-            return (
-              <button
-                key={c}
-                onClick={() => {
-                  const set = new Set(selectedComunas || []);
-                  if (set.has(c)) set.delete(c);
-                  else set.add(c);
-                  onComunaChange(Array.from(set));
-                }}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  active
-                    ? 'bg-green-500 text-white font-bold'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {c}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {renderCollapsibleSection(
+        'comuna',
+        'Comuna',
+        LocationIcon,
+        <div className='max-h-60 overflow-y-auto'>
+          <div className='flex flex-wrap gap-2'>
+            <button
+              onClick={() => onComunaChange([])}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                (selectedComunas?.length || 0) === 0
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-green-700 hover:bg-green-100 border border-green-300'
+              }`}
+            >
+              Todas
+            </button>
+            {comunas.map(c => {
+              const active = (selectedComunas || []).includes(c);
+              return (
+                <button
+                  key={c}
+                  onClick={() => {
+                    const set = new Set(selectedComunas || []);
+                    if (set.has(c)) set.delete(c);
+                    else set.add(c);
+                    onComunaChange(Array.from(set));
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    active
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-green-700 hover:bg-green-100 border border-green-300'
+                  }`}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
+        </div>,
+        selectedComunas?.length || undefined
+      )}
 
       {/* Botón limpiar filtros */}
-      <div className='flex justify-center pt-4'>
+      <div className='flex justify-center pt-2'>
         <button
           onClick={onClearFilters}
-          className='inline-flex items-center px-4 py-2 border border-cyan-500 text-cyan-600 rounded-lg hover:bg-cyan-50 hover:border-cyan-600 transition-colors'
+          className='inline-flex items-center px-4 py-2 border-2 border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors font-medium'
         >
           <ClearIcon className='h-4 w-4 mr-2' />
-          Limpiar Filtros
+          Limpiar Todos los Filtros
         </button>
       </div>
     </div>

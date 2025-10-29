@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Business as BusinessIcon,
-  Download as DownloadIcon,
   TrendingUp as TrendingUpIcon,
   Schedule as ScheduleIcon,
   MoneyOff as MoneyOffIcon,
@@ -24,7 +24,6 @@ import { useProjectMetrics } from '../hooks/useProjectMetrics';
 import { useCambiosFechasEstimadas, useCambiosPresupuesto } from '../hooks/useHistorico';
 import { useSettingsStore } from '../store/settings';
 import { formatDate } from '../utils/dateFormatting';
-import { exportByDependency } from '../utils/export';
 import { MappedAlerta } from '../types/api';
 import DetailDrawer from '../components/DetailDrawer';
 import StatsCard from '../components/common/StatsCard';
@@ -42,8 +41,10 @@ const Dashboard: React.FC = () => {
   const itemsPerPage = 20;
   const [showCambiosFechas, setShowCambiosFechas] = useState(false);
   const [showCambiosPresupuesto, setShowCambiosPresupuesto] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const resultsAnchorRef = useRef<HTMLDivElement | null>(null);
 
-  const { alertas, isLoading } = useAlertas({ limit: 1000 });
+  const { alertas, isLoading, pagination } = useAlertas({ limit: 10000 });
   const { isLoading: loadingStats } = useAlertasStats();
   const { metrics: projectMetrics, isLoading: loadingMetrics } = useProjectMetrics();
   const {
@@ -76,6 +77,61 @@ const Dashboard: React.FC = () => {
     filters.searchTerm ||
     (filters.obraIds && filters.obraIds.length > 0);
 
+  // Total de alertas: usar el total real de la API cuando no hay filtros, o el total filtrado cuando hay filtros
+  const totalAlertas = hasActiveFilters
+    ? alertStats.total
+    : (pagination?.total ?? alertStats.total);
+
+  // Hay resultados visibles cuando existen filtros activos o se activan paneles de resultados
+  const showResults =
+    hasActiveFilters ||
+    activeFilterType === 'late' ||
+    activeFilterType === 'definition' ||
+    showCambiosFechas ||
+    showCambiosPresupuesto;
+
+  // Controlar visibilidad del botón de volver arriba
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      // Mostrar el botón cuando se haya desplazado más de 200px hacia abajo
+      setShowBackToTop(scrollTop > 200);
+    };
+
+    // Ejecutar inmediatamente para verificar el estado inicial
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Recalcular la posición del scroll cuando cambie el contenido
+  useEffect(() => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    setShowBackToTop(scrollTop > 200);
+  }, [hasActiveFilters, activeFilterType, showCambiosFechas, showCambiosPresupuesto]);
+
+  // Función para hacer scroll hacia abajo
+  const scrollToResults = () => {
+    // Usar requestAnimationFrame para asegurar que el DOM esté actualizado
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const anchor = resultsAnchorRef.current;
+        if (anchor) {
+          const rect = anchor.getBoundingClientRect();
+          const top = rect.top + window.pageYOffset - 120; // offset desde el top
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+  };
+
+  // Función para volver arriba
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Handlers
   const handleToggleExpand = (dependencia: string) => {
     const newExpanded = new Set(expandedDependencies);
@@ -85,10 +141,6 @@ const Dashboard: React.FC = () => {
       newExpanded.add(dependencia);
     }
     setExpandedDependencies(newExpanded);
-  };
-
-  const handleExportByDependency = (dependency: string) => {
-    exportByDependency(filteredAlertas, dependency);
   };
 
   const openDetail = (alerta: MappedAlerta) => {
@@ -107,6 +159,11 @@ const Dashboard: React.FC = () => {
       ? currentGravedades.filter(g => g !== gravedad)
       : [...currentGravedades, gravedad];
     setFilters({ gravedad: newGravedades });
+
+    // Hacer scroll hacia abajo después de que se renderice el contenido
+    setTimeout(() => {
+      scrollToResults();
+    }, 200);
   };
 
   const handleClearAllFilters = () => {
@@ -168,6 +225,11 @@ const Dashboard: React.FC = () => {
       default:
         break;
     }
+
+    // Hacer scroll hacia abajo después de que se renderice el contenido
+    setTimeout(() => {
+      scrollToResults();
+    }, 200);
   };
 
   // Loading state
@@ -219,13 +281,13 @@ const Dashboard: React.FC = () => {
                       onClick={() => handleMetricFilter('budget')}
                       className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
                         activeFilterType === 'budget'
-                          ? 'ring-2 ring-red-500 border-red-500'
-                          : 'border-red-200 hover:border-red-500'
+                          ? 'ring-2 ring-blue-700 border-blue-700'
+                          : 'border-blue-700 hover:border-blue-900'
                       }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
-                          <div className='w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                          <div className='w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white flex-shrink-0'>
                             <TrendingUpIcon className='w-6 h-6' />
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -238,10 +300,10 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className='flex flex-col items-end flex-shrink-0'>
-                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded-full'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-900 text-xs font-medium rounded-full'>
                             -12%
                           </span>
-                          <span className='text-2xl font-bold text-red-500'>
+                          <span className='text-2xl font-bold text-blue-900'>
                             {cambiosPresupuesto || 152}
                           </span>
                         </div>
@@ -259,13 +321,13 @@ const Dashboard: React.FC = () => {
                       onClick={() => handleMetricFilter('late')}
                       className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
                         activeFilterType === 'late'
-                          ? 'ring-2 ring-yellow-500 border-yellow-500'
-                          : 'border-yellow-200 hover:border-yellow-500'
+                          ? 'ring-2 ring-blue-700 border-blue-700'
+                          : 'border-blue-700 hover:border-blue-900'
                       }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
-                          <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                          <div className='w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white flex-shrink-0'>
                             <ScheduleIcon className='w-6 h-6' />
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -278,10 +340,10 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className='flex flex-col items-end flex-shrink-0'>
-                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-900 text-xs font-medium rounded-full'>
                             +8%
                           </span>
-                          <span className='text-2xl font-bold text-yellow-500'>
+                          <span className='text-2xl font-bold text-blue-900'>
                             {projectMetrics?.lateProjects.count || 326}
                           </span>
                         </div>
@@ -299,13 +361,13 @@ const Dashboard: React.FC = () => {
                       onClick={() => handleMetricFilter('delayed2months')}
                       className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
                         activeFilterType === 'delayed2months'
-                          ? 'ring-2 ring-blue-500 border-blue-500'
-                          : 'border-blue-200 hover:border-blue-500'
+                          ? 'ring-2 ring-blue-700 border-blue-700'
+                          : 'border-blue-700 hover:border-blue-900'
                       }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
-                          <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                          <div className='w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white flex-shrink-0'>
                             <TimelineIcon className='w-6 h-6' />
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -318,10 +380,10 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className='flex flex-col items-end flex-shrink-0'>
-                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-900 text-xs font-medium rounded-full'>
                             -15%
                           </span>
-                          <span className='text-2xl font-bold text-blue-500'>
+                          <span className='text-2xl font-bold text-blue-900'>
                             {cambiosFechas || 134}
                           </span>
                         </div>
@@ -339,13 +401,13 @@ const Dashboard: React.FC = () => {
                       onClick={() => handleMetricFilter('defunded')}
                       className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
                         activeFilterType === 'defunded'
-                          ? 'ring-2 ring-gray-500 border-gray-500'
-                          : 'border-gray-200 hover:border-gray-500'
+                          ? 'ring-2 ring-blue-700 border-blue-700'
+                          : 'border-blue-700 hover:border-blue-900'
                       }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
-                          <div className='w-12 h-12 bg-gray-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                          <div className='w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white flex-shrink-0'>
                             <MoneyOffIcon className='w-6 h-6' />
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -358,10 +420,10 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className='flex flex-col items-end flex-shrink-0'>
-                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-gray-100 text-gray-800 text-xs font-medium rounded-full'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-900 text-xs font-medium rounded-full'>
                             0%
                           </span>
-                          <span className='text-2xl font-bold text-gray-500'>0</span>
+                          <span className='text-2xl font-bold text-blue-900'>0</span>
                         </div>
                       </div>
                     </div>
@@ -377,13 +439,13 @@ const Dashboard: React.FC = () => {
                       onClick={() => handleMetricFilter('definition')}
                       className={`relative bg-white rounded-lg border-2 shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-4 ${
                         activeFilterType === 'definition'
-                          ? 'ring-2 ring-yellow-500 border-yellow-500'
-                          : 'border-yellow-200 hover:border-yellow-500'
+                          ? 'ring-2 ring-blue-700 border-blue-700'
+                          : 'border-blue-700 hover:border-blue-900'
                       }`}
                     >
                       <div className='flex items-center justify-between gap-4'>
                         <div className='flex items-center gap-3 flex-1 min-w-0'>
-                          <div className='w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white flex-shrink-0'>
+                          <div className='w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center text-white flex-shrink-0'>
                             <AssignmentIcon className='w-6 h-6' />
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -396,10 +458,10 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className='flex flex-col items-end flex-shrink-0'>
-                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full'>
+                          <span className='absolute top-2 right-2 px-2 py-0.5 bg-blue-100 text-blue-900 text-xs font-medium rounded-full'>
                             +3%
                           </span>
-                          <span className='text-2xl font-bold text-yellow-500'>
+                          <span className='text-2xl font-bold text-blue-900'>
                             {projectMetrics?.pendingDefinitionProjects.count || 20}
                           </span>
                         </div>
@@ -418,7 +480,7 @@ const Dashboard: React.FC = () => {
                 <div className='space-y-3'>
                   <StatsCard
                     label='Total Alertas'
-                    value={alertStats.total}
+                    value={totalAlertas}
                     icon={<DashboardIcon />}
                     color='#06b6d4'
                     delay={0}
@@ -466,6 +528,9 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Ancla fija para scroll a resultados */}
+        <div ref={resultsAnchorRef} />
 
         {/* Mensaje cuando no hay filtros activos */}
         {!hasActiveFilters && (
@@ -954,13 +1019,6 @@ const Dashboard: React.FC = () => {
                           <span className='px-2 py-1 bg-green-100 text-green-700 border border-green-300 text-xs font-medium rounded-full'>
                             {grupo.sinRiesgo || 0} Sin riesgo
                           </span>
-                          <button
-                            onClick={() => handleExportByDependency(grupo.dependencia)}
-                            className='inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 text-xs rounded-md hover:bg-gray-50 transition-colors'
-                          >
-                            <DownloadIcon className='w-3 h-3 mr-1' />
-                            Exportar
-                          </button>
                         </div>
                       </div>
 
@@ -1014,6 +1072,37 @@ const Dashboard: React.FC = () => {
           </>
         )}
       </motion.div>
+
+      {/* Botón flotante para volver arriba (solo cuando hay resultados) */}
+      {showResults &&
+        showBackToTop &&
+        createPortal(
+          <motion.button
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={scrollToTop}
+            className='fixed bottom-6 right-2 sm:right-3 md:right-4 lg:right-6 xl:right-8 z-[9999] bg-cyan-500 hover:bg-cyan-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-cyan-300'
+            aria-label='Volver arriba'
+          >
+            <svg
+              className='w-6 h-6'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+              xmlns='http://www.w3.org/2000/svg'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M5 10l7-7m0 0l7 7m-7-7v18'
+              />
+            </svg>
+          </motion.button>,
+          document.body
+        )}
 
       <DetailDrawer open={detailOpen} onClose={closeDetail} alerta={selectedAlerta} />
     </div>
