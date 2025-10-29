@@ -1,5 +1,5 @@
 import { ApiHistoricoResponse, ApiHistoricoItem, CambioFechaEstimada } from '../types/api';
-import { parseCurrency } from '../utils/currencyFormatting';
+import { parseCurrency, formatCurrency } from '../utils/currencyFormatting';
 
 const env =
   (import.meta as unknown as { env?: { VITE_API_BASE?: string; VITE_API_KEY?: string } }).env || {};
@@ -268,6 +268,33 @@ export class HistoricoApiService {
 
       // Si encontramos un cambio significativo para esta obra, agregarlo
       if (mejorCambio !== null) {
+        // Obtener los valores numéricos para formatear
+        const valorAnteriorStr = mejorCambio['VALOR ANTERIOR'] || '';
+        const valorNuevoStr = mejorCambio['VALOR NUEVO'] || '';
+
+        const costoAnterior = parseCurrency(valorAnteriorStr);
+        const costoNuevo = parseCurrency(valorNuevoStr);
+
+        // Formatear valores de presupuesto
+        const presupuestoAnteriorFormateado =
+          costoAnterior !== null
+            ? formatCurrency(costoAnterior)
+            : valorAnteriorStr && valorAnteriorStr.trim() !== ''
+              ? valorAnteriorStr
+              : 'N/A';
+
+        const presupuestoNuevoFormateado =
+          costoNuevo !== null
+            ? formatCurrency(costoNuevo)
+            : valorNuevoStr && valorNuevoStr.trim() !== ''
+              ? valorNuevoStr
+              : 'N/A';
+
+        const diferenciaFormateada =
+          costoAnterior !== null && costoNuevo !== null
+            ? formatCurrency(Math.abs(costoNuevo - costoAnterior))
+            : 'N/A';
+
         // Debug removido
         cambios.push({
           obra_id: obraId,
@@ -276,9 +303,10 @@ export class HistoricoApiService {
           comuna: mejorCambio['COMUNA O CORREGIMIENTO'] || 'Sin ubicación',
           proyecto_estrategico: mejorCambio['PROYECTO ESTRATÉGICO'] || 'Sin proyecto',
           campo_modificado: mejorCambio['CAMPO MODIFICADO'] || 'Campo desconocido',
-          fecha_anterior: mejorCambio['VALOR ANTERIOR']!,
-          fecha_nueva: mejorCambio['VALOR NUEVO']!,
-          meses_atraso: Math.round(mayorDiferencia / 1000000), // Convertir a millones para mostrar
+          presupuesto_anterior: presupuestoAnteriorFormateado,
+          presupuesto_nuevo: presupuestoNuevoFormateado,
+          diferencia: diferenciaFormateada,
+          meses_atraso: mayorDiferencia, // Usar para ordenar por diferencia de presupuesto
           fecha_modificacion: mejorCambio['FECHA MODIFICACIÓN'] || new Date().toISOString(),
           usuario_modificador: mejorCambio['USUARIO MODIFICADOR'] || 'Usuario desconocido',
         });
@@ -286,7 +314,7 @@ export class HistoricoApiService {
     });
 
     // Ordenar por diferencia de presupuesto (mayor diferencia primero)
-    const cambiosFinales = cambios.sort((a, b) => b.meses_atraso - a.meses_atraso);
+    const cambiosFinales = cambios.sort((a, b) => (b.meses_atraso || 0) - (a.meses_atraso || 0));
     // Debug removido
     return cambiosFinales;
   }

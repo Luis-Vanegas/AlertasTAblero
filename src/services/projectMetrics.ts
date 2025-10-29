@@ -171,16 +171,14 @@ export class ProjectMetricsService {
           }
         }
 
-        // Proyectos pendientes de definición (solo aplazados y pausados)
+        // Proyectos pendientes de definición (solo pausados)
         const estado = obra['ESTADO DE LA OBRA'];
 
-        // Verificar si está aplazado o pausado
-        const isAplazadoPausado =
-          estado &&
-          typeof estado === 'string' &&
-          (estado.toLowerCase().includes('aplazado') || estado.toLowerCase().includes('pausado'));
+        // Verificar si está pausado
+        const isPausado =
+          estado && typeof estado === 'string' && estado.toLowerCase().includes('pausado');
 
-        if (isAplazadoPausado) {
+        if (isPausado) {
           metrics.pendingDefinitionProjects.count++;
           metrics.pendingDefinitionProjects.obraIds.push(String(obraId));
           metrics.pendingDefinitionProjects.projects.push({

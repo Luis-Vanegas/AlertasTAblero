@@ -119,9 +119,13 @@ export interface CambioFechaEstimada {
   comuna: string;
   proyecto_estrategico: string;
   campo_modificado: string;
-  fecha_anterior: string;
-  fecha_nueva: string;
-  meses_atraso: number;
+  fecha_anterior?: string;
+  fecha_nueva?: string;
+  meses_atraso?: number;
   fecha_modificacion: string;
   usuario_modificador: string;
+  // Campos para cambios de presupuesto
+  presupuesto_anterior?: string;
+  presupuesto_nuevo?: string;
+  diferencia?: string;
 }
