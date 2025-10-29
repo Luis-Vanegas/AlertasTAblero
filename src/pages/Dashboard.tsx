@@ -297,7 +297,11 @@ const Dashboard: React.FC = () => {
         <div ref={resultsAnchorRef} />
 
         {/* Estado vacío cuando no hay filtros */}
-        <EmptyState hasActiveFilters={hasActiveFilters} totalAlertas={totalAlertas} />
+        <EmptyState
+          hasActiveFilters={hasActiveFilters}
+          showResults={showResults}
+          totalAlertas={totalAlertas}
+        />
 
         {/* Lista de Proyectos Tardíos */}
         {activeFilterType === 'late' &&

@@ -14,6 +14,9 @@ interface EmptyStateProps {
   /** Si hay filtros activos */
   hasActiveFilters: boolean;
 
+  /** Si hay resultados visibles (filtros o métricas activas) */
+  showResults: boolean;
+
   /** Total de alertas disponibles */
   totalAlertas: number;
 }
@@ -21,9 +24,10 @@ interface EmptyStateProps {
 /**
  * Componente que muestra un mensaje cuando no hay resultados o filtros activos
  */
-const EmptyState: React.FC<EmptyStateProps> = ({ hasActiveFilters, totalAlertas }) => {
-  if (hasActiveFilters) {
-    return null; // No mostrar si hay filtros activos (se maneja en otro lugar)
+const EmptyState: React.FC<EmptyStateProps> = ({ hasActiveFilters, showResults, totalAlertas }) => {
+  // No mostrar si hay filtros activos o si hay resultados visibles (métricas activas)
+  if (hasActiveFilters || showResults) {
+    return null; // No mostrar si hay filtros activos o métricas seleccionadas
   }
 
   return (
