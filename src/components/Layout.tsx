@@ -6,6 +6,7 @@ import {
   FilterList as FilterIcon,
   Close as CloseIcon,
   ClearAll as ClearAllIcon,
+  KeyboardArrowUp as ArrowUpIcon,
 } from '@mui/icons-material';
 
 import { useSettingsStore } from '../store/settings';
@@ -37,6 +38,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleFiltersToggle = () => {
     setFiltersOpen(!filtersOpen);
+  };
+
+  const handleCloseFilters = () => {
+    setFiltersOpen(false);
+    // No hacer scroll, solo cerrar el panel
   };
 
   const handleClearFilters = () => {
@@ -126,6 +132,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <FilterIcon className='inline w-4 h-4 mr-1' />
               {hasActiveFilters ? 'Filtros Activos' : 'Filtros'}
             </button>
+            {filtersOpen && (
+              <button
+                onClick={handleCloseFilters}
+                className='px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors'
+                title='Cerrar panel de filtros'
+              >
+                <CloseIcon className='inline w-4 h-4 mr-1' />
+                Cerrar
+              </button>
+            )}
             {hasActiveFilters && (
               <button
                 onClick={handleClearFilters}
@@ -158,14 +174,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             className='bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200 overflow-hidden'
           >
             <div className='p-4'>
-              <div className='flex items-center justify-between mb-4'>
+              <div className='flex items-center justify-between mb-4 border-b border-gray-200 pb-3'>
                 <h3 className='text-lg font-semibold text-gray-800'>Filtros</h3>
-                <button
-                  onClick={handleFiltersToggle}
-                  className='p-1 rounded-md text-gray-500 hover:bg-gray-100 transition-colors'
-                >
-                  <CloseIcon />
-                </button>
+                <div className='flex items-center gap-2'>
+                  <button
+                    onClick={handleCloseFilters}
+                    className='p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors border border-gray-300'
+                    title='Cerrar panel de filtros sin hacer scroll'
+                  >
+                    <CloseIcon fontSize='small' />
+                  </button>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={handleClearFilters}
+                      className='p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors border border-red-300'
+                      title='Limpiar todos los filtros y volver arriba'
+                    >
+                      <ClearAllIcon fontSize='small' />
+                    </button>
+                  )}
+                </div>
               </div>
 
               <FilterPanel
@@ -189,21 +217,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onPriorityProjectChange={projectKey => setFilters({ priorityProject: projectKey })}
                 onClearFilters={clearFilters}
               />
+
+              {/* Botón pequeño para cerrar filtros dentro del panel */}
+              <div className='flex justify-center mt-4 pt-4 border-t border-gray-200'>
+                <button
+                  onClick={handleCloseFilters}
+                  className='p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 hover:text-gray-900 transition-colors'
+                  title='Cerrar panel de filtros'
+                >
+                  <ArrowUpIcon fontSize='small' />
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Botón flotante para cerrar filtros sin hacer scroll */}
-      {filtersOpen && (
-        <button
-          onClick={() => setFiltersOpen(false)}
-          className='fixed bottom-6 right-6 z-50 px-4 py-2 rounded-full shadow-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold transition-colors'
-          aria-label='Cerrar filtros'
-        >
-          Cerrar filtros
-        </button>
-      )}
 
       {/* Contenido principal */}
       <main className='flex-1 p-4 sm:p-6 lg:p-8'>
