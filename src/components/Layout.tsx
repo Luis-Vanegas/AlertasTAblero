@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu as MenuIcon,
@@ -46,6 +46,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const appTitle = import.meta.env.VITE_APP_TITLE || 'Alertas';
+
+  // Cerrar filtros con tecla Escape cuando el panel esté abierto
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setFiltersOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [filtersOpen]);
 
   // Verificar si hay filtros activos
   const hasActiveFilters =
@@ -181,6 +193,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Botón flotante para cerrar filtros sin hacer scroll */}
+      {filtersOpen && (
+        <button
+          onClick={() => setFiltersOpen(false)}
+          className='fixed bottom-6 right-6 z-50 px-4 py-2 rounded-full shadow-lg bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-semibold transition-colors'
+          aria-label='Cerrar filtros'
+        >
+          Cerrar filtros
+        </button>
+      )}
 
       {/* Contenido principal */}
       <main className='flex-1 p-4 sm:p-6 lg:p-8'>
