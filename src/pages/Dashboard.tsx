@@ -202,6 +202,8 @@ const Dashboard: React.FC = () => {
     setActiveFilterType(null);
     setShowCambiosFechas(false);
     setShowCambiosPresupuesto(false);
+    // Hacer scroll hacia arriba
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   /**

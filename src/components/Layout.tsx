@@ -5,6 +5,7 @@ import {
   Refresh as RefreshIcon,
   FilterList as FilterIcon,
   Close as CloseIcon,
+  ClearAll as ClearAllIcon,
 } from '@mui/icons-material';
 
 import { useSettingsStore } from '../store/settings';
@@ -36,6 +37,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleFiltersToggle = () => {
     setFiltersOpen(!filtersOpen);
+  };
+
+  const handleClearFilters = () => {
+    clearFilters();
+    // Hacer scroll hacia arriba
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const appTitle = import.meta.env.VITE_APP_TITLE || 'Alertas';
@@ -107,6 +114,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <FilterIcon className='inline w-4 h-4 mr-1' />
               {hasActiveFilters ? 'Filtros Activos' : 'Filtros'}
             </button>
+            {hasActiveFilters && (
+              <button
+                onClick={handleClearFilters}
+                className='px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors'
+                title='Limpiar todos los filtros'
+              >
+                <ClearAllIcon className='inline w-4 h-4 mr-1' />
+                Limpiar Filtros
+              </button>
+            )}
             <button
               onClick={() => window.location.reload()}
               className='p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
