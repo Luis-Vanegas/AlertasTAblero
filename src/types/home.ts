@@ -7,4 +7,3 @@ export interface ProjectCard {
   alertCount: number;
   id: string; // Normalized key for filtering
 }
-

@@ -177,4 +177,3 @@ export const ActiveFiltersBadges: React.FC = () => {
 };
 
 export default ActiveFiltersBadges;
-

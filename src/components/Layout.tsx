@@ -66,13 +66,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [filtersOpen]);
 
   // Verificar si hay filtros activos
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     filters.gravedad.length > 0 ||
-    filters.dependencia.length > 0 ||
-    (filters.comuna && filters.comuna.length > 0) ||
-    filters.impacto.length > 0 ||
-    filters.searchTerm ||
-    (filters.obraIds && filters.obraIds.length > 0);
+      filters.dependencia.length > 0 ||
+      (filters.comuna && filters.comuna.length > 0) ||
+      filters.impacto.length > 0 ||
+      filters.searchTerm ||
+      (filters.obraIds && filters.obraIds.length > 0)
+  );
 
   return (
     <div className='min-h-screen flex flex-col relative'>
@@ -122,7 +123,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }`}
               >
                 <FilterIcon className='w-4 h-4' />
-                <span className='hidden sm:inline'>{hasActiveFilters ? 'Filtros Activos' : 'Filtros'}</span>
+                <span className='hidden sm:inline'>
+                  {hasActiveFilters ? 'Filtros Activos' : 'Filtros'}
+                </span>
               </button>
               {hasActiveFilters && (
                 <button
@@ -143,7 +146,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </button>
               {/* Logo de la Alcaldía */}
               <div>
-                <img src={logoImage} alt='Logo Alcaldía de Medellín' className='h-8 sm:h-10 w-auto' />
+                <img
+                  src={logoImage}
+                  alt='Logo Alcaldía de Medellín'
+                  className='h-8 sm:h-10 w-auto'
+                />
               </div>
             </div>
           </div>

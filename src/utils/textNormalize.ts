@@ -20,4 +20,3 @@ export const normalizeText = (value: string): string => {
 export const normalizeProjectName = (projectName: string): string => {
   return normalizeText(projectName || 'Sin proyecto');
 };
-

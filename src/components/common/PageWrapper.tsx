@@ -23,4 +23,3 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
     </motion.div>
   );
 };
-

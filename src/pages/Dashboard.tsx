@@ -35,7 +35,7 @@ import ScrollToTopButton from '../components/dashboard/ScrollToTopButton';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  
+
   // Store de configuración y filtros
   const { filters, setFilters } = useSettingsStore();
 

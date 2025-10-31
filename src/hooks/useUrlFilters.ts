@@ -13,7 +13,7 @@ export const useUrlFilters = () => {
 
   useEffect(() => {
     const proyectoParam = searchParams.get('proyecto');
-    
+
     if (proyectoParam) {
       const decodedProject = decodeURIComponent(proyectoParam);
       const normalizedProject = normalizeProjectName(decodedProject);
@@ -23,4 +23,3 @@ export const useUrlFilters = () => {
     }
   }, [searchParams, setFilters]);
 };
-

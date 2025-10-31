@@ -37,20 +37,20 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
   // Obtener opciones únicas para filtros (combinando alertas y datos unificados)
   const filterOptions = useMemo(() => {
     // Opciones de alertas
-    const dependenciasAlertas = Array.from(new Set(alertas.map(a => a.dependencia).filter(Boolean)));
+    const dependenciasAlertas = Array.from(
+      new Set(alertas.map(a => a.dependencia).filter(Boolean))
+    );
     const comunasAlertas = Array.from(new Set(alertas.map(a => a.comuna).filter(Boolean)));
-    
+
     // Opciones de datos unificados
     const dependenciasUnificadas = unifiedFilterOptions?.dependencias || [];
     const comunasUnificadas = unifiedFilterOptions?.comunas || [];
-    
+
     // Combinar y eliminar duplicados
     const dependencias = Array.from(
       new Set([...dependenciasAlertas, ...dependenciasUnificadas])
     ).sort();
-    const comunas = Array.from(
-      new Set([...comunasAlertas, ...comunasUnificadas])
-    ).sort();
+    const comunas = Array.from(new Set([...comunasAlertas, ...comunasUnificadas])).sort();
 
     const impactoOptions = Array.from(
       new Set(alertas.flatMap(a => extractImpacts(a.impacto_riesgo)))

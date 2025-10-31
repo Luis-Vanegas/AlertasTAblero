@@ -52,7 +52,9 @@ export const NavigationSection: React.FC = () => {
                   <ProjectsIcon className='text-cyan-600 text-2xl' />
                 </div>
                 <div className='text-left'>
-                  <h3 className='font-bold text-lg sm:text-xl text-gray-900'>Proyectos Estratégicos</h3>
+                  <h3 className='font-bold text-lg sm:text-xl text-gray-900'>
+                    Proyectos Estratégicos
+                  </h3>
                   <p className='text-sm text-gray-600'>Ver todos los proyectos</p>
                 </div>
               </div>
@@ -87,4 +89,3 @@ export const NavigationSection: React.FC = () => {
     </motion.div>
   );
 };
-

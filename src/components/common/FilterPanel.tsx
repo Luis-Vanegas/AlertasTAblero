@@ -198,7 +198,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           {/* Filtros seleccionados - destacados arriba */}
           {selectedDependencies.length > 0 && (
             <div>
-              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionados ({selectedDependencies.length})</p>
+              <p className='text-xs font-medium text-gray-600 mb-2'>
+                Seleccionados ({selectedDependencies.length})
+              </p>
               <div className='flex flex-wrap gap-2'>
                 {selectedDependencies.map(dep => (
                   <button
@@ -336,7 +338,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           {/* Filtros seleccionados - destacados arriba */}
           {selectedImpactos.length > 0 && (
             <div>
-              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionados ({selectedImpactos.length})</p>
+              <p className='text-xs font-medium text-gray-600 mb-2'>
+                Seleccionados ({selectedImpactos.length})
+              </p>
               <div className='flex flex-wrap gap-2'>
                 {selectedImpactos.map(impacto => (
                   <button
@@ -400,7 +404,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
           {/* Filtros seleccionados - destacados arriba */}
           {(selectedComunas?.length || 0) > 0 && (
             <div>
-              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionadas ({selectedComunas?.length || 0})</p>
+              <p className='text-xs font-medium text-gray-600 mb-2'>
+                Seleccionadas ({selectedComunas?.length || 0})
+              </p>
               <div className='flex flex-wrap gap-2'>
                 {(selectedComunas || []).map(comuna => (
                   <button
