@@ -48,6 +48,24 @@ body {
   border-radius: 4px;
 }
 
+/* Scrollbar para proyectos en home - más discreto */
+.projects-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.projects-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.projects-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.projects-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 4px;

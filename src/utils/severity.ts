@@ -4,6 +4,7 @@
 
 import { MappedAlerta } from '../types/api';
 import { severityService } from '../services/severity';
+import { normalizeProjectName } from './textNormalize';
 
 /**
  * Normaliza valores de gravedad a llaves consistentes
@@ -108,10 +109,7 @@ export const isPriorityAlert = (
   alerta: MappedAlerta,
   priorityProjects: readonly string[]
 ): boolean => {
-  const project = (alerta.proyecto_estrategico || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '');
+  const project = normalizeProjectName(alerta.proyecto_estrategico || '');
   return priorityProjects.includes(project);
 };
 

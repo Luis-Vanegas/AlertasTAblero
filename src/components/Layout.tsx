@@ -6,13 +6,13 @@ import {
   FilterList as FilterIcon,
   Close as CloseIcon,
   ClearAll as ClearAllIcon,
-  KeyboardArrowUp as ArrowUpIcon,
 } from '@mui/icons-material';
 
 import { useSettingsStore } from '../store/settings';
 import { useAlertas } from '../hooks/useAlertas';
 import { useFilters } from '../hooks/useFilters';
-import FilterPanel from './common/FilterPanel';
+import FilterModal from './common/FilterModal';
+import ActiveFiltersBadges from './common/ActiveFiltersBadges';
 import { ANIMATION_VARIANTS, TRANSITIONS } from '../constants';
 import bgImage from '../assets/image.png';
 import logoImage from '../assets/logo_2022.png';
@@ -84,154 +84,102 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         }}
       />
 
-      {/* Barra superior */}
-      <header className='bg-white backdrop-blur-lg shadow-lg sticky top-0 z-50'>
-        <div className='px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between py-4'>
+      {/* Barra superior - más compacta */}
+      <header className='bg-white backdrop-blur-lg shadow-md sticky top-0 z-50'>
+        <div className='px-3 sm:px-4 lg:px-6'>
+          <div className='flex items-center justify-between py-2 sm:py-3'>
             {/* Título y menú móvil */}
-            <div className='flex items-center space-x-4'>
+            <div className='flex items-center space-x-2 sm:space-x-3'>
               <button
                 onClick={handleMobileMenuToggle}
-                className='md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors'
+                className='md:hidden p-1.5 rounded-md text-gray-700 hover:bg-gray-100 transition-colors'
               >
-                <MenuIcon />
+                <MenuIcon className='w-5 h-5' />
               </button>
 
               <div>
                 <motion.h1
-                  className='text-2xl font-bold text-gray-800'
+                  className='text-lg sm:text-xl font-bold text-gray-800'
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5 }}
                 >
                   {appTitle}
                 </motion.h1>
-                <p className='text-sm text-gray-600'>Alcaldía de Medellín</p>
+                <p className='text-xs sm:text-sm text-gray-600'>Alcaldía de Medellín</p>
               </div>
             </div>
 
             {/* Botones de acción y Logo */}
-            <div className='flex items-center space-x-3'>
+            <div className='flex items-center space-x-2 sm:space-x-3'>
+              {/* Botón de filtros */}
+              <button
+                onClick={handleFiltersToggle}
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 border rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 ${
+                  hasActiveFilters
+                    ? 'bg-cyan-500 text-white border-cyan-500'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <FilterIcon className='w-4 h-4' />
+                <span className='hidden sm:inline'>{hasActiveFilters ? 'Filtros Activos' : 'Filtros'}</span>
+              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className='px-2 py-1.5 sm:px-3 sm:py-2 border border-red-300 rounded-lg text-xs sm:text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors flex items-center gap-1'
+                  title='Limpiar todos los filtros'
+                >
+                  <ClearAllIcon className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Limpiar</span>
+                </button>
+              )}
+              <button
+                onClick={() => window.location.reload()}
+                className='p-1.5 sm:p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
+                title='Actualizar datos'
+              >
+                <RefreshIcon className='w-4 h-4 sm:w-5 sm:h-5' />
+              </button>
               {/* Logo de la Alcaldía */}
               <div>
-                <img src={logoImage} alt='Logo Alcaldía de Medellín' className='h-12 w-auto' />
+                <img src={logoImage} alt='Logo Alcaldía de Medellín' className='h-8 sm:h-10 w-auto' />
               </div>
             </div>
           </div>
 
-          {/* Barra de filtros */}
-          <div className='flex items-center justify-end gap-3 pb-4'>
-            <button
-              onClick={handleFiltersToggle}
-              className={`px-4 py-2 border rounded-lg text-sm font-medium transition-colors ${
-                hasActiveFilters
-                  ? 'bg-cyan-500 text-white border-cyan-500'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <FilterIcon className='inline w-4 h-4 mr-1' />
-              {hasActiveFilters ? 'Filtros Activos' : 'Filtros'}
-            </button>
-            {filtersOpen && (
-              <button
-                onClick={handleCloseFilters}
-                className='px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors'
-                title='Cerrar panel de filtros'
-              >
-                <CloseIcon className='inline w-4 h-4 mr-1' />
-                Cerrar
-              </button>
-            )}
-            {hasActiveFilters && (
-              <button
-                onClick={handleClearFilters}
-                className='px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors'
-                title='Limpiar todos los filtros'
-              >
-                <ClearAllIcon className='inline w-4 h-4 mr-1' />
-                Limpiar Filtros
-              </button>
-            )}
-            <button
-              onClick={() => window.location.reload()}
-              className='p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
-              title='Actualizar datos'
-            >
-              <RefreshIcon />
-            </button>
-          </div>
+          {/* Badges de filtros activos */}
+          {hasActiveFilters && (
+            <div className='pb-2 border-t border-gray-200 pt-2'>
+              <ActiveFiltersBadges />
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Panel de filtros deslizable */}
-      <AnimatePresence>
-        {filtersOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className='bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200 overflow-hidden'
-          >
-            <div className='p-4'>
-              <div className='flex items-center justify-between mb-4 border-b border-gray-200 pb-3'>
-                <h3 className='text-lg font-semibold text-gray-800'>Filtros</h3>
-                <div className='flex items-center gap-2'>
-                  <button
-                    onClick={handleCloseFilters}
-                    className='p-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors border border-gray-300'
-                    title='Cerrar panel de filtros sin hacer scroll'
-                  >
-                    <CloseIcon fontSize='small' />
-                  </button>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={handleClearFilters}
-                      className='p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors border border-red-300'
-                      title='Limpiar todos los filtros y volver arriba'
-                    >
-                      <ClearAllIcon fontSize='small' />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <FilterPanel
-                searchTerm={filters.searchTerm}
-                dependencias={filterOptions.dependencias}
-                comunas={filterOptions.comunas}
-                impactoOptions={filterOptions.impactoOptions}
-                priorityProjects={
-                  filterOptions.priorityProjects as Array<{ key: string; label: string }>
-                }
-                selectedDependencies={filters.dependencia}
-                selectedGravedades={filters.gravedad}
-                selectedImpactos={filters.impacto}
-                selectedComunas={filters.comuna || []}
-                selectedPriorityProject={filters.priorityProject}
-                onSearchChange={value => setFilters({ searchTerm: value })}
-                onDependencyChange={dependencies => setFilters({ dependencia: dependencies })}
-                onGravedadChange={gravedades => setFilters({ gravedad: gravedades })}
-                onImpactoChange={impactos => setFilters({ impacto: impactos })}
-                onComunaChange={comunas => setFilters({ comuna: comunas })}
-                onPriorityProjectChange={projectKey => setFilters({ priorityProject: projectKey })}
-                onClearFilters={clearFilters}
-              />
-
-              {/* Botón pequeño para cerrar filtros dentro del panel */}
-              <div className='flex justify-center mt-4 pt-4 border-t border-gray-200'>
-                <button
-                  onClick={handleCloseFilters}
-                  className='p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 hover:text-gray-900 transition-colors'
-                  title='Cerrar panel de filtros'
-                >
-                  <ArrowUpIcon fontSize='small' />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Modal de filtros */}
+      <FilterModal
+        isOpen={filtersOpen}
+        onClose={handleCloseFilters}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={handleClearFilters}
+        searchTerm={filters.searchTerm}
+        dependencias={filterOptions.dependencias}
+        comunas={filterOptions.comunas}
+        impactoOptions={filterOptions.impactoOptions}
+        priorityProjects={filterOptions.priorityProjects as Array<{ key: string; label: string }>}
+        selectedDependencies={filters.dependencia}
+        selectedGravedades={filters.gravedad}
+        selectedImpactos={filters.impacto}
+        selectedComunas={filters.comuna || []}
+        selectedPriorityProject={filters.priorityProject}
+        onSearchChange={value => setFilters({ searchTerm: value })}
+        onDependencyChange={dependencies => setFilters({ dependencia: dependencies })}
+        onGravedadChange={gravedades => setFilters({ gravedad: gravedades })}
+        onImpactoChange={impactos => setFilters({ impacto: impactos })}
+        onComunaChange={comunas => setFilters({ comuna: comunas })}
+        onPriorityProjectChange={projectKey => setFilters({ priorityProject: projectKey })}
+      />
 
       {/* Contenido principal */}
       <main className='flex-1 p-4 sm:p-6 lg:p-8'>

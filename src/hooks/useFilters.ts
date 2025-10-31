@@ -5,6 +5,7 @@
 import { useMemo } from 'react';
 import { MappedAlerta } from '../types/api';
 import { normalizeGravedad, extractImpacts } from '../utils/severity';
+import { normalizeText } from '../utils/textNormalize';
 import { PRIORITY_PROJECTS } from '../constants';
 import { useUnifiedData } from './useUnifiedData';
 
@@ -32,17 +33,24 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
   // Obtener datos unificados para filtros adicionales
   const { projects: unifiedProjects, filterOptions: unifiedFilterOptions } = useUnifiedData();
 
-  const normalize = (value: string): string =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .trim();
+  const normalize = normalizeText;
   // Obtener opciones únicas para filtros (combinando alertas y datos unificados)
   const filterOptions = useMemo(() => {
     // Opciones de alertas
-    const dependencias = Array.from(new Set(alertas.map(a => a.dependencia))).sort();
-    const comunas = Array.from(new Set(alertas.map(a => a.comuna).filter(Boolean))).sort();
+    const dependenciasAlertas = Array.from(new Set(alertas.map(a => a.dependencia).filter(Boolean)));
+    const comunasAlertas = Array.from(new Set(alertas.map(a => a.comuna).filter(Boolean)));
+    
+    // Opciones de datos unificados
+    const dependenciasUnificadas = unifiedFilterOptions?.dependencias || [];
+    const comunasUnificadas = unifiedFilterOptions?.comunas || [];
+    
+    // Combinar y eliminar duplicados
+    const dependencias = Array.from(
+      new Set([...dependenciasAlertas, ...dependenciasUnificadas])
+    ).sort();
+    const comunas = Array.from(
+      new Set([...comunasAlertas, ...comunasUnificadas])
+    ).sort();
 
     const impactoOptions = Array.from(
       new Set(alertas.flatMap(a => extractImpacts(a.impacto_riesgo)))

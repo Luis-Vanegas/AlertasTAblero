@@ -12,6 +12,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 import { useAlertas, useAlertasStats } from '../hooks/useAlertas';
 import { useFilters } from '../hooks/useFilters';
@@ -20,7 +22,7 @@ import { useCambiosFechasEstimadas, useCambiosPresupuesto } from '../hooks/useHi
 import { useSettingsStore } from '../store/settings';
 import { MappedAlerta } from '../types/api';
 import DetailDrawer from '../components/DetailDrawer';
-import { ANIMATION_VARIANTS } from '../constants';
+import { ANIMATION_VARIANTS, ROUTES } from '../constants';
 
 // Componentes del Dashboard
 import MetricsPanel from '../components/dashboard/MetricsPanel';
@@ -32,6 +34,8 @@ import EmptyState from '../components/dashboard/EmptyState';
 import ScrollToTopButton from '../components/dashboard/ScrollToTopButton';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Store de configuración y filtros
   const { filters, setFilters } = useSettingsStore();
 
@@ -276,6 +280,18 @@ const Dashboard: React.FC = () => {
         animate='visible'
         className='space-y-6'
       >
+        {/* Botón de volver */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={() => navigate(ROUTES.HOME)}
+          className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors shadow-sm'
+        >
+          <ArrowBackIcon className='w-5 h-5' />
+          <span className='font-medium'>Volver a Inicio</span>
+        </motion.button>
+
         {/* Panel de Métricas */}
         <MetricsPanel
           {...(projectMetrics && {

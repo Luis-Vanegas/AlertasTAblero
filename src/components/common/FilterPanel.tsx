@@ -194,40 +194,62 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         'dependencia',
         'Dependencia',
         BusinessIcon,
-        <div className='max-h-60 overflow-y-auto'>
-          <div className='flex flex-wrap gap-2'>
-            <button
-              onClick={() => onDependencyChange([])}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                selectedDependencies.length === 0
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-white text-indigo-700 hover:bg-indigo-100 border border-indigo-300'
-              }`}
-            >
-              Todas
-            </button>
-            {dependencias.map(dep => {
-              const active = selectedDependencies.includes(dep);
-              return (
+        <div className='space-y-3'>
+          {/* Filtros seleccionados - destacados arriba */}
+          {selectedDependencies.length > 0 && (
+            <div>
+              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionados ({selectedDependencies.length})</p>
+              <div className='flex flex-wrap gap-2'>
+                {selectedDependencies.map(dep => (
+                  <button
+                    key={dep}
+                    onClick={() => {
+                      const set = new Set(selectedDependencies);
+                      set.delete(dep);
+                      onDependencyChange(Array.from(set));
+                    }}
+                    className='px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-sm whitespace-normal break-words max-w-full'
+                    title={dep}
+                  >
+                    {dep}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Todos los filtros disponibles */}
+          <div>
+            <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionar</p>
+            <div className='max-h-60 overflow-y-auto'>
+              <div className='flex flex-wrap gap-2'>
                 <button
-                  key={dep}
-                  onClick={() => {
-                    const set = new Set(selectedDependencies);
-                    if (set.has(dep)) set.delete(dep);
-                    else set.add(dep);
-                    onDependencyChange(Array.from(set));
-                  }}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors truncate max-w-[200px] ${
-                    active
+                  onClick={() => onDependencyChange([])}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    selectedDependencies.length === 0
                       ? 'bg-indigo-600 text-white'
                       : 'bg-white text-indigo-700 hover:bg-indigo-100 border border-indigo-300'
                   }`}
-                  title={dep}
                 >
-                  {dep}
+                  Todas
                 </button>
-              );
-            })}
+                {dependencias
+                  .filter(dep => !selectedDependencies.includes(dep))
+                  .map(dep => (
+                    <button
+                      key={dep}
+                      onClick={() => {
+                        const set = new Set(selectedDependencies);
+                        set.add(dep);
+                        onDependencyChange(Array.from(set));
+                      }}
+                      className='px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-indigo-700 hover:bg-indigo-100 border border-indigo-300 transition-colors whitespace-normal break-words max-w-full'
+                      title={dep}
+                    >
+                      {dep}
+                    </button>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>,
         selectedDependencies.length || undefined
@@ -310,38 +332,61 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         'impacto',
         'Impacto',
         ImpactIcon,
-        <div className='flex flex-wrap gap-2'>
-          <button
-            onClick={() => onImpactoChange([])}
-            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              selectedImpactos.length === 0
-                ? 'bg-orange-600 text-white'
-                : 'bg-white text-orange-700 hover:bg-orange-100 border border-orange-300'
-            }`}
-          >
-            Todos
-          </button>
-          {impactoOptions.map(impacto => {
-            const active = selectedImpactos.includes(impacto);
-            return (
+        <div className='space-y-3'>
+          {/* Filtros seleccionados - destacados arriba */}
+          {selectedImpactos.length > 0 && (
+            <div>
+              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionados ({selectedImpactos.length})</p>
+              <div className='flex flex-wrap gap-2'>
+                {selectedImpactos.map(impacto => (
+                  <button
+                    key={impacto}
+                    onClick={() => {
+                      const set = new Set(selectedImpactos);
+                      set.delete(impacto);
+                      onImpactoChange(Array.from(set));
+                    }}
+                    className='px-3 py-1.5 rounded-lg text-xs font-medium bg-orange-600 text-white hover:bg-orange-700 transition-colors shadow-sm capitalize whitespace-normal break-words max-w-full'
+                    title={impacto}
+                  >
+                    {impacto}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Todos los filtros disponibles */}
+          <div>
+            <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionar</p>
+            <div className='flex flex-wrap gap-2'>
               <button
-                key={impacto}
-                onClick={() => {
-                  const set = new Set(selectedImpactos);
-                  if (set.has(impacto)) set.delete(impacto);
-                  else set.add(impacto);
-                  onImpactoChange(Array.from(set));
-                }}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize ${
-                  active
+                onClick={() => onImpactoChange([])}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  selectedImpactos.length === 0
                     ? 'bg-orange-600 text-white'
                     : 'bg-white text-orange-700 hover:bg-orange-100 border border-orange-300'
                 }`}
               >
-                {impacto}
+                Todos
               </button>
-            );
-          })}
+              {impactoOptions
+                .filter(impacto => !selectedImpactos.includes(impacto))
+                .map(impacto => (
+                  <button
+                    key={impacto}
+                    onClick={() => {
+                      const set = new Set(selectedImpactos);
+                      set.add(impacto);
+                      onImpactoChange(Array.from(set));
+                    }}
+                    className='px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-orange-700 hover:bg-orange-100 border border-orange-300 transition-colors capitalize whitespace-normal break-words max-w-full'
+                    title={impacto}
+                  >
+                    {impacto}
+                  </button>
+                ))}
+            </div>
+          </div>
         </div>,
         selectedImpactos.length || undefined
       )}
@@ -351,39 +396,62 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         'comuna',
         'Comuna',
         LocationIcon,
-        <div className='max-h-60 overflow-y-auto'>
-          <div className='flex flex-wrap gap-2'>
-            <button
-              onClick={() => onComunaChange([])}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                (selectedComunas?.length || 0) === 0
-                  ? 'bg-green-600 text-white'
-                  : 'bg-white text-green-700 hover:bg-green-100 border border-green-300'
-              }`}
-            >
-              Todas
-            </button>
-            {comunas.map(c => {
-              const active = (selectedComunas || []).includes(c);
-              return (
+        <div className='space-y-3'>
+          {/* Filtros seleccionados - destacados arriba */}
+          {(selectedComunas?.length || 0) > 0 && (
+            <div>
+              <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionadas ({selectedComunas?.length || 0})</p>
+              <div className='flex flex-wrap gap-2'>
+                {(selectedComunas || []).map(comuna => (
+                  <button
+                    key={comuna}
+                    onClick={() => {
+                      const set = new Set(selectedComunas || []);
+                      set.delete(comuna);
+                      onComunaChange(Array.from(set));
+                    }}
+                    className='px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm whitespace-normal break-words max-w-full'
+                    title={comuna}
+                  >
+                    {comuna}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Todas las comunas disponibles */}
+          <div>
+            <p className='text-xs font-medium text-gray-600 mb-2'>Seleccionar</p>
+            <div className='max-h-60 overflow-y-auto'>
+              <div className='flex flex-wrap gap-2'>
                 <button
-                  key={c}
-                  onClick={() => {
-                    const set = new Set(selectedComunas || []);
-                    if (set.has(c)) set.delete(c);
-                    else set.add(c);
-                    onComunaChange(Array.from(set));
-                  }}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    active
+                  onClick={() => onComunaChange([])}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    (selectedComunas?.length || 0) === 0
                       ? 'bg-green-600 text-white'
                       : 'bg-white text-green-700 hover:bg-green-100 border border-green-300'
                   }`}
                 >
-                  {c}
+                  Todas
                 </button>
-              );
-            })}
+                {comunas
+                  .filter(c => !(selectedComunas || []).includes(c))
+                  .map(comuna => (
+                    <button
+                      key={comuna}
+                      onClick={() => {
+                        const set = new Set(selectedComunas || []);
+                        set.add(comuna);
+                        onComunaChange(Array.from(set));
+                      }}
+                      className='px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-green-700 hover:bg-green-100 border border-green-300 transition-colors whitespace-normal break-words max-w-full'
+                      title={comuna}
+                    >
+                      {comuna}
+                    </button>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>,
         selectedComunas?.length || undefined
