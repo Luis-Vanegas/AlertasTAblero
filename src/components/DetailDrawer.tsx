@@ -52,7 +52,8 @@ const DetailDrawer: React.FC<DetailDrawerProps> = ({ open, onClose, alerta }) =>
       onClose={onClose}
       sx={{
         '& .MuiDrawer-paper': {
-          width: 520,
+          width: { xs: '90%', sm: '450px', md: '520px', lg: '560px' },
+          maxWidth: '90vw',
           backgroundColor: 'rgba(255,255,255,0.95)',
           backdropFilter: 'blur(12px)',
           borderLeft: '1px solid rgba(0,0,0,0.06)',
@@ -60,7 +61,11 @@ const DetailDrawer: React.FC<DetailDrawerProps> = ({ open, onClose, alerta }) =>
         },
       }}
     >
-      <Box sx={{ p: 3 }} role='dialog' aria-labelledby='detalle-alerta-title'>
+      <Box
+        sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}
+        role='dialog'
+        aria-labelledby='detalle-alerta-title'
+      >
         <Box
           display='flex'
           alignItems='center'

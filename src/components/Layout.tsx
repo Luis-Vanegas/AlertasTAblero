@@ -51,7 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const appTitle = import.meta.env.VITE_APP_TITLE || 'Alertas';
+  const appTitle = import.meta.env.VITE_APP_TITLE || 'Tablero de alertas';
 
   // Cerrar filtros con tecla Escape cuando el panel esté abierto
   useEffect(() => {
@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 
   return (
-    <div className='min-h-screen flex flex-col relative'>
+    <div className='min-h-screen flex flex-col relative overflow-x-hidden'>
       {/* Fondo con imagen */}
       <div
         className='fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat'
@@ -100,14 +100,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               <div>
                 <motion.h1
-                  className='text-lg sm:text-xl font-bold text-gray-800'
+                  className='text-responsive-lg font-bold text-gray-800'
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5 }}
                 >
                   {appTitle}
                 </motion.h1>
-                <p className='text-xs sm:text-sm text-gray-600'>Alcaldía de Medellín</p>
+                <p className='text-responsive-sm text-gray-600'>Alcaldía de Medellín</p>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {/* Botón de filtros */}
               <button
                 onClick={handleFiltersToggle}
-                className={`px-3 py-1.5 sm:px-4 sm:py-2 border rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 border rounded-lg text-responsive-sm font-medium transition-colors flex items-center gap-1 ${
                   hasActiveFilters
                     ? 'bg-cyan-500 text-white border-cyan-500'
                     : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
@@ -130,7 +130,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className='px-2 py-1.5 sm:px-3 sm:py-2 border border-red-300 rounded-lg text-xs sm:text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors flex items-center gap-1'
+                  className='px-2 py-1.5 sm:px-3 sm:py-2 border border-red-300 rounded-lg text-responsive-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors flex items-center gap-1'
                   title='Limpiar todos los filtros'
                 >
                   <ClearAllIcon className='w-4 h-4' />
@@ -188,8 +188,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         onPriorityProjectChange={projectKey => setFilters({ priorityProject: projectKey })}
       />
 
-      {/* Contenido principal */}
-      <main className='flex-1 p-4 sm:p-6 lg:p-8'>
+      {/* Contenido principal - Permite scroll de página */}
+      <main className='flex-1 flex flex-col'>
         <AnimatePresence mode='wait'>
           <motion.div
             key={window.location.pathname}
@@ -200,6 +200,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               duration: enableAnimations && !showReducedMotion ? TRANSITIONS.card.duration : 0,
               ease: TRANSITIONS.card.ease,
             }}
+            className='w-full flex flex-col'
+            style={{ padding: '0.5rem' }}
           >
             {children}
           </motion.div>

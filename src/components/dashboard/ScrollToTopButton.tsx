@@ -13,14 +13,20 @@ import { motion } from 'framer-motion';
 interface ScrollToTopButtonProps {
   /** Si el botón debe estar visible */
   visible: boolean;
+  /** Función para hacer scroll al inicio */
+  onScrollToTop?: () => void;
 }
 
 /**
  * Componente que muestra un botón flotante para volver arriba
  */
-const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ visible }) => {
+const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({ visible, onScrollToTop }) => {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (onScrollToTop) {
+      onScrollToTop();
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   if (!visible) return null;

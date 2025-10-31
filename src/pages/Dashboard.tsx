@@ -40,7 +40,6 @@ const Dashboard: React.FC = () => {
   const { filters, setFilters } = useSettingsStore();
 
   // Estado local del componente
-  const [expandedDependencies, setExpandedDependencies] = useState<Set<string>>(new Set());
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedAlerta, setSelectedAlerta] = useState<MappedAlerta | null>(null);
   const [activeFilterType, setActiveFilterType] = useState<string | null>(null);
@@ -48,6 +47,7 @@ const Dashboard: React.FC = () => {
   const [showCambiosPresupuesto, setShowCambiosPresupuesto] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const resultsAnchorRef = useRef<HTMLDivElement | null>(null);
+  const resultsContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Hooks para obtener datos
   const { alertas, isLoading, pagination } = useAlertas({ limit: 10000 });
@@ -98,58 +98,32 @@ const Dashboard: React.FC = () => {
     showCambiosPresupuesto;
 
   /**
-   * Controla la visibilidad del botón de volver arriba basado en el scroll
+   * Controla la visibilidad del botón de volver arriba basado en el scroll del panel de resultados
    */
   useEffect(() => {
+    const container = resultsContainerRef.current;
+    if (!container || !showResults) {
+      setShowBackToTop(false);
+      return;
+    }
+
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
       // Mostrar el botón cuando se haya desplazado más de 200px hacia abajo
-      setShowBackToTop(scrollTop > 200);
+      setShowBackToTop(container.scrollTop > 200);
     };
 
     // Ejecutar inmediatamente para verificar el estado inicial
     handleScroll();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [showResults]);
 
   /**
-   * Recalcular la posición del scroll cuando cambie el contenido
-   */
-  useEffect(() => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    setShowBackToTop(scrollTop > 200);
-  }, [hasActiveFilters, activeFilterType, showCambiosFechas, showCambiosPresupuesto]);
-
-  /**
-   * Función para hacer scroll hacia abajo a los resultados
+   * Función para hacer scroll a la parte superior del panel de resultados
    */
   const scrollToResults = () => {
-    // Usar requestAnimationFrame para asegurar que el DOM esté actualizado
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const anchor = resultsAnchorRef.current;
-        if (anchor) {
-          const rect = anchor.getBoundingClientRect();
-          const top = rect.top + window.pageYOffset - 120; // offset desde el top
-          window.scrollTo({ top, behavior: 'smooth' });
-        }
-      });
-    });
-  };
-
-  /**
-   * Toggle de expansión de dependencias
-   */
-  const handleToggleExpand = (dependencia: string) => {
-    const newExpanded = new Set(expandedDependencies);
-    if (newExpanded.has(dependencia)) {
-      newExpanded.delete(dependencia);
-    } else {
-      newExpanded.add(dependencia);
-    }
-    setExpandedDependencies(newExpanded);
+    resultsContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   /**
@@ -206,8 +180,8 @@ const Dashboard: React.FC = () => {
     setActiveFilterType(null);
     setShowCambiosFechas(false);
     setShowCambiosPresupuesto(false);
-    // Hacer scroll hacia arriba
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Hacer scroll hacia arriba del panel de resultados
+    scrollToResults();
   };
 
   /**
@@ -273,155 +247,199 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className='min-h-screen px-4 sm:px-6 lg:px-8'>
-      <motion.div
-        variants={ANIMATION_VARIANTS.container}
-        initial='hidden'
-        animate='visible'
-        className='space-y-6'
+    <div className='w-full flex flex-col pb-4'>
+      {/* Botón de volver - Responsive */}
+      <motion.button
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+        onClick={() => navigate(ROUTES.HOME)}
+        className='mb-2 sm:mb-3 flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors shadow-sm flex-shrink-0 text-responsive'
       >
-        {/* Botón de volver */}
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={() => navigate(ROUTES.HOME)}
-          className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors shadow-sm'
+        <ArrowBackIcon className='w-4 h-4 sm:w-5 sm:h-5' />
+        <span className='font-medium'>Volver a Inicio</span>
+      </motion.button>
+
+      {/* Layout de dos columnas: Métricas (izquierda) y Resultados (derecha) - Misma altura con scroll interno */}
+      <div className='grid grid-cols-1 md:grid-cols-[minmax(240px,280px)_1fr] lg:grid-cols-[minmax(260px,320px)_1fr] xl:grid-cols-[minmax(280px,360px)_1fr] 2xl:grid-cols-[minmax(300px,400px)_1fr] gap-2 sm:gap-3 lg:gap-4 items-start md:items-stretch'>
+        {/* Columna Izquierda - Métricas */}
+        <motion.div
+          variants={ANIMATION_VARIANTS.item}
+          initial='hidden'
+          animate='visible'
+          className='flex flex-col md:h-full'
         >
-          <ArrowBackIcon className='w-5 h-5' />
-          <span className='font-medium'>Volver a Inicio</span>
-        </motion.button>
-
-        {/* Panel de Métricas */}
-        <MetricsPanel
-          {...(projectMetrics && {
-            projectMetrics: {
-              lateProjects: projectMetrics.lateProjects,
-              pendingDefinitionProjects: projectMetrics.pendingDefinitionProjects,
-            },
-          })}
-          cambiosPresupuesto={cambiosPresupuesto}
-          cambiosFechas={cambiosFechas}
-          alertStats={alertStats}
-          activeFilterType={activeFilterType}
-          hasActiveFilters={hasActiveFilters}
-          selectedGravedades={filters.gravedad}
-          onMetricFilter={handleMetricFilter}
-          onCardFilter={handleCardFilter}
-          onClearAllFilters={handleClearAllFilters}
-        />
-
-        {/* Ancla fija para scroll a resultados */}
-        <div ref={resultsAnchorRef} />
-
-        {/* Estado vacío cuando no hay filtros */}
-        <EmptyState
-          hasActiveFilters={hasActiveFilters}
-          showResults={showResults}
-          totalAlertas={totalAlertas}
-        />
-
-        {/* Lista de Proyectos Tardíos */}
-        {activeFilterType === 'late' &&
-          projectMetrics?.lateProjects.projects &&
-          projectMetrics.lateProjects.projects.length > 0 && (
-            <ProjectList
-              title='Proyectos que terminan después de 01/07/2027'
-              description='Información detallada de las obras con fecha de entrega estimada después del 01/07/2027'
-              projects={projectMetrics.lateProjects.projects}
-              itemsPerPage={20}
-              onClose={handleCloseMetricFilter}
-            />
-          )}
-
-        {/* Lista de Proyectos Pendientes de Definición */}
-        {activeFilterType === 'definition' &&
-          projectMetrics?.pendingDefinitionProjects.projects &&
-          projectMetrics.pendingDefinitionProjects.projects.length > 0 && (
-            <ProjectList
-              title='Proyectos Pendientes de Definición'
-              description='Información detallada de las obras con estado pausado'
-              projects={projectMetrics.pendingDefinitionProjects.projects}
-              itemsPerPage={20}
-              onClose={handleCloseMetricFilter}
-            />
-          )}
-
-        {/* Lista de Cambios de Fechas */}
-        {showCambiosFechas && cambiosFechasLista && cambiosFechasLista.length > 0 && (
-          <ChangesList
-            title='Cambios de fechas estimadas de entrega'
-            description='Proyectos con cambios de fecha mayores a 2 meses'
-            cambios={cambiosFechasLista}
-            tipo='fechas'
-            itemsPerPage={20}
-            onClose={handleCloseChangesPanels}
+          <MetricsPanel
+            {...(projectMetrics && {
+              projectMetrics: {
+                lateProjects: projectMetrics.lateProjects,
+                pendingDefinitionProjects: projectMetrics.pendingDefinitionProjects,
+              },
+            })}
+            cambiosPresupuesto={cambiosPresupuesto}
+            cambiosFechas={cambiosFechas}
+            alertStats={alertStats}
+            activeFilterType={activeFilterType}
+            hasActiveFilters={hasActiveFilters}
+            selectedGravedades={filters.gravedad}
+            onMetricFilter={handleMetricFilter}
+            onCardFilter={handleCardFilter}
+            onClearAllFilters={handleClearAllFilters}
           />
-        )}
+        </motion.div>
 
-        {/* Lista de Cambios de Presupuesto */}
-        {showCambiosPresupuesto &&
-          cambiosPresupuestoLista &&
-          cambiosPresupuestoLista.length > 0 && (
-            <ChangesList
-              title='Cambios de Presupuesto'
-              description='Proyectos con incrementos presupuestales mayores a 500M'
-              cambios={cambiosPresupuestoLista}
-              tipo='presupuesto'
-              itemsPerPage={20}
-              onClose={handleCloseChangesPanels}
-            />
-          )}
+        {/* Columna Derecha - Resultados con scroll interno solo en desktop */}
+        <motion.div
+          variants={ANIMATION_VARIANTS.item}
+          initial='hidden'
+          animate='visible'
+          className='flex flex-col md:h-full'
+        >
+          <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg flex flex-col h-full overflow-hidden'>
+            {/* Header del panel de resultados - Responsive y fijo */}
+            <div className='p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 border-b border-gray-200 flex-shrink-0 bg-white'>
+              <h2 className='text-responsive-lg font-bold text-gray-800'>Resultados</h2>
+              <p className='text-responsive-sm text-gray-600 mt-1'>
+                {hasActiveFilters
+                  ? `${filteredAlertas.length} alerta${filteredAlertas.length !== 1 ? 's' : ''} encontrada${filteredAlertas.length !== 1 ? 's' : ''}`
+                  : `${totalAlertas} alerta${totalAlertas !== 1 ? 's' : ''} en total`}
+              </p>
+            </div>
 
-        {/* Lista de alertas por dependencia - Solo se muestra cuando hay filtros activos */}
-        {hasActiveFilters && (
-          <>
-            {alertasPorDependencia.length === 0 ? (
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4'>
-                  <h3 className='text-lg font-semibold text-gray-800'>No se encontraron alertas</h3>
-                  <p className='text-sm text-gray-600 mt-1'>
-                    Total alertas: {alertas.length} | Filtradas: {filteredAlertas.length} | Grupos:{' '}
-                    {alertasPorDependencia.length}
-                  </p>
-                  <p className='text-sm text-gray-600 mt-1'>
-                    Búsqueda: "{filters.searchTerm}" | Dep: "
-                    {filters.dependencia?.join(', ') || 'Todas'}" | Sev: "
-                    {filters.gravedad?.join(', ') || 'Todas'}"
-                  </p>
-                </div>
-              </motion.div>
-            ) : (
-              <div className='space-y-4 md:space-y-6'>
-                {alertasPorDependencia.map(grupo => (
-                  <DependencyGroup
-                    key={grupo.dependencia}
-                    dependencia={grupo.dependencia}
-                    alertas={grupo.alertas}
-                    stats={{
-                      total: grupo.total,
-                      altas: grupo.altas,
-                      medias: grupo.medias,
-                      leves: grupo.leves,
-                      sinRiesgo: grupo.sinRiesgo || 0,
-                    }}
-                    isExpanded={expandedDependencies.has(grupo.dependencia)}
-                    onToggleExpand={() => handleToggleExpand(grupo.dependencia)}
-                    onViewDetails={openDetail}
+            {/* Contenido scrollable - Scroll interno funcional */}
+            <div
+              ref={resultsContainerRef}
+              className='flex-1 overflow-y-scroll overflow-x-hidden p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 min-h-0'
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
+              }}
+            >
+              {/* Ancla para scroll a resultados */}
+              <div ref={resultsAnchorRef} />
+
+              {/* Estado vacío cuando no hay filtros */}
+              {!hasActiveFilters && (
+                <EmptyState
+                  hasActiveFilters={hasActiveFilters}
+                  showResults={showResults}
+                  totalAlertas={totalAlertas}
+                />
+              )}
+
+              {/* Lista de Proyectos Tardíos */}
+              {activeFilterType === 'late' &&
+                projectMetrics?.lateProjects.projects &&
+                projectMetrics.lateProjects.projects.length > 0 && (
+                  <div className='pb-4'>
+                    <ProjectList
+                      title='Proyectos que terminan después de 01/07/2027'
+                      description='Información detallada de las obras con fecha de entrega estimada después del 01/07/2027'
+                      projects={projectMetrics.lateProjects.projects}
+                      itemsPerPage={20}
+                      onClose={handleCloseMetricFilter}
+                    />
+                  </div>
+                )}
+
+              {/* Lista de Proyectos Pendientes de Definición */}
+              {activeFilterType === 'definition' &&
+                projectMetrics?.pendingDefinitionProjects.projects &&
+                projectMetrics.pendingDefinitionProjects.projects.length > 0 && (
+                  <div className='pb-4'>
+                    <ProjectList
+                      title='Proyectos Pendientes de Definición'
+                      description='Información detallada de las obras con estado pausado'
+                      projects={projectMetrics.pendingDefinitionProjects.projects}
+                      itemsPerPage={20}
+                      onClose={handleCloseMetricFilter}
+                    />
+                  </div>
+                )}
+
+              {/* Lista de Cambios de Fechas */}
+              {showCambiosFechas && cambiosFechasLista && cambiosFechasLista.length > 0 && (
+                <div className='pb-4'>
+                  <ChangesList
+                    title='Cambios de fechas estimadas de entrega'
+                    description='Proyectos con cambios de fecha mayores a 2 meses'
+                    cambios={cambiosFechasLista}
+                    tipo='fechas'
+                    itemsPerPage={20}
+                    onClose={handleCloseChangesPanels}
                   />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </motion.div>
+                </div>
+              )}
+
+              {/* Lista de Cambios de Presupuesto */}
+              {showCambiosPresupuesto &&
+                cambiosPresupuestoLista &&
+                cambiosPresupuestoLista.length > 0 && (
+                  <div className='pb-4'>
+                    <ChangesList
+                      title='Cambios de Presupuesto'
+                      description='Proyectos con incrementos presupuestales mayores a 500M'
+                      cambios={cambiosPresupuestoLista}
+                      tipo='presupuesto'
+                      itemsPerPage={20}
+                      onClose={handleCloseChangesPanels}
+                    />
+                  </div>
+                )}
+
+              {/* Lista de alertas por dependencia - Solo se muestra cuando hay filtros activos */}
+              {hasActiveFilters && (
+                <>
+                  {alertasPorDependencia.length === 0 ? (
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4'>
+                        <h3 className='text-lg font-semibold text-gray-800'>
+                          No se encontraron alertas
+                        </h3>
+                        <p className='text-sm text-gray-600 mt-1'>
+                          Total alertas: {alertas.length} | Filtradas: {filteredAlertas.length} |
+                          Grupos: {alertasPorDependencia.length}
+                        </p>
+                        <p className='text-sm text-gray-600 mt-1'>
+                          Búsqueda: "{filters.searchTerm}" | Dep: "
+                          {filters.dependencia?.join(', ') || 'Todas'}" | Sev: "
+                          {filters.gravedad?.join(', ') || 'Todas'}"
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className='space-y-4 md:space-y-6 pb-4'>
+                      {alertasPorDependencia.map(grupo => (
+                        <DependencyGroup
+                          key={grupo.dependencia}
+                          dependencia={grupo.dependencia}
+                          alertas={grupo.alertas}
+                          stats={{
+                            total: grupo.total,
+                            altas: grupo.altas,
+                            medias: grupo.medias,
+                            leves: grupo.leves,
+                            sinRiesgo: grupo.sinRiesgo || 0,
+                          }}
+                          onViewDetails={openDetail}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Botón flotante para volver arriba */}
-      <ScrollToTopButton visible={showResults && showBackToTop} />
+      <ScrollToTopButton visible={showResults && showBackToTop} onScrollToTop={scrollToResults} />
 
       {/* Drawer de detalles de alerta */}
       <DetailDrawer open={detailOpen} onClose={closeDetail} alerta={selectedAlerta} />
