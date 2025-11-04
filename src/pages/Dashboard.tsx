@@ -413,7 +413,7 @@ const Dashboard: React.FC = () => {
                       </div>
                     </motion.div>
                   ) : (
-                    <div className='space-y-4 md:space-y-6 pb-4'>
+                    <div className='max-h-[70vh] overflow-y-auto space-y-4 md:space-y-6 pb-4 pr-1'>
                       {alertasPorDependencia.map(grupo => (
                         <DependencyGroup
                           key={grupo.dependencia}
