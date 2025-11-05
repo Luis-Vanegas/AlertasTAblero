@@ -63,9 +63,9 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
   return (
     <motion.div variants={ANIMATION_VARIANTS.item}>
-      <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6'>
-        {/* Header */}
-        <div className='flex justify-between items-center mb-4'>
+      <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6 flex flex-col max-h-[80vh] overflow-hidden'>
+        {/* Header - Fijo */}
+        <div className='flex justify-between items-center mb-4 flex-shrink-0'>
           <div>
             <h3 className='text-lg font-bold text-gray-800 mb-2'>{title}</h3>
             <p className='text-sm text-gray-600'>
@@ -81,8 +81,10 @@ const ProjectList: React.FC<ProjectListProps> = ({
           </button>
         </div>
 
-        {/* Grid de proyectos */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
+        {/* Contenedor con scroll interno para el grid */}
+        <div className='flex-1 min-h-0 overflow-y-auto scroll-container pr-2 -mr-2'>
+          {/* Grid de proyectos */}
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6'>
           {paginatedProjects.map((proyecto, index) => (
             <motion.div
               key={`${proyecto.name}-${index}`}
@@ -156,32 +158,33 @@ const ProjectList: React.FC<ProjectListProps> = ({
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Paginación */}
-        {projects.length > itemsPerPage && (
-          <div className='flex justify-center items-center mt-6 gap-4'>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-              aria-label='Página anterior'
-            >
-              Anterior
-            </button>
-            <span className='text-sm text-gray-600'>
-              Página {currentPage} de {totalPages}
-            </span>
-            <button
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-              aria-label='Página siguiente'
-            >
-              Siguiente
-            </button>
           </div>
-        )}
+
+          {/* Paginación */}
+          {projects.length > itemsPerPage && (
+            <div className='flex justify-center items-center mt-6 gap-4 pb-2'>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                aria-label='Página anterior'
+              >
+                Anterior
+              </button>
+              <span className='text-sm text-gray-600'>
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                aria-label='Página siguiente'
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

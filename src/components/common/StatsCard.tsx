@@ -36,28 +36,30 @@ const StatsCard: React.FC<StatsCardProps> = ({
           relative bg-white rounded-lg border-2 shadow-md transition-all duration-300
           ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg' : 'cursor-default'}
           ${isSelected ? 'ring-2' : ''}
-          p-4
+          p-3
         `}
         style={{
           borderColor: color,
           outline: isSelected ? `2px solid ${color}` : 'none',
         }}
       >
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex items-center gap-3 flex-1 min-w-0'>
+        <div className='flex items-center justify-between gap-3'>
+          <div className='flex items-center gap-2 flex-1 min-w-0'>
             <div
-              className='w-12 h-12 rounded-full flex items-center justify-center text-white flex-shrink-0'
+              className='w-10 h-10 rounded-full flex items-center justify-center text-white flex-shrink-0'
               style={{ backgroundColor: color }}
             >
-              {icon}
+              {React.cloneElement(icon as React.ReactElement, { className: 'w-5 h-5' })}
             </div>
             <div className='flex-1 min-w-0'>
-              <h3 className='text-sm font-bold text-gray-800 leading-tight'>{label}</h3>
-              <div className='text-xs text-transparent mt-0.5 leading-tight'>placeholder</div>
+              <h3 className='text-responsive-sm font-bold text-gray-800 leading-tight'>{label}</h3>
+              <p className='text-responsive-sm text-transparent mt-0.5 leading-tight line-clamp-1'>
+                &nbsp;
+              </p>
             </div>
           </div>
           <div className='flex flex-col items-end flex-shrink-0'>
-            <span className='text-2xl font-bold' style={{ color: color }}>
+            <span className='text-responsive-xl font-bold' style={{ color: color }}>
               {value}
             </span>
           </div>

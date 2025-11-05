@@ -7,7 +7,7 @@
  * @component
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Business as BusinessIcon } from '@mui/icons-material';
 
@@ -47,6 +47,7 @@ const DependencyGroup: React.FC<DependencyGroupProps> = ({
   stats,
   onViewDetails,
 }) => {
+  const lastUpdated = useMemo(() => formatDate(new Date(), 'HH:mm'), []);
   return (
     <motion.div
       variants={ANIMATION_VARIANTS.item}
@@ -66,7 +67,7 @@ const DependencyGroup: React.FC<DependencyGroupProps> = ({
             </h3>
             <p className='text-responsive-sm text-gray-600'>
               {stats.total} alerta{stats.total !== 1 ? 's' : ''} • Última actualización:{' '}
-              {formatDate(new Date(), 'HH:mm')}
+              {lastUpdated}
             </p>
           </div>
         </div>
@@ -94,10 +95,7 @@ const DependencyGroup: React.FC<DependencyGroupProps> = ({
       <div className='border-t border-gray-200 my-3 sm:my-4'></div>
 
       {/* Grid de alertas - Responsive con altura uniforme y compacta */}
-      <div
-        className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3'
-        style={{ gridAutoRows: 'minmax(140px, 1fr)' }}
-      >
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3 auto-rows-[minmax(140px,1fr)]'>
         {alertas.map(alerta => {
           const isPriority = isPriorityAlert(alerta, PRIORITY_PROJECTS);
           return (
@@ -114,4 +112,4 @@ const DependencyGroup: React.FC<DependencyGroupProps> = ({
   );
 };
 
-export default DependencyGroup;
+export default React.memo(DependencyGroup);

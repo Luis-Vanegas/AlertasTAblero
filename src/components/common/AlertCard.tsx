@@ -52,7 +52,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
         className={`
           relative p-2 sm:p-2.5 md:p-3 bg-white/80 backdrop-blur-sm rounded-lg cursor-pointer
           transition-all duration-200 hover:bg-white/95 hover:shadow-lg
-          flex flex-col h-full w-full
+          flex flex-col h-full w-full overflow-hidden
           ${
             priorityActive
               ? `border-l-4 ${sev === 'media' ? 'border-yellow-500' : 'border-red-500'} shadow-lg`
@@ -126,18 +126,21 @@ const AlertCard: React.FC<AlertCardProps> = ({ alerta, onViewDetails, isPriority
           </button>
         </div>
 
-        {/* Título de la obra - Más compacto */}
-        <h3 className='text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 mb-1.5 line-clamp-2 flex-shrink-0'>
-          {alerta.nombre_obra}
-        </h3>
+        {/* Contenedor con scroll interno para el contenido - Aplicado a todas las tarjetas */}
+        <div className='flex-1 min-h-0 overflow-y-auto scroll-container pr-1 -mr-1'>
+          {/* Título de la obra - Más compacto */}
+          <h3 className='text-[11px] sm:text-xs md:text-sm font-bold text-gray-800 mb-1.5 break-words'>
+            {alerta.nombre_obra}
+          </h3>
 
-        {/* Descripción - Más compacta */}
-        <p className='text-[10px] sm:text-xs text-gray-600 mb-2 line-clamp-2 flex-grow min-h-0'>
-          {alerta.descripcion_alerta}
-        </p>
+          {/* Descripción - Con scroll si es necesario */}
+          <p className='text-[10px] sm:text-xs text-gray-600 break-words whitespace-pre-wrap'>
+            {alerta.descripcion_alerta}
+          </p>
+        </div>
 
         {/* Footer con comuna y fecha - Más compacto */}
-        <div className='flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mt-auto flex-shrink-0'>
+        <div className='flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mt-1.5 flex-shrink-0 border-t border-gray-100 pt-1.5'>
           <span className='truncate flex-1 mr-2'>{alerta.comuna}</span>
           <span className='flex-shrink-0'>{formatDate(alerta.fecha_alerta, 'dd/MM')}</span>
         </div>

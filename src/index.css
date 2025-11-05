@@ -323,3 +323,15 @@ div[class*='overflow-y-scroll']::-webkit-scrollbar-thumb:active {
 .dashboard-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
 }
+
+/* Estilos específicos solo para tablets (768px - 1023px) - NO afecta PC */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-grid-fix {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .tablet-grid-fix .grid {
+    gap: 0.625rem !important; /* 10px - gap más pequeño para tablets */
+  }
+}

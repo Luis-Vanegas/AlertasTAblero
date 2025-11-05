@@ -58,9 +58,9 @@ const ChangesList: React.FC<ChangesListProps> = ({
 
   return (
     <motion.div variants={ANIMATION_VARIANTS.item}>
-      <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6'>
-        {/* Header */}
-        <div className='flex justify-between items-center mb-4'>
+      <div className='bg-white rounded-xl border-2 border-gray-200 shadow-lg p-4 md:p-6 mb-4 md:mb-6 flex flex-col max-h-[80vh] overflow-hidden'>
+        {/* Header - Fijo */}
+        <div className='flex justify-between items-center mb-4 flex-shrink-0'>
           <div>
             <h3 className='text-lg font-bold text-gray-800 mb-2'>{title}</h3>
             <p className='text-sm text-gray-600'>
@@ -76,8 +76,10 @@ const ChangesList: React.FC<ChangesListProps> = ({
           </button>
         </div>
 
-        {/* Grid de cambios */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        {/* Contenedor con scroll interno para el grid */}
+        <div className='flex-1 min-h-0 overflow-y-auto scroll-container pr-2 -mr-2'>
+          {/* Grid de cambios */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {paginatedCambios.map((cambio, index) => (
             <motion.div
               key={`${cambio.nombre_obra}-${index}`}
@@ -142,32 +144,33 @@ const ChangesList: React.FC<ChangesListProps> = ({
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Paginación */}
-        {cambios.length > itemsPerPage && (
-          <div className='flex justify-center items-center mt-6 gap-4'>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-              aria-label='Página anterior'
-            >
-              Anterior
-            </button>
-            <span className='text-sm text-gray-600'>
-              Página {currentPage} de {totalPages}
-            </span>
-            <button
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-              aria-label='Página siguiente'
-            >
-              Siguiente
-            </button>
           </div>
-        )}
+
+          {/* Paginación */}
+          {cambios.length > itemsPerPage && (
+            <div className='flex justify-center items-center mt-6 gap-4 pb-2'>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                aria-label='Página anterior'
+              >
+                Anterior
+              </button>
+              <span className='text-sm text-gray-600'>
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                disabled={currentPage >= totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className='px-4 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                aria-label='Página siguiente'
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
