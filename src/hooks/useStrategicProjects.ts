@@ -11,7 +11,11 @@ import { normalizeGravedad } from '../utils/severity';
 import { ProjectCard } from '../types/home';
 
 export const useStrategicProjects = () => {
-  const { alertas, isLoading: isLoadingAlertas, error: errorAlertas } = useAlertas({ limit: 10000 });
+  const {
+    alertas,
+    isLoading: isLoadingAlertas,
+    error: errorAlertas,
+  } = useAlertas({ limit: 10000 });
 
   // Obtener todas las obras para extraer todos los proyectos estratégicos
   const {
@@ -59,7 +63,7 @@ export const useStrategicProjects = () => {
 
     // Inicializar contador para todos los proyectos
     const projectCountMap = new Map<string, number>();
-    allProjectsMap.forEach((nombre, normalizedId) => {
+    allProjectsMap.forEach((_nombre, normalizedId) => {
       projectCountMap.set(normalizedId, 0);
     });
 
@@ -84,11 +88,13 @@ export const useStrategicProjects = () => {
     });
 
     // Convertir a array y ordenar por nombre
-    const projectsList: ProjectCard[] = Array.from(allProjectsMap.entries()).map(([id, nombre]) => ({
-      id,
-      nombre,
-      alertCount: projectCountMap.get(id) || 0,
-    }));
+    const projectsList: ProjectCard[] = Array.from(allProjectsMap.entries()).map(
+      ([id, nombre]) => ({
+        id,
+        nombre,
+        alertCount: projectCountMap.get(id) || 0,
+      })
+    );
 
     // Ordenar alfabéticamente
     return projectsList.sort((a, b) => a.nombre.localeCompare(b.nombre));

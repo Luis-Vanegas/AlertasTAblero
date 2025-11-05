@@ -58,14 +58,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClic
 
         {/* Contenido de la tarjeta */}
         <div className='relative h-full flex flex-col justify-center items-center p-1.5 sm:p-2 md:p-2.5 text-center flex-1 min-h-0'>
-          <h3 className='text-white font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-sm leading-tight drop-shadow-lg px-1 break-words hyphens-auto' style={{ 
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word'
-          }}>
+          <h3
+            className='text-white font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-sm leading-tight drop-shadow-lg px-1 break-words hyphens-auto'
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+            }}
+          >
             {project.nombre.toUpperCase()}
           </h3>
         </div>
