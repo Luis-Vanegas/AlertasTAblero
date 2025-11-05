@@ -330,7 +330,7 @@ div[class*='overflow-y-scroll']::-webkit-scrollbar-thumb:active {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-  
+
   .tablet-grid-fix .grid {
     gap: 0.625rem !important; /* 10px - gap más pequeño para tablets */
   }

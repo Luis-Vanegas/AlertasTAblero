@@ -80,70 +80,70 @@ const ChangesList: React.FC<ChangesListProps> = ({
         <div className='flex-1 min-h-0 overflow-y-auto scroll-container pr-2 -mr-2'>
           {/* Grid de cambios */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          {paginatedCambios.map((cambio, index) => (
-            <motion.div
-              key={`${cambio.nombre_obra}-${index}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className='p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-lg'
-            >
-              <h4 className='text-lg font-bold text-gray-800 mb-2 line-clamp-2'>
-                {cambio.nombre_obra}
-              </h4>
+            {paginatedCambios.map((cambio, index) => (
+              <motion.div
+                key={`${cambio.nombre_obra}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className='p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-lg'
+              >
+                <h4 className='text-lg font-bold text-gray-800 mb-2 line-clamp-2'>
+                  {cambio.nombre_obra}
+                </h4>
 
-              <div className='space-y-2'>
-                {/* Dependencia */}
-                <div className='flex justify-between'>
-                  <span className='text-sm text-gray-600'>Dependencia:</span>
-                  <span className='text-sm font-medium text-gray-800'>{cambio.dependencia}</span>
+                <div className='space-y-2'>
+                  {/* Dependencia */}
+                  <div className='flex justify-between'>
+                    <span className='text-sm text-gray-600'>Dependencia:</span>
+                    <span className='text-sm font-medium text-gray-800'>{cambio.dependencia}</span>
+                  </div>
+
+                  {/* Campos específicos según el tipo */}
+                  {tipo === 'fechas' ? (
+                    <>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Fecha Anterior:</span>
+                        <span className='text-sm font-medium text-gray-800'>
+                          {cambio.fecha_anterior || 'N/A'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Fecha Nueva:</span>
+                        <span className='text-sm font-medium text-gray-800'>
+                          {cambio.fecha_nueva || 'N/A'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Días de Diferencia:</span>
+                        <span className='text-sm font-bold text-red-600'>N/A</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Presupuesto Anterior:</span>
+                        <span className='text-sm font-medium text-gray-800'>
+                          {cambio.presupuesto_anterior || 'N/A'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Presupuesto Nuevo:</span>
+                        <span className='text-sm font-medium text-gray-800'>
+                          {cambio.presupuesto_nuevo || 'N/A'}
+                        </span>
+                      </div>
+                      <div className='flex justify-between'>
+                        <span className='text-sm text-gray-600'>Diferencia:</span>
+                        <span className='text-sm font-bold text-red-600'>
+                          {cambio.diferencia || 'N/A'}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
-
-                {/* Campos específicos según el tipo */}
-                {tipo === 'fechas' ? (
-                  <>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Fecha Anterior:</span>
-                      <span className='text-sm font-medium text-gray-800'>
-                        {cambio.fecha_anterior || 'N/A'}
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Fecha Nueva:</span>
-                      <span className='text-sm font-medium text-gray-800'>
-                        {cambio.fecha_nueva || 'N/A'}
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Días de Diferencia:</span>
-                      <span className='text-sm font-bold text-red-600'>N/A</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Presupuesto Anterior:</span>
-                      <span className='text-sm font-medium text-gray-800'>
-                        {cambio.presupuesto_anterior || 'N/A'}
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Presupuesto Nuevo:</span>
-                      <span className='text-sm font-medium text-gray-800'>
-                        {cambio.presupuesto_nuevo || 'N/A'}
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-sm text-gray-600'>Diferencia:</span>
-                      <span className='text-sm font-bold text-red-600'>
-                        {cambio.diferencia || 'N/A'}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
           </div>
 
           {/* Paginación */}
