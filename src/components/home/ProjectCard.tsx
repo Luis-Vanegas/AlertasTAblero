@@ -242,7 +242,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClic
             className='absolute top-0.5 left-0.5 sm:top-0.5 sm:left-0.5 md:top-1 md:left-1 lg:top-1.5 lg:left-1.5 z-20'
           >
             <div className='bg-red-500 rounded-full px-0.5 py-0.5 sm:px-0.5 sm:py-0.5 md:px-1 md:py-0.5 lg:px-1.5 lg:py-1 shadow-lg flex items-center gap-0.5 sm:gap-0.5 md:gap-1 border border-white/80 sm:border group-hover:scale-110 transition-transform min-w-[12px] sm:min-w-[14px] md:min-w-[16px] lg:min-w-[18px] justify-center'>
-              <WarningIcon className='text-white' style={{ fontSize: '5px', width: '5px', height: '5px' }} />
+              <WarningIcon
+                className='text-white'
+                style={{ fontSize: '5px', width: '5px', height: '5px' }}
+              />
               <span className='text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px] xl:text-[9px] font-extrabold text-white leading-none'>
                 {project.alertCount}
               </span>
