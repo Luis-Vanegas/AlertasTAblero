@@ -149,23 +149,11 @@ export const TRANSITIONS = {
   },
 } as const;
 
-// Colores para tarjetas de proyectos estratégicos - versión más transparente
+// Colores para tarjetas de proyectos estratégicos
 export const PROJECT_CARD_COLORS = [
-  'bg-orange-500/50',
-  'bg-purple-500/50',
-  'bg-teal-500/50',
-  'bg-yellow-500/50',
-  'bg-green-500/50',
-  'bg-cyan-500/50',
-  'bg-blue-500/50',
-  'bg-pink-500/50',
-  'bg-indigo-500/50',
-  'bg-red-500/50',
-  'bg-amber-500/50',
-  'bg-lime-500/50',
-  'bg-emerald-500/50',
-  'bg-violet-500/50',
-  'bg-rose-500/50',
+  '#14A9E1', // Azul
+  '#FC6909', // Naranja
+  '#7AD300', // Verde
 ] as const;
 
 // Configuración de rutas

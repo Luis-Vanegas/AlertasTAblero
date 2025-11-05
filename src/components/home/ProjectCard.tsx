@@ -33,7 +33,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClic
     >
       {/* Tarjeta del proyecto - tamaño uniforme, altura 100% para que todas sean iguales */}
       <div
-        className={`relative w-full h-full min-h-[96px] sm:min-h-[112px] md:min-h-[128px] rounded-lg ${cardColor} backdrop-blur-sm overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-white/20 flex flex-col`}
+        className='relative w-full h-full min-h-[96px] sm:min-h-[112px] md:min-h-[128px] rounded-lg backdrop-blur-sm overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-white/20 flex flex-col'
+        style={{ backgroundColor: `${cardColor}80` }} // 80 = 50% de opacidad en hexadecimal
       >
         {/* Overlay más sutil para mostrar mejor la imagen de fondo */}
         <div className='absolute inset-0 bg-gradient-to-b from-black/10 via-black/5 to-black/15' />
@@ -56,8 +57,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClic
         )}
 
         {/* Contenido de la tarjeta */}
-        <div className='relative h-full flex flex-col justify-center items-center p-1.5 sm:p-2 text-center flex-1 min-h-0'>
-          <h3 className='text-white font-bold text-[9px] sm:text-[10px] md:text-xs leading-tight drop-shadow-lg px-1 line-clamp-2 break-words'>
+        <div className='relative h-full flex flex-col justify-center items-center p-1.5 sm:p-2 md:p-2.5 text-center flex-1 min-h-0'>
+          <h3 className='text-white font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-sm leading-tight drop-shadow-lg px-1 break-words hyphens-auto' style={{ 
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word'
+          }}>
             {project.nombre.toUpperCase()}
           </h3>
         </div>
