@@ -144,6 +144,7 @@ const Dashboard: React.FC = () => {
 
   /**
    * Maneja el filtro por gravedad desde las tarjetas de estadísticas
+   * Muestra solo las alertas de la gravedad seleccionada, respetando otros filtros activos
    */
   const handleCardFilter = (gravedad: string) => {
     // Al seleccionar tarjetas de "Alertas reportadas" cerrar cualquier panel de "Alertas generadas"
@@ -155,6 +156,7 @@ const Dashboard: React.FC = () => {
     const newGravedades = currentGravedades.includes(gravedad)
       ? currentGravedades.filter(g => g !== gravedad)
       : [...currentGravedades, gravedad];
+    // Solo actualizar el filtro de gravedad, manteniendo otros filtros activos
     setFilters({ gravedad: newGravedades });
 
     // Hacer scroll hacia abajo después de que se renderice el contenido
@@ -164,24 +166,23 @@ const Dashboard: React.FC = () => {
   };
 
   /**
-   * Limpia todos los filtros activos
+   * Maneja el clic en "Total Alertas"
+   * Muestra todas las alertas críticas y moderadas sin filtrar por gravedad,
+   * pero manteniendo otros filtros activos (proyecto estratégico, dependencia, etc.)
    */
-  const handleClearAllFilters = () => {
-    setFilters({
-      gravedad: [],
-      dependencia: [],
-      comuna: [],
-      impacto: [],
-      searchTerm: '',
-      obraIds: [],
-      priorityProject: '',
-    });
-    // Resetear paneles de métricas y cambios
+  const handleTotalAlertas = () => {
+    // Cerrar paneles de "Alertas generadas"
     setActiveFilterType(null);
     setShowCambiosFechas(false);
     setShowCambiosPresupuesto(false);
-    // Hacer scroll hacia arriba del panel de resultados
-    scrollToResults();
+
+    // Solo limpiar el filtro de gravedad, manteniendo otros filtros
+    setFilters({ gravedad: [] });
+
+    // Hacer scroll hacia abajo después de que se renderice el contenido
+    setTimeout(() => {
+      scrollToResults();
+    }, 200);
   };
 
   /**
@@ -280,11 +281,10 @@ const Dashboard: React.FC = () => {
             cambiosFechas={cambiosFechas}
             alertStats={alertStats}
             activeFilterType={activeFilterType}
-            hasActiveFilters={hasActiveFilters}
             selectedGravedades={filters.gravedad}
             onMetricFilter={handleMetricFilter}
             onCardFilter={handleCardFilter}
-            onClearAllFilters={handleClearAllFilters}
+            onTotalAlertas={handleTotalAlertas}
           />
         </motion.div>
 

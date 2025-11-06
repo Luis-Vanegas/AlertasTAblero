@@ -67,16 +67,13 @@ interface MetricsPanelProps {
   /** Tipo de filtro activo */
   activeFilterType: string | null;
 
-  /** Si hay filtros activos */
-  hasActiveFilters: boolean;
-
   /** Filtros seleccionados de gravedad */
   selectedGravedades: string[];
 
   /** Handlers para acciones */
   onMetricFilter: (type: string) => void;
   onCardFilter: (gravedad: string) => void;
-  onClearAllFilters: () => void;
+  onTotalAlertas: () => void;
 }
 
 /**
@@ -124,11 +121,10 @@ const MetricsPanel: React.FC<MetricsPanelProps> = ({
   cambiosFechas,
   alertStats,
   activeFilterType,
-  hasActiveFilters,
   selectedGravedades,
   onMetricFilter,
   onCardFilter,
-  onClearAllFilters,
+  onTotalAlertas,
 }) => {
   /**
    * Obtiene el valor para una métrica específica
@@ -217,8 +213,8 @@ const MetricsPanel: React.FC<MetricsPanelProps> = ({
               icon={<DashboardIcon />}
               color='#06b6d4'
               delay={0}
-              onClick={onClearAllFilters}
-              isSelected={!hasActiveFilters}
+              onClick={onTotalAlertas}
+              isSelected={selectedGravedades.length === 0}
             />
             <StatsCard
               label='Críticas'

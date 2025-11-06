@@ -108,9 +108,17 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
         (filters.dependencia?.length || 0) === 0 ||
         filters.dependencia.includes(alerta.dependencia);
 
-      const matchesGravedad =
-        (filters.gravedad?.length || 0) === 0 ||
-        filters.gravedad.includes(normalizeGravedad(alerta.gravedad));
+      // Si no hay filtro de gravedad, mostrar solo críticas y moderadas (como en Home)
+      // Si hay filtro de gravedad, aplicar el filtro normalmente
+      const matchesGravedad = (() => {
+        if ((filters.gravedad?.length || 0) > 0) {
+          // Hay filtro de gravedad activo: aplicar el filtro
+          return filters.gravedad.includes(normalizeGravedad(alerta.gravedad));
+        }
+        // No hay filtro de gravedad: mostrar solo críticas y moderadas
+        const g = normalizeGravedad(alerta.gravedad);
+        return g === 'crítica' || g === 'alta' || g === 'media';
+      })();
 
       const matchesImpacto =
         (filters.impacto?.length || 0) === 0 ||
@@ -233,7 +241,8 @@ export const useFilters = ({ alertas, filters }: UseFiltersProps) => {
       const g = normalizeGravedad(a.gravedad);
       return g === 'sin_riesgo';
     }).length;
-    const total = filteredAlertas.length;
+    // Total: solo críticas y moderadas (como se muestra en Home)
+    const total = alta + media;
     const totalObras = new Set(filteredAlertas.map(a => a.obra_id)).size;
 
     return { total, totalObras, alta, media, leve, sinRiesgo };

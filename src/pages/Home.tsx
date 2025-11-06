@@ -97,8 +97,8 @@ const Home: React.FC = () => {
           <div className='max-w-full mx-auto w-full px-2 sm:px-2 lg:px-2 tablet-grid-fix'>
             {projects.length > 0 ? (
               <div
-                className='grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-9 gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-2.5'
-                style={{ gridAutoRows: 'minmax(90px, auto)' }}
+                className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5 xl:gap-3'
+                style={{ gridAutoRows: 'minmax(100px, auto)' }}
               >
                 {projects.map((project, index) => (
                   <div key={project.id} className='flex min-h-0'>

@@ -87,7 +87,7 @@ export const useStrategicProjects = () => {
       }
     });
 
-    // Convertir a array y ordenar por nombre
+    // Convertir a array
     const projectsList: ProjectCard[] = Array.from(allProjectsMap.entries()).map(
       ([id, nombre]) => ({
         id,
@@ -96,8 +96,16 @@ export const useStrategicProjects = () => {
       })
     );
 
-    // Ordenar alfabéticamente
-    return projectsList.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    // Filtrar solo proyectos con alertas (> 0) y ordenar por cantidad de alertas desc,
+    // con desempate alfabético por nombre para consistencia visual.
+    return projectsList
+      .filter(project => project.alertCount > 0)
+      .sort((a, b) => {
+        if (b.alertCount !== a.alertCount) {
+          return b.alertCount - a.alertCount;
+        }
+        return a.nombre.localeCompare(b.nombre);
+      });
   }, [alertas, obras]);
 
   return {
