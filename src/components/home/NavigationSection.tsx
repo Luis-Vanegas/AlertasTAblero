@@ -6,10 +6,7 @@
 import React, { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Assignment as ProjectsIcon,
-  Dashboard as DashboardIcon,
-} from '@mui/icons-material';
+import { Assignment as ProjectsIcon, Dashboard as DashboardIcon } from '@mui/icons-material';
 import { ROUTES } from '../../constants';
 import { NavigationButton } from './NavigationButton';
 
@@ -19,8 +16,7 @@ const NAVIGATION_ANIMATION = {
   transition: { delay: 0.3, duration: 0.5 },
 };
 
-const CONTAINER_CLASSES =
-  'fixed bottom-0 left-0 right-0 z-30 px-4 sm:px-6 lg:px-8 py-4 sm:py-6';
+const CONTAINER_CLASSES = 'fixed bottom-0 left-0 right-0 z-30 px-4 sm:px-6 lg:px-8 py-4 sm:py-6';
 
 export const NavigationSection: React.FC = () => {
   const navigate = useNavigate();

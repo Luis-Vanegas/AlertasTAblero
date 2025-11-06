@@ -29,15 +29,16 @@ const BADGE_BASE_CLASSES =
   'bg-red-500 rounded-full shadow-lg flex items-center justify-center border border-white/80 text-white font-extrabold leading-none';
 
 const POSITION_CLASSES = {
-  'top-left': 'absolute top-0.5 left-0.5 sm:top-0.5 sm:left-0.5 md:top-1 md:left-1 lg:top-1.5 lg:left-1.5',
+  'top-left':
+    'absolute top-0.5 left-0.5 sm:top-0.5 sm:left-0.5 md:top-1 md:left-1 lg:top-1.5 lg:left-1.5',
   'top-right':
     'absolute top-0.5 right-0.5 sm:top-0.5 sm:right-0.5 md:top-1 md:right-1 lg:top-1.5 lg:right-1.5',
 };
 
 const SIZE_CLASSES = {
-  container: 'min-w-[10px] sm:min-w-[12px] md:min-w-[14px] lg:min-w-[16px] h-[10px] sm:h-[12px] md:h-[14px] lg:h-[16px]',
-  containerWithIcon:
-    'min-w-[12px] sm:min-w-[14px] md:min-w-[16px] lg:min-w-[18px]',
+  container:
+    'min-w-[10px] sm:min-w-[12px] md:min-w-[14px] lg:min-w-[16px] h-[10px] sm:h-[12px] md:h-[14px] lg:h-[16px]',
+  containerWithIcon: 'min-w-[12px] sm:min-w-[14px] md:min-w-[16px] lg:min-w-[18px]',
   text: 'text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px]',
   icon: 'w-[5px] h-[5px]',
   padding: 'px-0.5 py-0.5 sm:px-0.5 sm:py-0.5 md:px-1 md:py-0.5 lg:px-1.5 lg:py-1',
@@ -58,9 +59,7 @@ export const ProjectCardBadge: React.FC<ProjectCardBadgeProps> = ({
   className = '',
 }) => {
   const hasIcon = showIcon;
-  const containerSizeClass = hasIcon
-    ? SIZE_CLASSES.containerWithIcon
-    : SIZE_CLASSES.container;
+  const containerSizeClass = hasIcon ? SIZE_CLASSES.containerWithIcon : SIZE_CLASSES.container;
 
   return (
     <motion.div
@@ -76,12 +75,9 @@ export const ProjectCardBadge: React.FC<ProjectCardBadgeProps> = ({
           hasIcon ? SIZE_CLASSES.gap : ''
         } ${hasIcon ? 'group-hover:scale-110 transition-transform' : ''}`}
       >
-        {hasIcon && (
-          <WarningIcon className={SIZE_CLASSES.icon} style={ICON_STYLES} />
-        )}
+        {hasIcon && <WarningIcon className={SIZE_CLASSES.icon} style={ICON_STYLES} />}
         <span className={SIZE_CLASSES.text}>{content}</span>
       </div>
     </motion.div>
   );
 };
-

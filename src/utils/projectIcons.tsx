@@ -77,13 +77,7 @@ const PROJECT_ICON_PATTERNS: Array<{
   },
   // Salud
   {
-    patterns: [
-      'hospital',
-      'salud',
-      'clinica',
-      'clínica',
-      'centro de salud',
-    ],
+    patterns: ['hospital', 'salud', 'clinica', 'clínica', 'centro de salud'],
     icon: HospitalIcon,
   },
   // Vivienda
@@ -106,25 +100,12 @@ const PROJECT_ICON_PATTERNS: Array<{
   },
   // Transporte
   {
-    patterns: [
-      'transporte',
-      'via',
-      'vía',
-      'carretera',
-      'metro',
-      'tram',
-      'terminal',
-    ],
+    patterns: ['transporte', 'via', 'vía', 'carretera', 'metro', 'tram', 'terminal'],
     icon: TransportIcon,
   },
   // Agua y saneamiento
   {
-    patterns: [
-      'agua',
-      'acueducto',
-      'alcantarillado',
-      'saneamiento',
-    ],
+    patterns: ['agua', 'acueducto', 'alcantarillado', 'saneamiento'],
     icon: WaterIcon,
   },
   // Bibliotecas y cultura
@@ -134,12 +115,7 @@ const PROJECT_ICON_PATTERNS: Array<{
   },
   // Comercial y negocios
   {
-    patterns: [
-      'comercial',
-      'negocio',
-      'centro comercial',
-      'mercado',
-    ],
+    patterns: ['comercial', 'negocio', 'centro comercial', 'mercado'],
     icon: BusinessIcon,
   },
 ];
@@ -149,16 +125,12 @@ const PROJECT_ICON_PATTERNS: Array<{
  * @param projectName - Nombre del proyecto
  * @returns Componente de icono de React
  */
-export const getProjectIcon = (
-  projectName: string
-): React.ReactElement => {
+export const getProjectIcon = (projectName: string): React.ReactElement => {
   const normalized = projectName.toLowerCase();
 
   // Buscar coincidencias con prioridad
   const matches = PROJECT_ICON_PATTERNS.map(config => {
-    const hasMatch = config.patterns.some(pattern =>
-      normalized.includes(pattern)
-    );
+    const hasMatch = config.patterns.some(pattern => normalized.includes(pattern));
     return hasMatch ? config : null;
   }).filter(Boolean) as Array<{
     patterns: string[];
@@ -175,4 +147,3 @@ export const getProjectIcon = (
   const IconComponent = matches[0].icon;
   return <IconComponent />;
 };
-
