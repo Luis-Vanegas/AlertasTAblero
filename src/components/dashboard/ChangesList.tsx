@@ -88,7 +88,7 @@ const ChangesList: React.FC<ChangesListProps> = ({
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 className='p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-lg'
               >
-                <h4 className='text-lg font-bold text-gray-800 mb-2 line-clamp-2'>
+                <h4 className='text-lg font-bold text-gray-800 mb-2 break-words'>
                   {cambio.nombre_obra}
                 </h4>
 

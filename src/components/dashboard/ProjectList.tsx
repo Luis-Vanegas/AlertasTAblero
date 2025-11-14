@@ -93,7 +93,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 className={`p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-yellow-400 ${projectCardClassName}`}
               >
-                <h4 className='text-lg font-bold text-cyan-600 mb-3 line-clamp-2'>
+                <h4 className='text-lg font-bold text-cyan-600 mb-3 break-words'>
                   {proyecto.name}
                 </h4>
 
